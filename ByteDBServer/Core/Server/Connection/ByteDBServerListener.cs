@@ -9,6 +9,10 @@ namespace ByteDBServer.Core.Server
 {
     internal class ByteDBServerListener
     {
+        //
+        // ----------------------------------- PROPERTIES -----------------------------------
+        //
+        
         public static TcpListener Listener { get; private set; }
         public static List<TcpClient> ConnectedClients { get; private set; }
 
