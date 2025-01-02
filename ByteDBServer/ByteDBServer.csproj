@@ -48,6 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\DataTypes\Int1.cs" />
+    <Compile Include="Core\DataTypes\Int8.cs" />
+    <Compile Include="Core\DataTypes\Int6.cs" />
+    <Compile Include="Core\DataTypes\Int4.cs" />
+    <Compile Include="Core\DataTypes\Int3.cs" />
     <Compile Include="Core\Misc\ByteDBServerExceptions.cs" />
     <Compile Include="Core\Server\Connection\Handshake\ByteDBHandshakeV1.cs" />
     <Compile Include="Core\Server\Connection\Models\ByteDBPacket.cs" />
