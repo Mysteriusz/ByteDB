@@ -5,6 +5,9 @@ using ByteDBConsole.Core.Misc;
 
 namespace ByteDBConsole.Core.Server
 {
+    /// <summary>
+    /// Provides a class representing current server instance.
+    /// </summary>
     internal static class ByteDBServer
     {
         /// <summary>

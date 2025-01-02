@@ -1,9 +1,11 @@
-﻿using ByteDBConsole.Core.Config;
-using ByteDBConsole.Core.Misc;
+﻿using ByteDBConsole.Core.Misc;
 using ByteDBConsole.Core.Server;
 
 namespace ByteDBConsole.Core.Methods
 {
+    /// <summary>
+    /// Provides methods used to interact with server.
+    /// </summary>
     internal class ByteDBServerMethods
     {
         /// <summary>
@@ -23,6 +25,7 @@ namespace ByteDBConsole.Core.Methods
                 ByteDBConsole.WriteException(ex);
             }
         }
+
         /// <summary>
         /// Stops <see cref="ByteDBServer"/> static instance.
         /// </summary>
@@ -40,6 +43,7 @@ namespace ByteDBConsole.Core.Methods
                 ByteDBConsole.WriteException(ex);
             }
         }
+
         /// <summary>
         /// Restarts <see cref="ByteDBServer"/> static instance.
         /// </summary>

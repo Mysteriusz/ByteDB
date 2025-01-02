@@ -3,6 +3,9 @@ using ByteDBConsole.Core.Server;
 
 namespace ByteDBConsole.Core.Methods
 {
+    /// <summary>
+    /// Provides methods used to interact with Console.
+    /// </summary>
     internal class ByteDBConsoleMethods
     {
         /// <summary>

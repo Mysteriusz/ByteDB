@@ -5,6 +5,9 @@ using ByteDBConsole.Core.Misc;
 
 namespace ByteDBConsole.Core.Config
 {
+    /// <summary>
+    /// Provides config instance from config file.
+    /// </summary>
     internal static class ByteDBConsoleConfig
     {
         public const string ConfigPath = "Core\\Config\\ConsoleConfig.json";
