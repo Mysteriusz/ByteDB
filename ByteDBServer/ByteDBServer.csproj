@@ -9,7 +9,7 @@
     <RootNamespace>ByteDBServer</RootNamespace>
     <AssemblyName>ByteDBServer</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-	<LangVersion>latest</LangVersion>
+    <LangVersion>latest</LangVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -48,7 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Server\ByteDBServerListener.cs" />
+    <Compile Include="Core\Misc\ByteDBServerExceptions.cs" />
+    <Compile Include="Core\Server\Connection\Handshake\ByteDBHandshakeV1.cs" />
+    <Compile Include="Core\Server\Connection\Models\ByteDBPacket.cs" />
+    <Compile Include="Core\Server\Connection\ByteDBServerListener.cs" />
+    <Compile Include="Core\Server\Connection\Models\ByteDBProtocol.cs" />
     <Compile Include="Core\Services\ByteDBServerService.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -56,6 +60,7 @@
       <DependentUpon>ByteDBServerService.cs</DependentUpon>
     </Compile>
     <Compile Include="Core\Server\ByteDBServer.cs" />
+    <Compile Include="Core\DataTypes\Int2.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
