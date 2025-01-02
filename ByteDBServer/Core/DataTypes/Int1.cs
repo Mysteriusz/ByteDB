@@ -9,6 +9,7 @@ namespace ByteDBServer.Core.DataTypes
         //
         // ----------------------------- CONSTANTS ----------------------------- 
         //
+
         public const int MaxValue = 0xff;
         public const int MinValue = 0x00;
         

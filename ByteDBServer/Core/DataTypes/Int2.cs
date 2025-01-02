@@ -1,4 +1,5 @@
 ﻿using ByteDBServer.Core.Misc;
+using System;
 using System.Diagnostics;
 
 namespace ByteDBServer.Core.DataTypes
@@ -9,6 +10,7 @@ namespace ByteDBServer.Core.DataTypes
         //
         // ----------------------------- CONSTANTS ----------------------------- 
         //
+
         public const int MaxValue = 0xffff;
         public const int MinValue = 0x0000;
         
@@ -62,7 +64,7 @@ namespace ByteDBServer.Core.DataTypes
         }
         public static int GetInt(byte[] bytes, int index = 0)
         {
-            return (bytes[index] << 8) | bytes[index + 1];
+            return BitConverter.ToInt16(bytes, index);
         }
 
         //
