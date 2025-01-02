@@ -16,6 +16,11 @@ namespace ByteDBServer.Core.Misc
         public Int2OverflowException() : base("Value exceeds the valid range for Int2.") { }
         public Int2OverflowException(string message) : base(message) { }
     }
+    public class Int3OverflowException : Exception
+    {
+        public Int3OverflowException() : base("Value exceeds the valid range for Int3.") { }
+        public Int3OverflowException(string message) : base(message) { }
+    }
     public class Int4OverflowException : Exception
     {
         public Int4OverflowException() : base("Value exceeds the valid range for Int4.") { }
