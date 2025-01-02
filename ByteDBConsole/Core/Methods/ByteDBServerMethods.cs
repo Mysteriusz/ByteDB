@@ -6,6 +6,9 @@ namespace ByteDBConsole.Core.Methods
 {
     internal class ByteDBServerMethods
     {
+        /// <summary>
+        /// Starts <see cref="ByteDBServer"/> static instance.
+        /// </summary>
         public static async Task StartServer()
         {
             ByteDBConsole.WriteLine("Starting...");
@@ -20,6 +23,9 @@ namespace ByteDBConsole.Core.Methods
                 ByteDBConsole.WriteException(ex);
             }
         }
+        /// <summary>
+        /// Stops <see cref="ByteDBServer"/> static instance.
+        /// </summary>
         public static async Task StopServer()
         {
             ByteDBConsole.WriteLine("Stopping...");
@@ -34,6 +40,9 @@ namespace ByteDBConsole.Core.Methods
                 ByteDBConsole.WriteException(ex);
             }
         }
+        /// <summary>
+        /// Restarts <see cref="ByteDBServer"/> static instance.
+        /// </summary>
         public static async Task RestartServer()
         {
             ByteDBConsole.WriteLine("Restarting...");

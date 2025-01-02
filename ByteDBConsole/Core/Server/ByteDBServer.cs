@@ -45,14 +45,6 @@ namespace ByteDBConsole.Core.Server
             }
         }
 
-        //public static TimeSpan Uptime
-        //{
-        //    get
-        //    {
-        //        return TimeSpan.Parse(QueryCMD("Get-Process -Name ByteDBServer | select name, starttime", true, true));
-        //    }
-        //}
-
         //
         // ----------------------------------- METHODS -----------------------------------
         //

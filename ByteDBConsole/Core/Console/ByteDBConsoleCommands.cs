@@ -2,6 +2,9 @@
 
 namespace ByteDBConsole.Core.Console
 {
+    /// <summary>
+    /// Commands used in <see cref="ByteDBConsole"/> static instance.
+    /// </summary>
     internal class ByteDBConsoleCommands
     {
         public static Dictionary<string, Delegate> Commands = new()
@@ -11,7 +14,6 @@ namespace ByteDBConsole.Core.Console
 
             { "serverinfo", () => ByteDBConsoleMethods.ServerInfo() },
             { "servername", () => ByteDBConsoleMethods.ServerName() },
-            { "serveruptime", () => ByteDBConsoleMethods.ServerUptime() },
             { "serverstate", () => ByteDBConsoleMethods.ServerState() },
             { "exit", () => ByteDBConsoleMethods.ExitConsole() },
         };
