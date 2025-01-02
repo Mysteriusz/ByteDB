@@ -1,11 +1,12 @@
 ﻿using ByteDBServer.Core.DataTypes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
-    internal class ByteDBPacket : List<byte>
+    internal abstract class ByteDBPacket : List<byte>, IDisposable
     {
         //
         // ----------------------------- PARAMETERS ----------------------------- 
@@ -58,6 +59,8 @@ namespace ByteDBServer.Core.Server.Connection.Models
             
             return _packet;
         }
+
+        public abstract void Dispose();
 
         //
         // ----------------------------- OVERRIDES ----------------------------- 
