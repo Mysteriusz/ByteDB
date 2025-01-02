@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteDBConsole", "ByteDBConsole\ByteDBConsole.csproj", "{4191A8BB-2131-4BB3-86BC-269922749A93}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ByteDBSetup", "ByteDBSetup\ByteDBSetup.vdproj", "{A302688C-8951-44D0-BE50-0DB6EFFB54DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByteDBServer", "ByteDBServer\ByteDBServer.csproj", "{127C7261-0496-4ADD-AE10-A1EE41D49FA0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4191A8BB-2131-4BB3-86BC-269922749A93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4191A8BB-2131-4BB3-86BC-269922749A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4191A8BB-2131-4BB3-86BC-269922749A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4191A8BB-2131-4BB3-86BC-269922749A93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A302688C-8951-44D0-BE50-0DB6EFFB54DE}.Debug|Any CPU.ActiveCfg = Debug
+		{A302688C-8951-44D0-BE50-0DB6EFFB54DE}.Debug|Any CPU.Build.0 = Debug
+		{A302688C-8951-44D0-BE50-0DB6EFFB54DE}.Release|Any CPU.ActiveCfg = Release
+		{127C7261-0496-4ADD-AE10-A1EE41D49FA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{127C7261-0496-4ADD-AE10-A1EE41D49FA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{127C7261-0496-4ADD-AE10-A1EE41D49FA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{127C7261-0496-4ADD-AE10-A1EE41D49FA0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
