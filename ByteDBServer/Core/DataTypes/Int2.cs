@@ -18,7 +18,7 @@ namespace DataTypesTesting.DataTypes
         //
 
         private ushort _value = 0;
-        private byte[] _bytes = new byte[3];
+        private byte[] _bytes = new byte[2];
 
         public override ushort Value
         {
@@ -40,9 +40,9 @@ namespace DataTypesTesting.DataTypes
         {
             Bytes = GetBytes(value);
         }
-        public Int2(byte b1, byte b2, byte b3, byte b4, byte b5, byte b6)
+        public Int2(byte b1, byte b2)
         {
-            Bytes = [b1, b2, b3, b4, b5, b6];
+            Bytes = [b1, b2];
         }
         public Int2(byte[] array, int index = 0)
         {
