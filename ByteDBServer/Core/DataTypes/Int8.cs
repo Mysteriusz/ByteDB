@@ -1,9 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-
-namespace ByteDBServer.Core.DataTypes
+﻿using DataTypesTesting.DataTypes.Models;
+namespace DataTypesTesting.DataTypes
 {
-    [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1], Bytes[2], Bytes[3], Bytes[4], Bytes[5], Bytes[6], Bytes[7]}")]
     internal class Int8 : DataType<ulong>
     {
         //
@@ -12,21 +9,40 @@ namespace ByteDBServer.Core.DataTypes
 
         public const ulong MaxValue = 0xffffffffffffffff;
         public const ulong MinValue = 0x0000000000000000;
+        public const byte Length = 8;
+
+        //
+        // ----------------------------- PARAMETERS ----------------------------- 
+        //
+
+        private ulong _value = 0;
+        private byte[] _bytes = new byte[8];
+
+        public override ulong Value
+        {
+            get { return _value; }
+            set { _value = value; _bytes = GetBytes(value); }
+        }
+        public override byte[] Bytes
+        {
+            get { return _bytes; }
+            set { _bytes = value; _value = GetInt(value); }
+        }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public Int8 () { }
+        public Int8() { }
         public Int8(ulong value)
         {
-            Bytes = GetBytes(value);
+            Value = value;
         }
-        public Int8 (byte b1, byte b2, byte b3, byte b4, byte b5, byte b6) 
+        public Int8(byte b1, byte b2, byte b3, byte b4, byte b5, byte b6, byte b7, byte b8)
         {
-            Bytes = [b1, b2, b3, b4, b5, b6];
+            Bytes = [b1, b2, b3, b4, b5, b6, b7, b8];
         }
-        public Int8 (byte[] array, int index = 0) 
+        public Int8(byte[] array, int index = 0)
         {
             Value = GetInt(array, index);
         }
@@ -37,16 +53,33 @@ namespace ByteDBServer.Core.DataTypes
 
         public static ulong GetInt(byte[] bytes, int index = 0)
         {
-            return BitConverter.ToUInt64(bytes, index);
+            if (bytes.Length < Length)
+            {
+                byte[] resized = new byte[Length];
+                Array.Copy(bytes, 0, resized, Length - bytes.Length, bytes.Length);
+                bytes = resized;
+            }
+
+            return (ulong)
+            (
+                (bytes[index] << 56)
+                | (bytes[index + 1] << 48)
+                | (bytes[index + 2] << 40)
+                | (bytes[index + 3] << 32)
+                | (bytes[index + 4] << 24)
+                | (bytes[index + 5] << 16)
+                | (bytes[index + 6] << 8)
+                | bytes[index + 7]
+            );
         }
 
         //
-        // ----------------------------- EXPLICIT ----------------------------- 
+        // ----------------------------- IMPLICIT ----------------------------- 
         //
 
         public static implicit operator Int8(ulong value)
         {
-            return new Int8(value); 
+            return new Int8(value);
         }
         public static implicit operator Int8(byte[] value)
         {
@@ -143,7 +176,7 @@ namespace ByteDBServer.Core.DataTypes
         {
             return new Int8(~i1.Value & MaxValue);
         }
-        
+
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //
@@ -151,7 +184,7 @@ namespace ByteDBServer.Core.DataTypes
         public override bool Equals(object obj)
         {
             if (obj is Int8 other)
-                return this.Value == other.Value;
+                return Value == other.Value;
 
             return false;
         }
@@ -161,7 +194,7 @@ namespace ByteDBServer.Core.DataTypes
         }
         public override string ToString()
         {
-            return $"Int8: Value = {Value}, Bytes = {string.Join(", ", Bytes)}";
+            return $"Int8: Value = {_value}, Bytes = {BitConverter.ToString(_bytes)}";
         }
     }
 }

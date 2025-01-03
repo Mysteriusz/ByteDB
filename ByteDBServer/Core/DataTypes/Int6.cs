@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using DataTypesTesting.DataTypes.Models;
 
-namespace ByteDBServer.Core.DataTypes
+namespace DataTypesTesting.DataTypes
 {
-    [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1], Bytes[2], Bytes[3], Bytes[4], Bytes[5]}")]
     internal class Int6 : DataType<long>
     {
         //
@@ -12,21 +10,40 @@ namespace ByteDBServer.Core.DataTypes
 
         public const long MaxValue = 0xffffffffffff;
         public const long MinValue = 0x000000000000;
+        public const byte Length = 6;
+
+        //
+        // ----------------------------- PARAMETERS ----------------------------- 
+        //
+
+        private long _value = 0;
+        private byte[] _bytes = new byte[6];
+
+        public override long Value
+        {
+            get { return _value; }
+            set { _value = value; _bytes = GetBytes(value); }
+        }
+        public override byte[] Bytes
+        {
+            get { return _bytes; }
+            set { _bytes = value; _value = GetInt(value); }
+        }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public Int6 () { }
+        public Int6() { }
         public Int6(long value)
         {
             Bytes = GetBytes(value);
         }
-        public Int6 (byte b1, byte b2, byte b3, byte b4, byte b5, byte b6) 
+        public Int6(byte b1, byte b2, byte b3, byte b4, byte b5, byte b6)
         {
             Bytes = [b1, b2, b3, b4, b5, b6];
         }
-        public Int6 (byte[] array, int index = 0) 
+        public Int6(byte[] array, int index = 0)
         {
             Value = GetInt(array, index);
         }
@@ -37,16 +54,31 @@ namespace ByteDBServer.Core.DataTypes
 
         public static long GetInt(byte[] bytes, int index = 0)
         {
-            return BitConverter.ToInt64(bytes, index);
+            if (bytes.Length < Length)
+            {
+                byte[] resized = new byte[Length];
+                Array.Copy(bytes, 0, resized, Length - bytes.Length, bytes.Length);
+                bytes = resized;
+            }
+
+            return (long)
+            (
+                (bytes[index] << 40)
+                | (bytes[index + 1] << 32)
+                | (bytes[index + 2] << 24)
+                | (bytes[index + 3] << 16)
+                | (bytes[index + 4] << 8)
+                | bytes[index + 5]
+            );
         }
 
         //
-        // ----------------------------- EXPLICIT ----------------------------- 
+        // ----------------------------- IMPLICIT ----------------------------- 
         //
 
         public static implicit operator Int6(long value)
         {
-            return new Int6(value); 
+            return new Int6(value);
         }
         public static implicit operator Int6(byte[] value)
         {
@@ -143,7 +175,7 @@ namespace ByteDBServer.Core.DataTypes
         {
             return new Int6(~i1.Value & MaxValue);
         }
-        
+
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //
@@ -151,7 +183,7 @@ namespace ByteDBServer.Core.DataTypes
         public override bool Equals(object obj)
         {
             if (obj is Int6 other)
-                return this.Value == other.Value;
+                return Value == other.Value;
 
             return false;
         }
@@ -161,7 +193,7 @@ namespace ByteDBServer.Core.DataTypes
         }
         public override string ToString()
         {
-            return $"Int6: Value = {Value}, Bytes = {string.Join(", ", Bytes)}";
+            return $"Int6: Value = {_value}, Bytes = {BitConverter.ToString(_bytes)})";
         }
     }
 }

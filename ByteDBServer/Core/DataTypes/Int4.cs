@@ -1,7 +1,8 @@
-﻿using System;
+﻿using DataTypesTesting.DataTypes.Models;
+using System;
 using System.Diagnostics;
 
-namespace ByteDBServer.Core.DataTypes
+namespace DataTypesTesting.DataTypes
 {
     [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1], Bytes[2], Bytes[3]}")]
     internal class Int4 : DataType<uint>
@@ -12,41 +13,73 @@ namespace ByteDBServer.Core.DataTypes
 
         public const uint MaxValue = 0xffffffff;
         public const uint MinValue = 0x00000000;
-        
+        public const byte Length = 4;
+
+        //
+        // ----------------------------- PARAMETERS ----------------------------- 
+        //
+
+        private uint _value = 0;
+        private byte[] _bytes = new byte[4];
+
+        public override uint Value
+        {
+            get { return _value; }
+            set { _value = value; _bytes = GetBytes(value); }
+        }
+        public override byte[] Bytes
+        {
+            get { return _bytes; }
+            set { _bytes = value; _value = GetInt(value); }
+        }
+
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public Int4 () { }
+        public Int4() { }
         public Int4(uint value)
         {
             Bytes = GetBytes(value);
         }
-        public Int4 (byte b1, byte b2, byte b3, byte b4) 
+        public Int4(byte b1, byte b2, byte b3, byte b4)
         {
             Bytes = [b1, b2, b3, b4];
         }
-        public Int4 (byte[] array, int index = 0) 
+        public Int4(byte[] array, int index = 0)
         {
             Value = GetInt(array, index);
         }
-        
+
         //
         // ----------------------------- METHODS ----------------------------- 
         //
 
         public static uint GetInt(byte[] bytes, int index = 0)
         {
-            return BitConverter.ToUInt32(bytes, index);
+            if (bytes.Length < Length)
+            {
+                byte[] resized = new byte[Length];
+                Array.Copy(bytes, 0, resized, Length - bytes.Length, bytes.Length);
+                bytes = resized;
+            }
+
+            return (uint)
+            (
+                (bytes[index] << 24)
+                | (bytes[index + 1] << 16)
+                | (bytes[index + 2] << 8)
+                | bytes[index + 3]
+            );
         }
 
         //
-        // ----------------------------- EXPLICIT ----------------------------- 
+        // ----------------------------- IMPLICIT ----------------------------- 
         //
 
         public static implicit operator Int4(uint value)
         {
-            return new Int4(value); 
+            return new Int4(value);
         }
         public static implicit operator Int4(byte[] value)
         {
@@ -143,7 +176,7 @@ namespace ByteDBServer.Core.DataTypes
         {
             return new Int4(~i1.Value & MaxValue);
         }
-        
+
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //
@@ -151,7 +184,7 @@ namespace ByteDBServer.Core.DataTypes
         public override bool Equals(object obj)
         {
             if (obj is Int4 other)
-                return this.Value == other.Value;
+                return Value == other.Value;
 
             return false;
         }
@@ -161,7 +194,7 @@ namespace ByteDBServer.Core.DataTypes
         }
         public override string ToString()
         {
-            return $"Int4: Value = {Value}, Bytes = {string.Join(", ", Bytes)}";
+            return $"Int4: Value = {_value}, Bytes = {BitConverter.ToString(_bytes)}";
         }
     }
 }
