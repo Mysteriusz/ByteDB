@@ -27,7 +27,7 @@ namespace ByteDBServer.Core.DataTypes
         }
         public override byte[] Bytes 
         {
-            get { return _bytes.ToArray(); }
+            get { return _bytes.Concat(new byte[] { 0x00 }).ToArray(); }
             set { _bytes = value.ToList(); _value = GetString(value); }
         }
 
