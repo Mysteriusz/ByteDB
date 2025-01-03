@@ -1,5 +1,4 @@
-﻿using DataTypesTesting.DataTypes;
-using System;
+﻿using System;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
@@ -9,15 +8,15 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
-        public Int2 Version { get; set; }
+        public byte Version { get; set; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBProtocol(int version)
+        public ByteDBProtocol(byte version)
         {
-            Version = new Int2((ushort)version);
+            Version = version;
         }
 
         //

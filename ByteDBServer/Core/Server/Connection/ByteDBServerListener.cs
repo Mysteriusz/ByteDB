@@ -12,7 +12,7 @@ namespace ByteDBServer.Core.Server
         //
         // ----------------------------------- PROPERTIES -----------------------------------
         //
-        
+
         public static TcpListener Listener { get; private set; }
         public static List<TcpClient> ConnectedClients { get; private set; }
 
@@ -58,6 +58,7 @@ namespace ByteDBServer.Core.Server
                     TcpClient client = Listener.AcceptTcpClient();
                     NetworkStream stream = client.GetStream();
 
+                    new ByteDBHandshakeV1(stream);
 
                     Thread.Sleep(ListeningDelay);
                 }

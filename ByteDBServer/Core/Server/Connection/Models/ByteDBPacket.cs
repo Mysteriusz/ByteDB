@@ -1,5 +1,4 @@
-﻿using ByteDBServer.Core.DataTypes;
-using DataTypesTesting.DataTypes;
+﻿using DataTypesTesting.DataTypes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +8,12 @@ namespace ByteDBServer.Core.Server.Connection.Models
 {
     internal abstract class ByteDBPacket : List<byte>, IDisposable
     {
+        //
+        // ----------------------------- CONSTANTS ----------------------------- 
+        //
+
+        public const ByteDBPacketType PacketType = ByteDBPacketType.WelcomePacket;
+
         //
         // ----------------------------- PARAMETERS ----------------------------- 
         //
@@ -37,13 +42,13 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 return this; 
             }
         }
-        
+
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
         public ByteDBPacket() { }
-        public ByteDBPacket(IEnumerable<byte> payload)
+        public ByteDBPacket(byte[] payload)
         {
             AddRange(payload);
         }

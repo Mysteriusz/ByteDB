@@ -20,9 +20,9 @@ namespace ByteDBServer.Core.Config
             ServerVersion = config.Attributes.GetNamedItem("ServerVersion").Value;
 
             // Intigers
+            ServerCapabilitiesInt = uint.Parse(config.Attributes.GetNamedItem("ServerCapabilities").Value);
             MaxConnections = int.Parse(config.Attributes.GetNamedItem("Port").Value);
             Port = int.Parse(config.Attributes.GetNamedItem("MaxConnections").Value);
-            ServerCapabilitiesInt = uint.Parse(config.Attributes.GetNamedItem("ServerCapabilities").Value);
 
             // Other
             Encoding = ByteDBEncoding.EncodingType[config.Attributes.GetNamedItem("Encoding").Value];
