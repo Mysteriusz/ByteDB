@@ -41,22 +41,22 @@ namespace ByteDBServer.Core.DataTypes
         }
 
         //
-        // ----------------------------- EXPLICIT ----------------------------- 
+        // ----------------------------- IMPLICIT ----------------------------- 
         //
 
-        public static explicit operator Int2(ushort value)
+        public static implicit operator Int2(ushort value)
         {
             return new Int2(value);
         }
-        public static explicit operator Int2(byte[] value)
+        public static implicit operator Int2(byte[] value)
         {
             return new Int2(value);
         }
-        public static explicit operator byte[](Int2 value)
+        public static implicit operator byte[](Int2 value)
         {
             return value.Bytes;
         }
-        public static explicit operator ushort(Int2 value)
+        public static implicit operator ushort(Int2 value)
         {
             return value.Value;
         }

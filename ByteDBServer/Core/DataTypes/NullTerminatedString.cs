@@ -51,19 +51,19 @@ namespace ByteDBServer.Core.DataTypes
         // ----------------------------- EXPLICIT ----------------------------- 
         //
 
-        public static explicit operator NullTerminatedString(string value)
+        public static implicit operator NullTerminatedString(string value)
         {
             return new NullTerminatedString(value);
         }
-        public static explicit operator NullTerminatedString(byte[] value)
+        public static implicit operator NullTerminatedString(byte[] value)
         {
             return new NullTerminatedString(value);
         }
-        public static explicit operator byte[](NullTerminatedString value)
+        public static implicit operator byte[](NullTerminatedString value)
         {
             return value.Bytes;
         }
-        public static explicit operator string(NullTerminatedString value)
+        public static implicit operator string(NullTerminatedString value)
         {
             return value.Value;
         }

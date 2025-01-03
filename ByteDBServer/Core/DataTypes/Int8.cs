@@ -44,19 +44,19 @@ namespace ByteDBServer.Core.DataTypes
         // ----------------------------- EXPLICIT ----------------------------- 
         //
 
-        public static explicit operator Int8(ulong value)
+        public static implicit operator Int8(ulong value)
         {
             return new Int8(value); 
         }
-        public static explicit operator Int8(byte[] value)
+        public static implicit operator Int8(byte[] value)
         {
             return new Int8(value);
         }
-        public static explicit operator byte[](Int8 value)
+        public static implicit operator byte[](Int8 value)
         {
             return value.Bytes;
         }
-        public static explicit operator ulong(Int8 value)
+        public static implicit operator ulong(Int8 value)
         {
             return value.Value;
         }

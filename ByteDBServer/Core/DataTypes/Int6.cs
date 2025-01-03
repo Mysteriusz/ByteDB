@@ -44,19 +44,19 @@ namespace ByteDBServer.Core.DataTypes
         // ----------------------------- EXPLICIT ----------------------------- 
         //
 
-        public static explicit operator Int6(long value)
+        public static implicit operator Int6(long value)
         {
             return new Int6(value); 
         }
-        public static explicit operator Int6(byte[] value)
+        public static implicit operator Int6(byte[] value)
         {
             return new Int6(value);
         }
-        public static explicit operator byte[](Int6 value)
+        public static implicit operator byte[](Int6 value)
         {
             return value.Bytes;
         }
-        public static explicit operator long(Int6 value)
+        public static implicit operator long(Int6 value)
         {
             return value.Value;
         }
