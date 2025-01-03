@@ -27,4 +27,9 @@ namespace ByteDBServer.Core.Misc
         public Int8OverflowException() : base("Value exceeds the valid range for Int8.") { }
         public Int8OverflowException(string message) : base(message) { }
     }
+    public class ConnectionsOverflowException : Exception
+    {
+        public ConnectionsOverflowException() : base("Server connection overflow") { }
+        public ConnectionsOverflowException(string message) : base(message) { }
+    }
 }

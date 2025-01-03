@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Threading;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using ByteDBServer.Core.Server.Connection.Handshake;
+using ByteDBServer.Core.Misc;
 
 namespace ByteDBServer.Core.Server
 {
@@ -51,25 +51,27 @@ namespace ByteDBServer.Core.Server
 
         public static Thread AwaitClients()
         {
-            return new Thread(() => 
+            return new Thread(async () => 
             {
                 while (!CancellationToken.IsCancellationRequested)
                 {
-                    TcpClient client = Listener.AcceptTcpClient();
-                    NetworkStream stream = client.GetStream();
+                    try
+                    {
+                        TcpClient client = await Listener.AcceptTcpClientAsync();
 
-                    new ByteDBHandshakeV1(stream);
+                        if (ConnectedClients.Count == ByteDBServer.MaxConnections)
+                            throw new ConnectionsOverflowException("Server has reached maximum allowed connection count provided in config file");
 
-                    Thread.Sleep(ListeningDelay);
-                }
-            });
-        }
-        public static async Task AwaitClientsAsync()
-        {
-            await new Task(() =>
-            {
-                while (!CancellationToken.IsCancellationRequested)
-                {
+                        NetworkStream stream = client.GetStream();
+
+                        // Start the handshake protocol with client
+                        new ByteDBHandshakeV1(stream);
+                    }
+                    catch
+                    {
+                        // TODO: LOG EXCEPTION TO FILE
+                    }
+
                     Thread.Sleep(ListeningDelay);
                 }
             });

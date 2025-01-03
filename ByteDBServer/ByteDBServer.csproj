@@ -59,8 +59,9 @@
     <Compile Include="Core\Misc\ByteDBServerExceptions.cs" />
     <Compile Include="Core\Server\ByteDBServerEnums.cs" />
     <Compile Include="Core\Server\Connection\ByteDBServerConnectionEnums.cs" />
-    <Compile Include="Core\Server\Connection\Handshake\ByteDBHandshakeV1.cs" />
-    <Compile Include="Core\Server\Connection\Handshake\ByteDBWelcomePacketV1.cs" />
+    <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBErrorPacket.cs" />
+    <Compile Include="Core\Server\Connection\Handshake\Protocols\ByteDBHandshakeV1.cs" />
+    <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBWelcomePacketV1.cs" />
     <Compile Include="Core\Server\Connection\Models\ByteDBPacket.cs" />
     <Compile Include="Core\Server\Connection\ByteDBServerListener.cs" />
     <Compile Include="Core\Server\Connection\Models\ByteDBProtocol.cs" />

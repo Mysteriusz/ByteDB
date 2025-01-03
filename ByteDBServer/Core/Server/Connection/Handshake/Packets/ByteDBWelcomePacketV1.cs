@@ -1,12 +1,17 @@
 ﻿using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Server.Connection.Models;
+using System;
 using System.IO;
 
 namespace ByteDBServer.Core.Server.Connection.Handshake
 {
     internal class ByteDBWelcomePacketV1 : ByteDBPacket
     {
-        public ByteDBWelcomePacketV1(Stream stream) 
+        //
+        // ----------------------------- CONSTRUCTORS ----------------------------- 
+        //
+
+        public ByteDBWelcomePacketV1(Stream stream) : base(ByteDBPacketType.WelcomePacket)
         {
             //
             // ----------------------------- WELCOME PACKET STRUCTURE ----------------------------- 
@@ -28,9 +33,32 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
             Write(stream);
         }
 
+        //
+        // ----------------------------- DISPOSING ----------------------------- 
+        //
+
+        private bool _disposed = false;
         public override void Dispose()
         {
-            throw new System.NotImplementedException();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    this.Header.Clear();
+                    this.Payload.Clear();
+                }
+
+                _disposed = true;
+            }
+        }
+        ~ByteDBWelcomePacketV1()
+        {
+            Dispose(false);
         }
     }
 }

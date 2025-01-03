@@ -2,18 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
     internal abstract class ByteDBPacket : List<byte>, IDisposable
     {
-        //
-        // ----------------------------- CONSTANTS ----------------------------- 
-        //
-
-        public const ByteDBPacketType PacketType = ByteDBPacketType.WelcomePacket;
-
         //
         // ----------------------------- PARAMETERS ----------------------------- 
         //
@@ -42,15 +37,20 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 return this; 
             }
         }
+        public ByteDBPacketType PacketType { get; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBPacket() { }
-        public ByteDBPacket(byte[] payload)
+        public ByteDBPacket(ByteDBPacketType packetType) 
+        {
+            PacketType = packetType;
+        }
+        public ByteDBPacket(byte[] payload, ByteDBPacketType packetType)
         {
             AddRange(payload);
+            PacketType = packetType;
         }
 
         //
