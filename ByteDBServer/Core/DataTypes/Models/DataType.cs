@@ -9,8 +9,8 @@ namespace ByteDBServer.Core.DataTypes
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
-        public TValue Value { get; set; }
-        public byte[] Bytes { get; set; }
+        public virtual TValue Value { get; set; }
+        public virtual byte[] Bytes { get; set; }
 
         //
         // ----------------------------- METHODS ----------------------------- 

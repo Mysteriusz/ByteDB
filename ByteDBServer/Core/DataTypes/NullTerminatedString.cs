@@ -1,16 +1,76 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ByteDBServer.Core.DataTypes
 {
     public class NullTerminatedString : DataType<string>
     {
+        //
+        // ----------------------------- CONSTANTS ----------------------------- 
+        //
+
         public const byte Null = 0x00;
 
+        //
+        // ----------------------------- PARAMETERS ----------------------------- 
+        //
+
+        public override string Value 
+        {
+            get => base.Value;
+            set => base.Value = value;
+        }
+        public override byte[] Bytes
+        {
+            get
+            {
+                byte[] baseBytes = base.Bytes;
+                byte[] result = new byte[baseBytes.Length + 1];
+                Array.Copy(baseBytes, result, baseBytes.Length);
+                result[baseBytes.Length] = Null;
+                return result;
+            }
+            set => base.Bytes = value;
+        }
+
+        //
+        // ----------------------------- CONSTRUCTORS ----------------------------- 
+        //
+
         public NullTerminatedString() { }
-        public NullTerminatedString(byte[] bytes, int index)
+        public NullTerminatedString(string value)
+        {
+            Value = value;
+        }
+        public NullTerminatedString(byte[] bytes, int index = 0)
         {
             Read(bytes, index);
         }
+
+        //
+        // ----------------------------- EXPLICIT ----------------------------- 
+        //
+
+        public static explicit operator NullTerminatedString(string value)
+        {
+            return new NullTerminatedString(value);
+        }
+        public static explicit operator NullTerminatedString(byte[] value)
+        {
+            return new NullTerminatedString(value);
+        }
+        public static explicit operator byte[](NullTerminatedString value)
+        {
+            return value.Bytes;
+        }
+        public static explicit operator string(NullTerminatedString value)
+        {
+            return value.Value;
+        }
+
+        //
+        // ----------------------------- METHODS ----------------------------- 
+        //
 
         public void Read(byte[] bytes, int index)
         {
