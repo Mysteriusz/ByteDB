@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="Core\Config\ByteDBServerConfig.cs" />
     <Compile Include="Core\DataTypes\Models\DataType.cs" />
-    <Compile Include="Core\DataTypes\ByteDBEncoding.cs" />
+    <Compile Include="Core\Server\ByteDBServerEncoding.cs" />
     <Compile Include="Core\DataTypes\Int8.cs" />
     <Compile Include="Core\DataTypes\Int6.cs" />
     <Compile Include="Core\DataTypes\Int4.cs" />

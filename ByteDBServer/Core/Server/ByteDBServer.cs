@@ -1,11 +1,10 @@
 ﻿using ByteDBServer.Core.Config;
-using ByteDBServer.Core.Server;
+using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Services;
-using DataTypesTesting.DataTypes;
 using System.Collections.Generic;
 using System.ServiceProcess;
 
-namespace ByteDBServer
+namespace ByteDBServer.Core.Server
 {
     internal static class ByteDBServer
     {

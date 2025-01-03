@@ -1,7 +1,8 @@
 ﻿using ByteDBServer.Core.Config;
+using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc;
 
-namespace DataTypesTesting.DataTypes.Models
+namespace ByteDBServer.DataTypes.Models
 {
     public abstract class DataType<TValue>
     {

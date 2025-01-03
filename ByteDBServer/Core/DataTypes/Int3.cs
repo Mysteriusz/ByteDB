@@ -1,7 +1,7 @@
-﻿using DataTypesTesting.DataTypes.Models;
+﻿using ByteDBServer.DataTypes.Models;
 using System;
 
-namespace DataTypesTesting.DataTypes
+namespace ByteDBServer.Core.DataTypes
 {
     internal class Int3 : DataType<int>
     {

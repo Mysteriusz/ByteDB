@@ -1,9 +1,8 @@
-﻿using ByteDBServer.Core.DataTypes;
-using DataTypesTesting.DataTypes;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 using System.Xml;
+using System.Collections.Generic;
+using ByteDBServer.Core.DataTypes;
+using ByteDBServer.Core.Server;
 
 namespace ByteDBServer.Core.Config
 {
@@ -25,7 +24,7 @@ namespace ByteDBServer.Core.Config
             Port = int.Parse(config.Attributes.GetNamedItem("MaxConnections").Value);
 
             // Other
-            Encoding = ByteDBEncoding.EncodingType[config.Attributes.GetNamedItem("Encoding").Value];
+            Encoding = ByteDBServerEncoding.EncodingType[config.Attributes.GetNamedItem("Encoding").Value];
         }
 
         public static string ServerVersion { get; private set; }
@@ -34,7 +33,7 @@ namespace ByteDBServer.Core.Config
         public static int Port { get; private set; }
         public static Int4 ServerCapabilitiesInt { get; private set; }
 
-        public static Encoding Encoding { get; private set; }
+        public static System.Text.Encoding Encoding { get; private set; }
 
         public static List<TEnum> ReadFlags<TEnum>(uint flagValue) where TEnum : Enum
         {
