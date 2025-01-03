@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace ByteDBServer.Core.DataTypes
 {
     [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1], Bytes[2]}")]
-    internal struct Int3
+    internal class Int3 : DataType<int>
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
@@ -13,21 +13,6 @@ namespace ByteDBServer.Core.DataTypes
 
         public const int MaxValue = 0xffffff;
         public const int MinValue = 0x000000;
-        
-        //
-        // ----------------------------- PARAMETERS ----------------------------- 
-        //
-        
-        public int Value
-        {
-            get { return GetInt(Bytes); }
-            set { Bytes = GetBytes(value); }
-        }
-        public byte[] Bytes
-        {
-            get { return GetBytes(Value); }
-            set { Value = GetInt(value); }
-        }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
@@ -51,18 +36,6 @@ namespace ByteDBServer.Core.DataTypes
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public static byte[] GetBytes(int value)
-        {
-            if (value > MaxValue)
-                throw new Int3OverflowException();
-
-            byte b1 = (byte)(value >> 16);
-            byte b2 = (byte)(value >> 8);
-            byte b3 = (byte)(value & 0xff);
-            byte[] bytes = [b1, b2, b3];
-
-            return bytes;
-        }
         public static int GetInt(byte[] bytes, int index = 0)
         {
             return BitConverter.ToInt32(bytes, index);

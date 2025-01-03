@@ -1,11 +1,10 @@
-﻿using ByteDBServer.Core.Misc;
-using System;
+﻿using System;
 using System.Diagnostics;
 
 namespace ByteDBServer.Core.DataTypes
 {
     [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1], Bytes[2], Bytes[3], Bytes[4], Bytes[5]}")]
-    internal struct Int6
+    internal class Int6 : DataType<long>
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
@@ -13,21 +12,6 @@ namespace ByteDBServer.Core.DataTypes
 
         public const long MaxValue = 0xffffffffffff;
         public const long MinValue = 0x000000000000;
-        
-        //
-        // ----------------------------- PARAMETERS ----------------------------- 
-        //
-        
-        public long Value
-        {
-            get { return GetInt(Bytes); }
-            set { Bytes = GetBytes(value); }
-        }
-        public byte[] Bytes
-        {
-            get { return GetBytes(Value); }
-            set { Value = GetInt(value); }
-        }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
@@ -51,22 +35,6 @@ namespace ByteDBServer.Core.DataTypes
         // ----------------------------- METHODS ----------------------------- 
         //
 
-            public static byte[] GetBytes(long value)
-            {
-                if (value > MaxValue)
-                    throw new Int6OverflowException();
-
-                byte b1 = (byte)(value >> 40);
-                byte b2 = (byte)(value >> 32);
-                byte b3 = (byte)(value >> 24);
-                byte b4 = (byte)(value >> 16);
-                byte b5 = (byte)(value >> 8);
-                byte b6 = (byte)(value & 0xff);
-
-                byte[] bytes = [b1, b2, b3, b4, b5, b6];
-
-                return bytes;
-            }
         public static long GetInt(byte[] bytes, int index = 0)
         {
             return BitConverter.ToInt64(bytes, index);

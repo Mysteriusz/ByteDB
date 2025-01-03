@@ -1,11 +1,10 @@
-﻿using ByteDBServer.Core.Misc;
-using System;
+﻿using System;
 using System.Diagnostics;
 
 namespace ByteDBServer.Core.DataTypes
 {
     [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1], Bytes[2], Bytes[3], Bytes[4], Bytes[5], Bytes[6], Bytes[7]}")]
-    internal struct Int8
+    internal class Int8 : DataType<ulong>
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
@@ -13,21 +12,6 @@ namespace ByteDBServer.Core.DataTypes
 
         public const ulong MaxValue = 0xffffffffffffffff;
         public const ulong MinValue = 0x0000000000000000;
-        
-        //
-        // ----------------------------- PARAMETERS ----------------------------- 
-        //
-        
-        public ulong Value
-        {
-            get { return GetInt(Bytes); }
-            set { Bytes = GetBytes(value); }
-        }
-        public byte[] Bytes
-        {
-            get { return GetBytes(Value); }
-            set { Value = GetInt(value); }
-        }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
@@ -51,24 +35,6 @@ namespace ByteDBServer.Core.DataTypes
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public static byte[] GetBytes(ulong value)
-        {
-            if (value > MaxValue)
-                throw new Int8OverflowException();
-
-            byte b1 = (byte)(value >> 56);
-            byte b2 = (byte)(value >> 48);
-            byte b3 = (byte)(value >> 40);
-            byte b4 = (byte)(value >> 32);
-            byte b5 = (byte)(value >> 24);
-            byte b6 = (byte)(value >> 16);
-            byte b7 = (byte)(value >> 8);
-            byte b8 = (byte)(value & 0xff);
-
-            byte[] bytes = [b1, b2, b3, b4, b5, b6, b7, b8];
-
-            return bytes;
-        }
         public static ulong GetInt(byte[] bytes, int index = 0)
         {
             return BitConverter.ToUInt64(bytes, index);

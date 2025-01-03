@@ -1,79 +1,52 @@
-﻿using ByteDBServer.Core.Misc;
-using System;
+﻿using System;
 using System.Diagnostics;
 
 namespace ByteDBServer.Core.DataTypes
 {
-    [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1]}")]
-    internal struct Int2
+    [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1], Bytes[2], Bytes[3], Bytes[4], Bytes[5], Bytes[6], Bytes[7]}")]
+    internal class Int2 : DataType<ushort>
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
         //
 
-        public const int MaxValue = 0xffff;
-        public const int MinValue = 0x0000;
-        
-        //
-        // ----------------------------- PARAMETERS ----------------------------- 
-        //
-        
-        public int Value
-        {
-            get { return GetInt(Bytes); }
-            set { Bytes = GetBytes(value); }
-        }
-        public byte[] Bytes
-        {
-            get { return GetBytes(Value); }
-            set { Value = GetInt(value); }
-        }
+        public const ushort MaxValue = 0xffff;
+        public const ushort MinValue = 0x0000;
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public Int2 () { }
+        public Int2() { }
         public Int2(int value)
         {
             Bytes = GetBytes(value);
         }
-        public Int2 (byte b1, byte b2) 
+        public Int2(byte b1, byte b2, byte b3, byte b4, byte b5, byte b6)
         {
-            Bytes = [b1, b2];
+            Bytes = [b1, b2, b3, b4, b5, b6];
         }
-        public Int2 (byte[] array, int index = 0) 
+        public Int2(byte[] array, int index = 0)
         {
             Value = GetInt(array, index);
         }
-        
+
         //
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public static byte[] GetBytes(int value)
+        public static ushort GetInt(byte[] bytes, int index = 0)
         {
-            if (value > MaxValue)
-                throw new Int2OverflowException();
-
-            byte b1 = (byte)(value >> 8);
-            byte b2 = (byte)(value & 0xff);
-            byte[] bytes = [b1, b2];
-
-            return bytes;
-        }
-        public static int GetInt(byte[] bytes, int index = 0)
-        {
-            return BitConverter.ToInt16(bytes, index);
+            return BitConverter.ToUInt16(bytes, index);
         }
 
         //
         // ----------------------------- EXPLICIT ----------------------------- 
         //
 
-        public static explicit operator Int2(int value)
+        public static explicit operator Int2(ushort value)
         {
-            return new Int2(value); 
+            return new Int2(value);
         }
         public static explicit operator Int2(byte[] value)
         {
@@ -83,7 +56,7 @@ namespace ByteDBServer.Core.DataTypes
         {
             return value.Bytes;
         }
-        public static explicit operator int(Int2 value)
+        public static explicit operator ushort(Int2 value)
         {
             return value.Value;
         }
@@ -170,7 +143,7 @@ namespace ByteDBServer.Core.DataTypes
         {
             return new Int2(~i1.Value & MaxValue);
         }
-        
+
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //
