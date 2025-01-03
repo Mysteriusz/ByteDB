@@ -1,4 +1,4 @@
-﻿using ByteDBServer.Core.DataTypes;
+﻿using DataTypesTesting.DataTypes;
 using System;
 
 namespace ByteDBServer.Core.Server.Connection.Models
@@ -9,7 +9,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
-        public Int1 Version { get; set; }
+        public Int2 Version { get; set; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
@@ -17,7 +17,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
 
         public ByteDBProtocol(int version)
         {
-            Version = new Int1(version);
+            Version = new Int2((ushort)version);
         }
 
         //

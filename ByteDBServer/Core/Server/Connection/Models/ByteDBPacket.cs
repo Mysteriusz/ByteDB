@@ -1,4 +1,5 @@
 ﻿using ByteDBServer.Core.DataTypes;
+using DataTypesTesting.DataTypes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,11 +13,11 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
-        public Int2 Size 
+        public Int3 Size 
         {
             get 
             {
-                return new Int2(Payload.Count); 
+                return new Int3(Payload.Count); 
             }
         }
         public List<byte> Header
@@ -29,7 +30,13 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 return _header;
             }
         }
-        public List<byte> Payload { get; set; }
+        public List<byte> Payload 
+        { 
+            get 
+            { 
+                return this; 
+            }
+        }
         
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
@@ -38,7 +45,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
         public ByteDBPacket() { }
         public ByteDBPacket(IEnumerable<byte> payload)
         {
-            payload = Payload;
+            AddRange(payload);
         }
 
         //
