@@ -1,4 +1,5 @@
-﻿using DataTypesTesting.DataTypes.misc;
+﻿using ByteDBServer.Core.Config;
+using ByteDBServer.Core.Misc;
 
 namespace DataTypesTesting.DataTypes.Models
 {
@@ -84,7 +85,7 @@ namespace DataTypesTesting.DataTypes.Models
             ];
         }
 
-        //public static byte[] GetBytes(string value) => ByteDBServerConfig.Encoding.GetBytes(value);
-        //public static string GetString(byte[] bytes) => ByteDBServerConfig.Encoding.GetString(bytes);
+        public static byte[] GetBytes(string value) => ByteDBServerConfig.Encoding.GetBytes(value);
+        public static string GetString(byte[] bytes) => ByteDBServerConfig.Encoding.GetString(bytes);
     }
 }

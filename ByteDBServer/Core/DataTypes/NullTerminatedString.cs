@@ -1,6 +1,7 @@
 ﻿using DataTypesTesting.DataTypes.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ByteDBServer.Core.DataTypes
 {
@@ -16,15 +17,18 @@ namespace ByteDBServer.Core.DataTypes
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
+        private string _value = "";
+        private List<byte> _bytes = new List<byte>();
+
         public override string Value 
         {
-            get;
-            set;
+            get { return _value; }
+            set { _value = value; _bytes = GetBytes(value).ToList(); }
         }
-        public override byte[] Bytes
+        public override byte[] Bytes 
         {
-            get;
-            set;
+            get { return _bytes.ToArray(); }
+            set { _bytes = value.ToList(); _value = GetString(value); }
         }
 
         //
@@ -42,7 +46,21 @@ namespace ByteDBServer.Core.DataTypes
         }
 
         //
-        // ----------------------------- EXPLICIT ----------------------------- 
+        // ----------------------------- METHODS ----------------------------- 
+        //
+
+        public void Read(byte[] bytes, int index)
+        {
+            List<byte> buffer = new List<byte>();
+
+            while (bytes[index] != Null)
+                buffer.Add(bytes[index++]);
+
+            Bytes = buffer.ToArray();
+        }
+
+        //
+        // ----------------------------- IMPLICIT ----------------------------- 
         //
 
         public static implicit operator NullTerminatedString(string value)
@@ -60,20 +78,6 @@ namespace ByteDBServer.Core.DataTypes
         public static implicit operator string(NullTerminatedString value)
         {
             return value.Value;
-        }
-
-        //
-        // ----------------------------- METHODS ----------------------------- 
-        //
-
-        public void Read(byte[] bytes, int index)
-        {
-            List<byte> buffer = new List<byte>();
-
-            while (bytes[index] != Null)
-                buffer.Add(bytes[index++]);
-
-            Bytes = buffer.ToArray();
         }
     }
 }
