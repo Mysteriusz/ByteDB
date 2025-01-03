@@ -58,7 +58,6 @@ namespace ByteDBServer.Core.Server
                     TcpClient client = Listener.AcceptTcpClient();
                     NetworkStream stream = client.GetStream();
 
-                    new ByteDBWelcomePacketV1(stream, BufferSize);
 
                     Thread.Sleep(ListeningDelay);
                 }
