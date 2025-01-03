@@ -1,10 +1,8 @@
 ﻿using DataTypesTesting.DataTypes.Models;
 using System;
-using System.Diagnostics;
 
 namespace DataTypesTesting.DataTypes
 {
-    [DebuggerDisplay("Value = {Value}, Bytes = {Bytes[0]}, {Bytes[1], Bytes[2]}")]
     internal class Int3 : DataType<int>
     {
         //

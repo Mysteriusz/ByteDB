@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataTypesTesting.DataTypes.Models;
+using System;
 using System.Collections.Generic;
 
 namespace ByteDBServer.Core.DataTypes
@@ -17,20 +18,13 @@ namespace ByteDBServer.Core.DataTypes
 
         public override string Value 
         {
-            get => base.Value;
-            set => base.Value = value;
+            get;
+            set;
         }
         public override byte[] Bytes
         {
-            get
-            {
-                byte[] baseBytes = base.Bytes;
-                byte[] result = new byte[baseBytes.Length + 1];
-                Array.Copy(baseBytes, result, baseBytes.Length);
-                result[baseBytes.Length] = Null;
-                return result;
-            }
-            set => base.Bytes = value;
+            get;
+            set;
         }
 
         //

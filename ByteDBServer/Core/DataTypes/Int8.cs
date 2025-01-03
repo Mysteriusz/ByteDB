@@ -1,4 +1,6 @@
 ﻿using DataTypesTesting.DataTypes.Models;
+using System;
+
 namespace DataTypesTesting.DataTypes
 {
     internal class Int8 : DataType<ulong>
