@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ByteDBServer.Core.Misc
 {
-    public class Int1OverflowException : Exception
-    {
-        public Int1OverflowException() : base("Value exceeds the valid range for Int1.") { }
-        public Int1OverflowException(string message) : base(message) { }
-    }
     public class Int2OverflowException : Exception
     {
         public Int2OverflowException() : base("Value exceeds the valid range for Int2.") { }
