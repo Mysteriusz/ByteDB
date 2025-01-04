@@ -1,8 +1,10 @@
-﻿using ByteDBServer.Core.Config;
-using ByteDBServer.Core.DataTypes;
-using ByteDBServer.Core.Services;
+﻿using System;
 using System.Collections.Generic;
 using System.ServiceProcess;
+using ByteDBServer.Core.Config;
+using ByteDBServer.Core.DataTypes;
+using ByteDBServer.Core.Misc.Logs;
+using ByteDBServer.Core.Services;
 
 namespace ByteDBServer.Core.Server
 {
@@ -33,6 +35,7 @@ namespace ByteDBServer.Core.Server
         static void Main()
         {
             ByteDBServerConfig.InitializeConfig();
+            ByteDBServerLogger.CreateFile(ByteDBServerLogger.LogFileName);
 
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
