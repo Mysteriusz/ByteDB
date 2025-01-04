@@ -9,7 +9,7 @@ namespace ByteDBServer.Core.Services
 {
     partial class ByteDBServerService : ServiceBase
     {
-        //private ByteDBServerListener _listener;
+        private ByteDBServerListener _listener;
 
         public ByteDBServerService()
         {
@@ -33,9 +33,8 @@ namespace ByteDBServer.Core.Services
 
             ByteDBServerLogger.WriteToFile("Server Started!");
 
-            //_listener = new ByteDBServerListener(ByteDBServerConfig.IpAddress, ByteDBServerConfig.Port);
-
-            //_listener.StartListening();
+            _listener = new ByteDBServerListener(ByteDBServerConfig.IpAddress, ByteDBServerConfig.Port);
+            _listener.StartListening();
         }
 
         protected override void OnStop()
@@ -44,8 +43,8 @@ namespace ByteDBServer.Core.Services
 
             ByteDBServerLogger.WriteToFile("Server Stopped!");
 
-            //_listener.StopListening();
-            //_listener = null;
+            _listener.StopListening();
+            _listener = null;
         }
 
         [DllImport("advapi32.dll", SetLastError = true)]

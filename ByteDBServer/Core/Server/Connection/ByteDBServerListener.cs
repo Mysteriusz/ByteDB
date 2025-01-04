@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using ByteDBServer.Core.Server.Connection.Handshake;
 using ByteDBServer.Core.Misc;
 using System;
+using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Server
 {
@@ -18,14 +19,17 @@ namespace ByteDBServer.Core.Server
         public List<TcpClient> ConnectedClients { get; private set; }
 
         public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
-        
+        public Thread ListeningThread { get; }
+
         //
         // ----------------------------------- CONSTRUCTORS -----------------------------------
         //
 
         public ByteDBServerListener(string address, int port)
         {
+            ByteDBServerLogger.WriteToFile(address);
             Listener = new TcpListener(IPAddress.Parse(address), port);
+            ListeningThread = AwaitClients();
         }
 
         //
@@ -35,11 +39,13 @@ namespace ByteDBServer.Core.Server
         public void StartListening()
         {
             Listener.Start();
+            ListeningThread.Start();
         }
         public void StopListening()
         {
             CancellationToken.Cancel();
             Listener.Stop();
+            ListeningThread.Abort();
         }
 
         public Thread AwaitClients()
