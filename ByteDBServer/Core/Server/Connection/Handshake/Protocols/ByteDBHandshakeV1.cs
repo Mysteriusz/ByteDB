@@ -1,5 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using ByteDBServer.Core.Misc;
+using ByteDBServer.Core.Server.Connection.Handshake.Packets;
 using ByteDBServer.Core.Server.Connection.Models;
 
 namespace ByteDBServer.Core.Server.Connection.Handshake
@@ -10,43 +14,50 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBHandshakeV1(Stream stream) : base(1)
+        public ByteDBHandshakeV1(Stream stream, int timeout = 10) : base(1)
         {
             try
             {
-                new ByteDBWelcomePacketV1(stream);
+                new ByteDBWelcomePacketV1(stream, "WelcomeToByteDB");
+
+                Task response = AwaitResponseAsync(stream, timeout);
+                response.Wait();
+
+                new ByteDBOkayPacket(stream, "ConnectionSuccessfull");
             }
-            catch
+            catch (Exception ex)
             {
-                new ByteDBErrorPacket(stream);
+                new ByteDBErrorPacket(stream, ex.Message);
             }
         }
 
         //
-        // ----------------------------- DISPOSING ----------------------------- 
+        // ----------------------------- METHODS ----------------------------- 
         //
 
-        private bool _disposed = false;
-        public override void Dispose()
+        private async Task AwaitResponseAsync(Stream stream, int time)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
+            using (CancellationTokenSource cts = new CancellationTokenSource()) 
             {
-                if (disposing)
+                cts.CancelAfter(TimeSpan.FromSeconds(time));
+
+                byte[] buffer = new byte[ByteDBServer.BufferSize];
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
+
+                if (bytesRead > 0)
                 {
-                    this.Version = 0;
+                    try
+                    {
+                        new ByteDBResponsePacketV1(stream, buffer);
+                    }
+                    catch
+                    {
+                        throw new HandshakePacketException();
+                    }
                 }
-
-                _disposed = true;
+                else
+                    throw new HandshakeTimeoutException();
             }
-        }
-        ~ByteDBHandshakeV1()
-        {
-            Dispose(false);
         }
     }
 }

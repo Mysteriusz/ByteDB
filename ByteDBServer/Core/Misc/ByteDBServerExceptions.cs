@@ -2,6 +2,10 @@
 
 namespace ByteDBServer.Core.Misc
 {
+    //
+    // ----------------------------- INTERNAL RELATED ----------------------------- 
+    //
+
     public class Int2OverflowException : Exception
     {
         public Int2OverflowException() : base("Value exceeds the valid range for Int2.") { }
@@ -27,9 +31,24 @@ namespace ByteDBServer.Core.Misc
         public Int8OverflowException() : base("Value exceeds the valid range for Int8.") { }
         public Int8OverflowException(string message) : base(message) { }
     }
+
+    //
+    // ----------------------------- CONNECTION RELATED ----------------------------- 
+    //
+
     public class ConnectionsOverflowException : Exception
     {
         public ConnectionsOverflowException() : base("Server connection overflow") { }
         public ConnectionsOverflowException(string message) : base(message) { }
+    }
+    public class HandshakeTimeoutException : Exception
+    {
+        public HandshakeTimeoutException() : base("Handshake Timeout") { }
+        public HandshakeTimeoutException(string message) : base(message) { }
+    }
+    public class HandshakePacketException : Exception
+    {
+        public HandshakePacketException() : base("Packet out of order") { }
+        public HandshakePacketException(string message) : base(message) { }
     }
 }

@@ -1,20 +1,24 @@
 ﻿using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Server.Connection.Models;
-using System.IO;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ByteDBServer.Core.Server.Connection.Handshake
+namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
 {
-    internal class ByteDBErrorPacket : ByteDBPacket
+    internal class ByteDBOkayPacket : ByteDBPacket
     {
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBErrorPacket(Stream stream, string message) : base(ByteDBPacketType.ErrorPacket)
+        public ByteDBOkayPacket(Stream stream, string message) : base(ByteDBPacketType.OkayPacket)
         {
             //
-            // ----------------------------- ERROR PACKET STRUCTURE ----------------------------- 
+            // ----------------------------- OKAY PACKET STRUCTURE ----------------------------- 
             //
 
             // Server Message

@@ -60,6 +60,8 @@
     <Compile Include="Core\Server\ByteDBServerEnums.cs" />
     <Compile Include="Core\Server\Connection\ByteDBServerConnectionEnums.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBErrorPacket.cs" />
+    <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBOkayPacket.cs" />
+    <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBResponsePacketV1.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Protocols\ByteDBHandshakeV1.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBWelcomePacketV1.cs" />
     <Compile Include="Core\Server\Connection\Models\ByteDBPacket.cs" />
@@ -95,6 +97,8 @@
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Core\Misc\Logs\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

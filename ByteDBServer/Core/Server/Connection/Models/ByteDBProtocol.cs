@@ -20,9 +20,30 @@ namespace ByteDBServer.Core.Server.Connection.Models
         }
 
         //
-        // ----------------------------- METHODS ----------------------------- 
+        // ----------------------------- DISPOSING ----------------------------- 
         //
 
-        public abstract void Dispose();
+        private bool _disposed = false;
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    this.Version = 0;
+                }
+
+                _disposed = true;
+            }
+        }
+        ~ByteDBProtocol()
+        {
+            Dispose(false);
+        }
     }
 }

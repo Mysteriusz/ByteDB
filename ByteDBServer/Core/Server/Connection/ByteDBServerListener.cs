@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using ByteDBServer.Core.Server.Connection.Handshake;
 using ByteDBServer.Core.Misc;
+using System.Runtime.InteropServices;
 
 namespace ByteDBServer.Core.Server
 {
@@ -13,13 +14,11 @@ namespace ByteDBServer.Core.Server
         // ----------------------------------- PROPERTIES -----------------------------------
         //
 
-        public static TcpListener Listener { get; private set; }
-        public static List<TcpClient> ConnectedClients { get; private set; }
+        public TcpListener Listener { get; private set; }
+        public List<TcpClient> ConnectedClients { get; private set; }
 
-        public static CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
-        public static int ListeningDelay { get; private set; } = 1000;
-        public static int BufferSize { get; private set; } = 2048;
-
+        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
+        
         //
         // ----------------------------------- CONSTRUCTORS -----------------------------------
         //
@@ -28,37 +27,33 @@ namespace ByteDBServer.Core.Server
         {
             Listener = new TcpListener(IPAddress.Parse(address), port);
         }
-        public ByteDBServerListener(string address, int port, int listeningDelay, int bufferSize)
-        {
-            Listener = new TcpListener(IPAddress.Parse(address), port);
-            ListeningDelay = listeningDelay;
-            BufferSize = bufferSize;
-        }
 
         //
         // -------------------------------------- METHODS --------------------------------------
         //
 
-        public static void StartListening()
+        public void StartListening()
         {
             Listener.Start();
         }
-        public static void StopListening()
+        public void StopListening()
         {
             CancellationToken.Cancel();
             Listener.Stop();
         }
 
-        public static Thread AwaitClients()
+        public Thread AwaitClients()
         {
             return new Thread(async () => 
             {
                 while (!CancellationToken.IsCancellationRequested)
                 {
+                    bool success = false;
+
+                    TcpClient client = await Listener.AcceptTcpClientAsync();
+
                     try
                     {
-                        TcpClient client = await Listener.AcceptTcpClientAsync();
-
                         if (ConnectedClients.Count == ByteDBServer.MaxConnections)
                             throw new ConnectionsOverflowException("Server has reached maximum allowed connection count provided in config file");
 
@@ -66,13 +61,19 @@ namespace ByteDBServer.Core.Server
 
                         // Start the handshake protocol with client
                         new ByteDBHandshakeV1(stream);
+
+                        success = true;
                     }
                     catch
                     {
                         // TODO: LOG EXCEPTION TO FILE
+
                     }
 
-                    Thread.Sleep(ListeningDelay);
+                    if (success)
+                        ConnectedClients.Add(client);
+
+                    Thread.Sleep(ByteDBServer.ListeningDelay);
                 }
             });
         }

@@ -1,8 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ServerConfig>
-	<Option Name="ServerVersion">1.0</Option>
-	<Option Name="Port">3306</Option>
-	<Option Name="MaxConnections">1000</Option>
-	<Option Name="Encoding">ASCII</Option>
-	<Option Name="ServerCapabilities">0x00000001</Option>
+	<Value Name="ServerVersion">1.0</Value>
+	<Value Name="Port">3306</Value>
+	<Value Name="Address"></Value>
+	<Value Name="MaxConnections">1000</Value>
+	<Value Name="Encoding">ASCII</Value>
+	<Value Name="ServerCapabilities">0x00000001</Value>
+	<Value Name="BufferSize">2048</Value>
 </ServerConfig>

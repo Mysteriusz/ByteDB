@@ -43,6 +43,10 @@ namespace ByteDBServer.Core.DataTypes
         {
             Read(bytes, index);
         }
+        public NullTerminatedString(byte[] bytes, int index, out int resultIndex)
+        {
+            Read(bytes, index, out resultIndex);
+        }
 
         //
         // ----------------------------- METHODS ----------------------------- 
@@ -55,6 +59,16 @@ namespace ByteDBServer.Core.DataTypes
             while (bytes[index] != Null)
                 buffer.Add(bytes[index++]);
 
+            Bytes = buffer.ToArray();
+        }
+        public void Read(byte[] bytes, int index, out int resultIndex)
+        {
+            List<byte> buffer = new List<byte>();
+
+            while (bytes[index] != Null)
+                buffer.Add(bytes[index++]);
+
+            resultIndex = index;
             Bytes = buffer.ToArray();
         }
 

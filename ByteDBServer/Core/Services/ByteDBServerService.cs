@@ -1,10 +1,15 @@
-﻿using System.Runtime.InteropServices;
+﻿using ByteDBServer.Core.Config;
+using ByteDBServer.Core.Server;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.ServiceProcess;
 
 namespace ByteDBServer.Core.Services
 {
     partial class ByteDBServerService : ServiceBase
     {
+        private ByteDBServerListener _listener;
+
         public ByteDBServerService()
         {
             InitializeComponent();
@@ -24,11 +29,18 @@ namespace ByteDBServer.Core.Services
         protected override void OnStart(string[] args)
         {
             // TODO: Add code here to start your service.
+
+            _listener = new ByteDBServerListener(ByteDBServerConfig.IpAddress, ByteDBServerConfig.Port);
+
+            _listener.StartListening();
         }
 
         protected override void OnStop()
         {
             // TODO: Add code here to perform any tear-down necessary to stop your service.
+
+            _listener.StopListening();
+            _listener = null;
         }
 
         [DllImport("advapi32.dll", SetLastError = true)]

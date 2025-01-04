@@ -25,6 +25,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
             get
             {
                 List<byte> _header = new List<byte>();
+                _header.Add((byte)PacketType);
                 _header.AddRange((byte[])Size);
 
                 return _header;
@@ -72,7 +73,33 @@ namespace ByteDBServer.Core.Server.Connection.Models
             return _packet;
         }
 
-        public abstract void Dispose();
+        //
+        // ----------------------------- DISPOSING ----------------------------- 
+        //
+
+        private bool _disposed = false;
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    this.Header.Clear();
+                    this.Payload.Clear();
+                }
+
+                _disposed = true;
+            }
+        }
+        ~ByteDBPacket()
+        {
+            Dispose(false);
+        }
 
         //
         // ----------------------------- OVERRIDES ----------------------------- 
