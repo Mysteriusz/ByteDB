@@ -15,6 +15,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_1A320B3D28C642C19BC87A4CCE550A54"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_29347872590D456D9BD5C7D1E55B7DF6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -27,20 +33,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_75B8C6ACC5434A588D46D455ADD71590"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9F69B2B42DCE2E010CD0B45D6A5D2130"
-        "OwnerKey" = "8:_75B8C6ACC5434A588D46D455ADD71590"
+        "OwnerKey" = "8:_1A320B3D28C642C19BC87A4CCE550A54"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_75B8C6ACC5434A588D46D455ADD71590"
+        "OwnerKey" = "8:_1A320B3D28C642C19BC87A4CCE550A54"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -121,31 +121,31 @@
     {
         "CustomAction"
         {
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_6FFCF925C31F46A894279DCE4A7E62A7"
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_66435CA60529463E9D1B42CF853F09BF"
             {
             "Name" = "8:InstallServerService"
             "Condition" = "8:"
-            "Object" = "8:_75B8C6ACC5434A588D46D455ADD71590"
+            "Object" = "8:_1A320B3D28C642C19BC87A4CCE550A54"
             "FileType" = "3:2"
             "InstallAction" = "3:1"
             "Arguments" = "8:installutil ByteDBServer.exe"
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
-            "Identifier" = "8:_3F0F42BE_F0DE_4175_BAF6_596677A085C5"
+            "Identifier" = "8:_2413989B_0C6D_456D_B60E_0A5B85D21A92"
             "InstallerClass" = "11:TRUE"
             "CustomActionData" = "8:"
             }
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_B1F829CB4D5B4DF7A6AEB3221302A43B"
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_7D7AC7DC4E7246C9843E96BAC97037EB"
             {
             "Name" = "8:UninstallServerService"
             "Condition" = "8:"
-            "Object" = "8:_75B8C6ACC5434A588D46D455ADD71590"
+            "Object" = "8:_1A320B3D28C642C19BC87A4CCE550A54"
             "FileType" = "3:2"
             "InstallAction" = "3:4"
             "Arguments" = "8:installutil.exe /u ByteDBServer.exe"
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
-            "Identifier" = "8:_F83BE107_8A3C_42C9_9514_57762689A760"
+            "Identifier" = "8:_53451727_068E_4D73_BA6A_40FBEDCB107A"
             "InstallerClass" = "11:TRUE"
             "CustomActionData" = "8:"
             }
@@ -290,7 +290,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ByteDBSetup"
         "ProductCode" = "8:{77D0162A-5837-4014-943A-5D41E0069649}"
-        "PackageCode" = "8:{7E5CC87D-74BF-44E9-AE33-1EF5754E7B80}"
+        "PackageCode" = "8:{DA8711FB-10A1-4FD5-A0D7-B31990AF5F1A}"
         "UpgradeCode" = "8:{C2FBD7F5-6A63-40A5-88BB-FB2C23D50206}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
@@ -823,6 +823,34 @@
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_1A320B3D28C642C19BC87A4CCE550A54"
+            {
+            "SourcePath" = "8:..\\ByteDBServer\\obj\\Debug\\ByteDBServer.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_48F42635F3A64A36B9FB042946B7ADED"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{127C7261-0496-4ADD-AE10-A1EE41D49FA0}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_3FE0CB73FF57402EAC217CAFD892D2C5"
             {
             "SourcePath" = "8:..\\ByteDBConsole\\obj\\Debug\\net9.0-windows10.0.26100.0\\apphost.exe"
@@ -851,9 +879,9 @@
                 {
                 }
             }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_75B8C6ACC5434A588D46D455ADD71590"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B7389044B7DE4101B34C21EE3ACF029C"
             {
-            "SourcePath" = "8:..\\ByteDBServer\\obj\\Debug\\ByteDBServer.exe"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_48F42635F3A64A36B9FB042946B7ADED"
@@ -872,7 +900,7 @@
             "IsolateTo" = "8:"
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
+            "OutputGroupCanonicalName" = "8:ContentFiles"
             "OutputProjectGuid" = "8:{127C7261-0496-4ADD-AE10-A1EE41D49FA0}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"

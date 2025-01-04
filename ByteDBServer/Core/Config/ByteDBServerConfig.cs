@@ -4,6 +4,8 @@ using System.Text;
 using System.Collections.Generic;
 using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Server;
+using System.Xml.Linq;
+using System.IO;
 
 namespace ByteDBServer.Core.Config
 {
@@ -39,26 +41,26 @@ namespace ByteDBServer.Core.Config
 
         public static void InitializeConfig()
         {
-            XmlDocument config = new XmlDocument();
-            config.LoadXml(ConfigPath);
+            XDocument config = XDocument.Load(Path.Combine(AppContext.BaseDirectory + ConfigPath));
 
             //
             // ----------------------------- READ ALL CONFIG VALUES ----------------------------- 
             //
 
             // Strings
-            ServerVersion = config.Attributes.GetNamedItem("ServerVersion").Value;
-            IpAddress = config.Attributes.GetNamedItem("Address").Value;
+            ServerVersion = config.Root.Element("ServerVersion").Value;
+            IpAddress = config.Root.Element("Address").Value;
 
             // Intigers
-            ServerCapabilitiesInt = uint.Parse(config.Attributes.GetNamedItem("ServerCapabilities").Value);
-            ListeningDelay = int.Parse(config.Attributes.GetNamedItem("ListeningDelay").Value);
-            MaxConnections = int.Parse(config.Attributes.GetNamedItem("Port").Value);
-            Port = int.Parse(config.Attributes.GetNamedItem("MaxConnections").Value);
+            Port = int.Parse(config.Root.Element("Port").Value);
+            MaxConnections = int.Parse(config.Root.Element("MaxConnections").Value);
+            BufferSize = int.Parse(config.Root.Element("BufferSize").Value);
+            ServerCapabilitiesInt = new Int4(uint.Parse(config.Root.Element("ServerCapabilities").Value));
 
             // Other
-            Encoding = ByteDBServerEncoding.EncodingType[config.Attributes.GetNamedItem("Encoding").Value];
+            Encoding = ByteDBServerEncoding.EncodingType[config.Root.Element("Encoding").Value];
         }
+
         public static List<TEnum> ReadFlags<TEnum>(uint flagValue) where TEnum : Enum
         {
             List<TEnum> result = new List<TEnum>();

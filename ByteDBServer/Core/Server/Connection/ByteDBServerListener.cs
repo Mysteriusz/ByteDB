@@ -4,8 +4,6 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using ByteDBServer.Core.Server.Connection.Handshake;
 using ByteDBServer.Core.Misc;
-using System.Runtime.InteropServices;
-using ByteDBServer.Core.Misc.Logs;
 using System;
 
 namespace ByteDBServer.Core.Server
@@ -68,7 +66,7 @@ namespace ByteDBServer.Core.Server
                     }
                     catch (Exception ex)
                     {
-                        ByteDBServerLogger.WriteExceptionToFile(ex);
+                        //ByteDBServerLogger.WriteExceptionToFile(ex);
                     }
 
                     if (success)
