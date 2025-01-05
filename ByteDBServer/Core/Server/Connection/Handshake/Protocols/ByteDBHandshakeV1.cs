@@ -19,7 +19,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public override void StartProtocol(Stream stream, int timeout = 5)
+        public override bool StartProtocol(Stream stream, int timeout = 5)
         {
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
@@ -27,16 +27,39 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
             welcomePacket.Write(stream);
 
             ByteDBCustomPacket responsePacket = WaitForResponseInTime(stream, timeout);
-            ByteDBResponsePacketV1 response = responsePacket.AsPacket<ByteDBResponsePacketV1>();
 
-            bool valid = ByteDBResponsePacketV1.Validate(response);
+            try
+            {
+                if (responsePacket.IsEmpty)
+                    throw new HandshakeTimeoutException();
 
-            if (valid)
-                ByteDBServerLogger.WriteToFile("PACKET IN ORDER");
-            else
-                throw new HandshakePacketException();
+                ByteDBResponsePacketV1 response = responsePacket.AsPacket<ByteDBResponsePacketV1>();
+
+                bool valid = ByteDBResponsePacketV1.Validate(response);
+
+                if (valid)
+                    ByteDBServerLogger.WriteToFile("PACKET IN ORDER");
+                else
+                    throw new HandshakePacketException();
+            }
+            catch (HandshakeTimeoutException)
+            {
+                var error = new ByteDBErrorPacket(ByteDBServer.ServerEncoding.GetBytes(HandshakeTimeoutException.DefaultMessage));
+                error.Write(stream);
+
+                return false;
+            }
+            catch (HandshakePacketException)
+            {
+                var error = new ByteDBErrorPacket(ByteDBServer.ServerEncoding.GetBytes(HandshakePacketException.DefaultMessage));
+                error.Write(stream);
+
+                return false;
+            }
+
+            return true;
         }
-        public override async Task StartProtocolAsync(Stream stream, int timeout = 5)
+        public override async Task<bool> StartProtocolAsync(Stream stream, int timeout = 5)
         {
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
@@ -44,14 +67,37 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
             welcomePacket.Write(stream);
 
             ByteDBCustomPacket responsePacket = await WaitForResponseInTimeAsync(stream, timeout);
-            ByteDBResponsePacketV1 response = responsePacket.AsPacket<ByteDBResponsePacketV1>();
 
-            bool valid = ByteDBResponsePacketV1.Validate(response);
+            try
+            {
+                if (responsePacket.IsEmpty)
+                    throw new HandshakeTimeoutException();
 
-            if (valid)
-                ByteDBServerLogger.WriteToFile("PACKET IN ORDER");
-            else
-                throw new HandshakePacketException();
+                ByteDBResponsePacketV1 response = responsePacket.AsPacket<ByteDBResponsePacketV1>();
+
+                bool valid = ByteDBResponsePacketV1.Validate(response);
+
+                if (valid)
+                    ByteDBServerLogger.WriteToFile("PACKET IN ORDER");
+                else
+                    throw new HandshakePacketException();
+            }
+            catch (HandshakeTimeoutException)
+            {
+                var error = new ByteDBErrorPacket(ByteDBServer.ServerEncoding.GetBytes(HandshakeTimeoutException.DefaultMessage));
+                error.Write(stream);
+
+                return false;
+            }
+            catch (HandshakePacketException)
+            {
+                var error = new ByteDBErrorPacket(ByteDBServer.ServerEncoding.GetBytes(HandshakePacketException.DefaultMessage));
+                error.Write(stream);
+
+                return false;
+            }
+
+            return true;
         }
     }
 }

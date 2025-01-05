@@ -36,8 +36,8 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public abstract void StartProtocol(Stream stream, int responseTimeout = 5);
-        public abstract Task StartProtocolAsync(Stream stream, int responseTimeout = 5);
+        public abstract bool StartProtocol(Stream stream, int responseTimeout = 5);
+        public abstract Task<bool> StartProtocolAsync(Stream stream, int responseTimeout = 5);
 
         public virtual ByteDBCustomPacket WaitForResponseInTime(Stream stream, int seconds)
         {

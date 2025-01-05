@@ -14,7 +14,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
-        public static ByteDBCustomPacket Empty => new ByteDBCustomPacket();
+        public static ByteDBCustomPacket Empty { get { return new ByteDBCustomPacket(); } } 
         
         public Int3 Size 
         {
@@ -139,13 +139,12 @@ namespace ByteDBServer.Core.Server.Connection.Models
             StringBuilder builder = new StringBuilder();
 
             builder.Append("Header: ");
-            builder.Append(string.Join(", ", Header));
+            builder.Append(BitConverter.ToString(Header.ToArray()));
 
             builder.AppendLine();
 
             builder.Append("Payload: ");
-            builder.Append(string.Join(", ", Payload));
-
+            builder.Append(BitConverter.ToString(Payload.ToArray()));
 
             return builder.ToString();
         }
