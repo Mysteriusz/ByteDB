@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ServiceProcess;
+using System.Text;
 using ByteDBServer.Core.Config;
 using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc.Logs;
@@ -29,6 +30,7 @@ namespace ByteDBServer.Core.Server
 
         public static Int4 ServerCapabilitiesInt => ByteDBServerConfig.ServerCapabilitiesInt;
         public static List<ServerCapabilities> ServerCapabilities => ByteDBServerConfig.ReadFlags<ServerCapabilities>(ServerCapabilitiesInt.Value);
+        public static Encoding ServerEncoding => ByteDBServerConfig.Encoding;   
 
         //
         // ----------------------------- METHODS ----------------------------- 

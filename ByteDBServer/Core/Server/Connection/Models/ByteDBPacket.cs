@@ -1,9 +1,8 @@
 ﻿using ByteDBServer.Core.DataTypes;
+using ByteDBServer.Core.Server.Connection.Handshake.Packets;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Sockets;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +10,12 @@ namespace ByteDBServer.Core.Server.Connection.Models
 {
     internal abstract class ByteDBPacket : List<byte>, IDisposable
     {
+        //
+        // ----------------------------- CONSTANTS ----------------------------- 
+        //
+
+        public static ByteDBEmptyPacket Empty => new ByteDBEmptyPacket();
+
         //
         // ----------------------------- PARAMETERS ----------------------------- 
         //
@@ -84,6 +89,9 @@ namespace ByteDBServer.Core.Server.Connection.Models
             
             return _packet;
         }
+
+        public static bool IsValid(ByteDBPacket packet) => packet.Validate(packet);
+        public abstract bool Validate(ByteDBPacket packet);
 
         //
         // ----------------------------- DISPOSING ----------------------------- 

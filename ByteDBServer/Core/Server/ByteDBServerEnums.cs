@@ -11,5 +11,6 @@
         ResponsePacket = 0x02,
         OkayPacket = 0x03,
         ErrorPacket = 0x04,
+        EmptyPacket = 0x05,
     }
 }

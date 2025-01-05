@@ -21,7 +21,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         {
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
-            var welcomePacket = new ByteDBWelcomePacketV1(ByteDBServer.ServerWelcomePacketMessage);
+            var welcomePacket = new ByteDBWelcomePacketV1(ByteDBServer.ServerEncoding.GetBytes(ByteDBServer.ServerWelcomePacketMessage));
             welcomePacket.Write(stream);
 
             WaitForResponseInTime(stream, timeout);
@@ -30,7 +30,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         {
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
-            var welcomePacket = new ByteDBWelcomePacketV1(ByteDBServer.ServerWelcomePacketMessage);
+            var welcomePacket = new ByteDBWelcomePacketV1(ByteDBServer.ServerEncoding.GetBytes(ByteDBServer.ServerWelcomePacketMessage));
             welcomePacket.Write(stream);
 
             await WaitForResponseInTimeAsync(stream, timeout);
