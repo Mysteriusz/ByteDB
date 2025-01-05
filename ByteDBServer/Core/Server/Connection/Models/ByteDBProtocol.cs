@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ByteDBServer.Core.Misc.Logs;
+using System;
+using System.IO;
+using System.Xml.Linq;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
@@ -8,16 +11,30 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
-        public byte Version { get; set; }
+        public string Name { get; }
+        public byte Version { get; }
+
+        public string CreateProcotolMessage { get { return $"CREATED PROTOCOL: {Name}, VERSION: {Version}"; } }
+        public string StartProcotolMessage { get { return $"STARTING PROTOCOL: {Name}, VERSION: {Version}"; } }
+        public string EndingProcotolMessage { get { return $"ENDING PROTOCOL: {Name}, VERSION: {Version}"; } }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBProtocol(byte version)
+        public ByteDBProtocol(byte version, string name)
         {
             Version = version;
+            Name = name;
+
+            ByteDBServerLogger.WriteToFile(CreateProcotolMessage);
         }
+
+        //
+        // ----------------------------- METHODS ----------------------------- 
+        //
+
+        public abstract void StartProtocol(Stream stream, int responseTimeout = 5);
 
         //
         // ----------------------------- DISPOSING ----------------------------- 
@@ -35,7 +52,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
             {
                 if (disposing)
                 {
-                    this.Version = 0;
+
                 }
 
                 _disposed = true;

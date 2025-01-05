@@ -10,6 +10,12 @@ namespace ByteDBServer.Core.Server
     internal static class ByteDBServer
     {
         //
+        // ----------------------------- CONSTANTS ----------------------------- 
+        //
+
+        public const string ServerWelcomePacketMessage = "WelcomeToByteDB";
+
+        //
         // ----------------------------- PROPERITES ----------------------------- 
         //
 

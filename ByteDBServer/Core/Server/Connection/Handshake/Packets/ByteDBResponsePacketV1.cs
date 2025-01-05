@@ -13,16 +13,13 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBResponsePacketV1(Stream stream, byte[] bytes) : base(ByteDBPacketType.ResponsePacket) 
-        {
-            ValidatePacket(bytes);
-        }
+        public ByteDBResponsePacketV1(Stream stream, byte[] bytes) : base(ByteDBPacketType.ResponsePacket)  { }
 
         //
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        private void ValidatePacket(byte[] packet)
+        public void ValidatePacket(byte[] packet)
         {
             //
             // ----------------------------- RESPONSE PACKET STRUCTURE ----------------------------- 

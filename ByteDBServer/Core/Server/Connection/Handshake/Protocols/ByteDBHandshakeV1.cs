@@ -2,7 +2,9 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using ByteDBServer.Core.Misc;
+using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.Server.Connection.Handshake.Packets;
 using ByteDBServer.Core.Server.Connection.Models;
 
@@ -14,49 +16,42 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBHandshakeV1(Stream stream, int timeout = 10) : base(1)
-        {
-            try
-            {
-                new ByteDBWelcomePacketV1(stream, "WelcomeToByteDB");
-
-                Task response = AwaitResponseAsync(stream, timeout);
-                response.Wait();
-
-                new ByteDBOkayPacket(stream, "ConnectionSuccessfull");
-            }
-            catch (Exception ex)
-            {
-                new ByteDBErrorPacket(stream, ex.Message);
-            }
-        }
+        public ByteDBHandshakeV1() : base(1, "HandshakeV1") { }
 
         //
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        private async Task AwaitResponseAsync(Stream stream, int time)
+        public override void StartProtocol(Stream stream, int timeout = 5)
         {
-            using (CancellationTokenSource cts = new CancellationTokenSource()) 
+            ByteDBServerLogger.WriteToFile(StartProcotolMessage);
+
+            var welcomePacket = new ByteDBWelcomePacketV1(ByteDBServer.ServerWelcomePacketMessage);
+            welcomePacket.Write(stream);
+
+            Task waitForResponse = WaitForResponseInTime(stream, timeout);
+        }
+
+        private async Task WaitForResponseInTime(Stream stream, int time)
+        {
+            using (CancellationTokenSource cts = new CancellationTokenSource())
             {
-                cts.CancelAfter(TimeSpan.FromSeconds(time));
-
                 byte[] buffer = new byte[ByteDBServer.BufferSize];
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
 
-                if (bytesRead > 0)
+                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(time), cts.Token);
+                Task responseTask = stream.ReadAsync(buffer, 0, buffer.Length);
+
+                Task completedTask = await Task.WhenAny(responseTask, timeoutTask);
+
+                if (completedTask == responseTask)
                 {
-                    try
-                    {
-                        new ByteDBResponsePacketV1(stream, buffer);
-                    }
-                    catch
-                    {
-                        throw new HandshakePacketException();
-                    }
+                    cts.Cancel();
+                    ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
                 }
                 else
-                    throw new HandshakeTimeoutException();
+                {
+                    ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
+                }
             }
         }
     }

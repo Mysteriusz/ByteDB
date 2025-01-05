@@ -11,7 +11,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBWelcomePacketV1(Stream stream, string message) : base(ByteDBPacketType.WelcomePacket)
+        public ByteDBWelcomePacketV1(string message) : base(ByteDBPacketType.WelcomePacket)
         {
             //
             // ----------------------------- WELCOME PACKET STRUCTURE ----------------------------- 
@@ -25,9 +25,6 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
 
             // Server Capabilities
             AddRange((byte[])ByteDBServer.ServerCapabilitiesInt);
-
-            // Write Welcoming Packet To Provided Stream
-            Write(stream);
         }
     }
 }

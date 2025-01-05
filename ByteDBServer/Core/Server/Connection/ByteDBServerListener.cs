@@ -15,11 +15,11 @@ namespace ByteDBServer.Core.Server
         // ----------------------------------- PROPERTIES -----------------------------------
         //
 
-        public TcpListener Listener { get; private set; }
-        public List<TcpClient> ConnectedClients { get; private set; }
-
-        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
+        public TcpListener Listener { get; }
         public Thread ListeningThread { get; }
+
+        public List<TcpClient> ConnectedClients { get; } = new List<TcpClient>();
+        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
 
         //
         // ----------------------------------- CONSTRUCTORS -----------------------------------
@@ -50,35 +50,44 @@ namespace ByteDBServer.Core.Server
 
         public Thread AwaitClients()
         {
-            return new Thread(async () => 
+            return new Thread(async () =>
             {
-                while (!CancellationToken.IsCancellationRequested)
+                try
                 {
-                    bool success = false;
-
-                    TcpClient client = await Listener.AcceptTcpClientAsync();
-
-                    try
+                    while (!CancellationToken.IsCancellationRequested)
                     {
+                        bool success = false;
+
+                        TcpClient client = await Listener.AcceptTcpClientAsync();
+
                         if (ConnectedClients.Count == ByteDBServer.MaxConnections)
                             throw new ConnectionsOverflowException("Server has reached maximum allowed connection count provided in config file");
+
+                        if (Listener == null) throw new InternalConnectionException("Listener is null");
+                        if (CancellationToken == null) throw new InternalConnectionException("CancellationToken is null");
+                        if (ConnectedClients == null) throw new InternalConnectionException("ConnectedClients is null");
 
                         NetworkStream stream = client.GetStream();
 
                         // Start the handshake protocol with client
-                        new ByteDBHandshakeV1(stream);
+                        var handshake = new ByteDBHandshakeV1();
+                        handshake.StartProtocol(stream);
 
                         success = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        //ByteDBServerLogger.WriteExceptionToFile(ex);
-                    }
 
-                    if (success)
-                        ConnectedClients.Add(client);
+                        if (success)
+                            ConnectedClients.Add(client);
 
-                    Thread.Sleep(ByteDBServer.ListeningDelay);
+                        Thread.Sleep(ByteDBServer.ListeningDelay);
+                    }
+                }
+                catch (InternalConnectionException ex)
+                {
+                    ByteDBServerLogger.WriteExceptionToFile(ex);
+                }
+                catch (Exception ex)
+                {
+                    ByteDBServerLogger.WriteExceptionToFile(ex);
                 }
             });
         }

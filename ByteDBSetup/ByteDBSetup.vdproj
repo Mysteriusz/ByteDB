@@ -290,7 +290,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ByteDBSetup"
         "ProductCode" = "8:{77D0162A-5837-4014-943A-5D41E0069649}"
-        "PackageCode" = "8:{DA8711FB-10A1-4FD5-A0D7-B31990AF5F1A}"
+        "PackageCode" = "8:{9EEC9D0D-FBB8-4424-B6BB-07D6C68B5304}"
         "UpgradeCode" = "8:{C2FBD7F5-6A63-40A5-88BB-FB2C23D50206}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"

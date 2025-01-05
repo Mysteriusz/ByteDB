@@ -51,4 +51,9 @@ namespace ByteDBServer.Core.Misc
         public HandshakePacketException() : base("Packet out of order") { }
         public HandshakePacketException(string message) : base(message) { }
     }
+    public class InternalConnectionException : Exception
+    {
+        public InternalConnectionException() : base("Exception was thrown") { }
+        public InternalConnectionException(string message) : base(message) { }
+    }
 }

@@ -184,7 +184,7 @@ namespace ByteDBConsole.Core.Server
             await StartAsync();
         }
 
-        private static void QueryCMD(string command, bool admin = false)
+        private static void QueryCMD(string command, bool admin = false, bool nowindow = true)
         {
             ProcessStartInfo processInfo = new ProcessStartInfo
             {
@@ -192,6 +192,7 @@ namespace ByteDBConsole.Core.Server
                 Arguments = "/C " + command,
                 Verb = admin ? "runas" : "",
                 UseShellExecute = true,
+                CreateNoWindow = nowindow,
             };
 
             try

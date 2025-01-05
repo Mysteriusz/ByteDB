@@ -19,9 +19,6 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
 
             // Server Message
             AddRange(new NullTerminatedString(message).Bytes);
-
-            // Write Error Packet To Provided Stream
-            Write(stream);
         }
     }
 }

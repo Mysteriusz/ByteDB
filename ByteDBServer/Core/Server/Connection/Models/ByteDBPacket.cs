@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
@@ -61,8 +63,18 @@ namespace ByteDBServer.Core.Server.Connection.Models
         public void Write(Stream stream)
         {
             List<byte> packet = GetPacket(this);
+
             stream.Write(packet.ToArray(), 0, packet.Count);
+            stream.Flush();
         }
+        public async Task WriteAsync(Stream stream)
+        {
+            List<byte> packet = GetPacket(this);
+
+            await stream.WriteAsync(packet.ToArray(), 0, packet.Count);
+            await stream.FlushAsync();
+        }
+
         public static List<byte> GetPacket(ByteDBPacket packet)
         {
             List<byte> _packet = new List<byte>();
