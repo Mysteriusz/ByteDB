@@ -11,12 +11,6 @@ namespace ByteDBServer.Core.Server.Connection.Models
     internal abstract class ByteDBPacket : List<byte>, IDisposable
     {
         //
-        // ----------------------------- CONSTANTS ----------------------------- 
-        //
-
-        public static ByteDBEmptyPacket Empty => new ByteDBEmptyPacket();
-
-        //
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
@@ -47,6 +41,8 @@ namespace ByteDBServer.Core.Server.Connection.Models
         }
         public ByteDBPacketType PacketType { get; }
 
+        public static ByteDBEmptyPacket Empty => new ByteDBEmptyPacket();
+        
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
