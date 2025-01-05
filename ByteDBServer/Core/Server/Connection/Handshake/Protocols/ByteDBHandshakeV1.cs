@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using ByteDBServer.Core.Misc;
 using ByteDBServer.Core.Misc.Logs;
@@ -23,7 +24,12 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         {
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
-            var welcomePacket = new ByteDBWelcomePacketV1(ByteDBServer.ServerEncoding.GetBytes(ByteDBServer.ServerWelcomePacketMessage));
+            List<byte> welcomePacketStructure = new List<byte>();
+            welcomePacketStructure.AddRange(ByteDBServer.ServerEncoding.GetBytes(ByteDBServer.ServerWelcomePacketMessage));
+            welcomePacketStructure.AddRange(ByteDBServer.ServerEncoding.GetBytes(ByteDBServer.Version));
+            welcomePacketStructure.AddRange((byte[])ByteDBServer.ServerCapabilitiesInt);
+
+            var welcomePacket = new ByteDBWelcomePacketV1(welcomePacketStructure.ToArray());
             welcomePacket.Write(stream);
 
             ByteDBCustomPacket responsePacket = WaitForResponseInTime(stream, timeout);
