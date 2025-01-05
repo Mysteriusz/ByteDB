@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc;
 using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.Server.Connection.Handshake.Packets;
@@ -25,8 +27,8 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
             List<byte> welcomePacketStructure = new List<byte>();
-            welcomePacketStructure.AddRange(ByteDBServer.ServerEncoding.GetBytes(ByteDBServer.ServerWelcomePacketMessage));
-            welcomePacketStructure.AddRange(ByteDBServer.ServerEncoding.GetBytes(ByteDBServer.Version));
+            welcomePacketStructure.AddRange(new NullTerminatedString(ByteDBServer.ServerWelcomePacketMessage).Bytes);
+            welcomePacketStructure.AddRange(new NullTerminatedString(ByteDBServer.Version).Bytes);
             welcomePacketStructure.AddRange((byte[])ByteDBServer.ServerCapabilitiesInt);
 
             var welcomePacket = new ByteDBWelcomePacketV1(welcomePacketStructure.ToArray());
@@ -50,14 +52,14 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
             }
             catch (HandshakeTimeoutException)
             {
-                var error = new ByteDBErrorPacket(ByteDBServer.ServerEncoding.GetBytes(HandshakeTimeoutException.DefaultMessage));
+                var error = new ByteDBErrorPacket(new NullTerminatedString(HandshakeTimeoutException.DefaultMessage));
                 error.Write(stream);
 
                 return false;
             }
             catch (HandshakePacketException)
             {
-                var error = new ByteDBErrorPacket(ByteDBServer.ServerEncoding.GetBytes(HandshakePacketException.DefaultMessage));
+                var error = new ByteDBErrorPacket(new NullTerminatedString(HandshakePacketException.DefaultMessage));
                 error.Write(stream);
 
                 return false;
