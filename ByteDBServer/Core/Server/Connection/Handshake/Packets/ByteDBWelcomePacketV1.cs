@@ -17,7 +17,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- OVERRIDES ----------------------------- 
         //
 
-        public override bool Validate(ByteDBPacket packet)
+        public static bool Validate(ByteDBPacket packet)
         {
             //
             // ----------------------------- WELCOME PACKET STRUCTURE ----------------------------- 
@@ -30,7 +30,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
                 // ----------------------------- HEADER ----------------------------- 
 
                 // Check packet type
-                if (fullPacket[0] != (byte)PacketType)
+                if (fullPacket[0] != (byte)packet.PacketType)
                     return false;
 
                 // Payload Size

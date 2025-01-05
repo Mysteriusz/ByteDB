@@ -91,8 +91,6 @@ namespace ByteDBServer.Core.Server.Connection.Models
             return _packet;
         }
 
-        public abstract bool Validate(ByteDBPacket packet);
-
         //
         // ----------------------------- DISPOSING ----------------------------- 
         //
