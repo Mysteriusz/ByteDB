@@ -1,7 +1,5 @@
 ﻿using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Server.Connection.Models;
-using System.IO;
-using System;
 
 namespace ByteDBServer.Core.Server.Connection.Handshake
 {
@@ -12,7 +10,9 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         //
 
         public ByteDBErrorPacket() : base(ByteDBPacketType.ErrorPacket) { }
-        public ByteDBErrorPacket(byte[] payload) : base(ByteDBPacketType.ErrorPacket) { Payload.AddRange(payload); }
+        public ByteDBErrorPacket(byte[] payload) : base(payload, ByteDBPacketType.ErrorPacket) { }
+        public ByteDBErrorPacket(byte[] header, byte[] payload) : base(header, payload) { }
+        
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //

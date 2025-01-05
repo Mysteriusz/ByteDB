@@ -1,9 +1,6 @@
 ﻿using ByteDBServer.Core.DataTypes;
-using ByteDBServer.Core.Misc;
 using ByteDBServer.Core.Server.Connection.Models;
 using System;
-using System.IO;
-using System.Linq;
 
 namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
 {
@@ -14,7 +11,8 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
         //
 
         public ByteDBResponsePacketV1() : base(ByteDBPacketType.ResponsePacket)  { }
-        public ByteDBResponsePacketV1(byte[] payload) : base(ByteDBPacketType.ResponsePacket) { Payload.AddRange(payload); }
+        public ByteDBResponsePacketV1(byte[] payload) : base(payload, ByteDBPacketType.ResponsePacket) { }
+        public ByteDBResponsePacketV1(byte[] header, byte[] payload) : base(header, payload) { }
 
         //
         // ----------------------------- OVERRIDES ----------------------------- 

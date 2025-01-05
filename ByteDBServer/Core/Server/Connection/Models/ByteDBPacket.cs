@@ -1,10 +1,10 @@
-﻿using ByteDBServer.Core.DataTypes;
-using ByteDBServer.Core.Server.Connection.Handshake.Packets;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using ByteDBServer.Core.DataTypes;
+using ByteDBServer.Core.Server.Connection.Handshake.Packets;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
@@ -14,6 +14,8 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
+        public static ByteDBCustomPacket Empty => new ByteDBCustomPacket();
+        
         public Int3 Size 
         {
             get 
@@ -21,7 +23,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 return new Int3(Payload.Count); 
             }
         }
-        public List<byte> Header
+        public List<byte> Header 
         {
             get
             {
@@ -41,8 +43,6 @@ namespace ByteDBServer.Core.Server.Connection.Models
         }
         public ByteDBPacketType PacketType { get; }
 
-        public static ByteDBEmptyPacket Empty => new ByteDBEmptyPacket();
-        
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
@@ -55,6 +55,11 @@ namespace ByteDBServer.Core.Server.Connection.Models
         {
             AddRange(payload);
             PacketType = packetType;
+        }
+        public ByteDBPacket(byte[] header, byte[] payload)
+        {
+            PacketType = (ByteDBPacketType)header[0];
+            AddRange(payload);
         }
 
         //
@@ -86,7 +91,6 @@ namespace ByteDBServer.Core.Server.Connection.Models
             return _packet;
         }
 
-        public static bool IsValid(ByteDBPacket packet) => packet.Validate(packet);
         public abstract bool Validate(ByteDBPacket packet);
 
         //

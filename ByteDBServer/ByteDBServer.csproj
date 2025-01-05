@@ -59,7 +59,7 @@
     <Compile Include="Core\DataTypes\NullTerminatedString.cs" />
     <Compile Include="Core\Misc\ByteDBServerExceptions.cs" />
     <Compile Include="Core\Server\ByteDBServerEnums.cs" />
-    <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBEmptyPacket.cs" />
+    <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBCustomPacket.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBErrorPacket.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBOkayPacket.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBResponsePacketV1.cs" />

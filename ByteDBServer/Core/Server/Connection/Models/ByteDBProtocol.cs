@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.Server.Connection.Handshake.Packets;
-using System.Linq;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
@@ -40,13 +39,13 @@ namespace ByteDBServer.Core.Server.Connection.Models
         public abstract void StartProtocol(Stream stream, int responseTimeout = 5);
         public abstract Task StartProtocolAsync(Stream stream, int responseTimeout = 5);
 
-        public virtual void WaitForResponseInTime(Stream stream, int time)
+        public virtual ByteDBCustomPacket WaitForResponseInTime(Stream stream, int seconds)
         {
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 byte[] buffer = new byte[ByteDBServer.BufferSize];
 
-                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(time), cts.Token);
+                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(seconds), cts.Token);
                 Task responseTask = Task.Run(() => stream.Read(buffer, 0, buffer.Length), cts.Token);
 
                 int completedTask = Task.WaitAny(responseTask, timeoutTask);
@@ -56,20 +55,24 @@ namespace ByteDBServer.Core.Server.Connection.Models
                     cts.Cancel();
 
                     ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
+                    
+                    return new ByteDBCustomPacket(buffer);
                 }
                 else
                 {
                     ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
+
+                    return ByteDBPacket.Empty;
                 }
             }
         }
-        public virtual async Task WaitForResponseInTimeAsync(Stream stream, int time)
+        public virtual async Task<ByteDBCustomPacket> WaitForResponseInTimeAsync(Stream stream, int seconds)
         {
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 byte[] buffer = new byte[ByteDBServer.BufferSize];
 
-                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(time), cts.Token);
+                Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(seconds), cts.Token);
                 Task responseTask = stream.ReadAsync(buffer, 0, buffer.Length);
 
                 Task completedTask = await Task.WhenAny(responseTask, timeoutTask);
@@ -77,11 +80,16 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 if (completedTask == responseTask)
                 {
                     cts.Cancel();
+
                     ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
+
+                    return new ByteDBCustomPacket(buffer);
                 }
                 else
                 {
                     ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
+                    
+                    return ByteDBPacket.Empty;
                 }
             }
         }
