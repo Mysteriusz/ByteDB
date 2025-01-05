@@ -2,6 +2,7 @@
 using ByteDBServer.Core.Server.Connection.Models;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace ByteDBServer.Core.Server.Connection.Handshake
 {
@@ -11,20 +12,51 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBWelcomePacketV1(string message) : base(ByteDBPacketType.WelcomePacket)
+        public ByteDBWelcomePacketV1() : base(ByteDBPacketType.WelcomePacket) { }
+        public ByteDBWelcomePacketV1(byte[] packet) : base(ByteDBPacketType.WelcomePacket) { Payload.AddRange(packet); }
+
+        //
+        // ----------------------------- OVERRIDES ----------------------------- 
+        //
+
+        public override bool Validate(ByteDBPacket packet)
         {
             //
             // ----------------------------- WELCOME PACKET STRUCTURE ----------------------------- 
             //
-            
-            // Server Greeting
-            AddRange(new NullTerminatedString(message).Bytes);
 
-            // Server Version
-            AddRange(new NullTerminatedString(ByteDBServer.Version).Bytes);
+            try
+            {
+                byte[] fullPacket = GetPacket(packet).ToArray();
 
-            // Server Capabilities
-            AddRange((byte[])ByteDBServer.ServerCapabilitiesInt);
+                // ----------------------------- HEADER ----------------------------- 
+
+                // Check packet type
+                if (fullPacket[0] != (byte)PacketType)
+                    return false;
+
+                // Payload Size
+                Int3 size = new Int3(fullPacket[1], fullPacket[2], fullPacket[3]);
+
+                // ----------------------------- PAYLOAD ----------------------------- 
+
+                // Message
+                int messageEndingIndex;
+                NullTerminatedString message = new NullTerminatedString(fullPacket, 4, out messageEndingIndex);
+
+                // Version
+                int versionEndingIndex;
+                NullTerminatedString version = new NullTerminatedString(fullPacket, messageEndingIndex, out versionEndingIndex);
+
+                // Capabilities 
+                Int4 capabilities = new Int4(fullPacket, versionEndingIndex);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -11,14 +11,42 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBErrorPacket(Stream stream, string message) : base(ByteDBPacketType.ErrorPacket)
+        public ByteDBErrorPacket() : base(ByteDBPacketType.ErrorPacket) { }
+        public ByteDBErrorPacket(byte[] packet) : base(ByteDBPacketType.ErrorPacket) { Payload.AddRange(packet); }
+        //
+        // ----------------------------- OVERRIDES ----------------------------- 
+        //
+
+        public override bool Validate(ByteDBPacket packet)
         {
             //
             // ----------------------------- ERROR PACKET STRUCTURE ----------------------------- 
             //
 
-            // Server Message
-            AddRange(new NullTerminatedString(message).Bytes);
+            try
+            {
+                byte[] fullPacket = GetPacket(packet).ToArray();
+
+                // ----------------------------- HEADER ----------------------------- 
+
+                // Check packet type
+                if (fullPacket[0] != (byte)PacketType)
+                    return false;
+
+                // Payload Size
+                Int3 size = new Int3(fullPacket[1], fullPacket[2], fullPacket[3]);
+
+                // ----------------------------- PAYLOAD ----------------------------- 
+
+                // Message
+                NullTerminatedString message = new NullTerminatedString(fullPacket, 4);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
