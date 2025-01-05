@@ -13,7 +13,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         //
 
         public ByteDBWelcomePacketV1() : base(ByteDBPacketType.WelcomePacket) { }
-        public ByteDBWelcomePacketV1(byte[] packet) : base(ByteDBPacketType.WelcomePacket) { Payload.AddRange(packet); }
+        public ByteDBWelcomePacketV1(byte[] payload) : base(ByteDBPacketType.WelcomePacket) { Payload.AddRange(payload); }
 
         //
         // ----------------------------- OVERRIDES ----------------------------- 

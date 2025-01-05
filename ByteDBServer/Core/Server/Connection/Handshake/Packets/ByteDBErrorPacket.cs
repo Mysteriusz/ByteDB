@@ -12,7 +12,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         //
 
         public ByteDBErrorPacket() : base(ByteDBPacketType.ErrorPacket) { }
-        public ByteDBErrorPacket(byte[] packet) : base(ByteDBPacketType.ErrorPacket) { Payload.AddRange(packet); }
+        public ByteDBErrorPacket(byte[] payload) : base(ByteDBPacketType.ErrorPacket) { Payload.AddRange(payload); }
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //

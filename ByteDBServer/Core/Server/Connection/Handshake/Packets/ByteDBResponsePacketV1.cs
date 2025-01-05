@@ -14,7 +14,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
         //
 
         public ByteDBResponsePacketV1() : base(ByteDBPacketType.ResponsePacket)  { }
-        public ByteDBResponsePacketV1(byte[] packet) : base(ByteDBPacketType.ResponsePacket) { Payload.AddRange(packet); }
+        public ByteDBResponsePacketV1(byte[] payload) : base(ByteDBPacketType.ResponsePacket) { Payload.AddRange(payload); }
 
         //
         // ----------------------------- OVERRIDES ----------------------------- 

@@ -13,7 +13,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
         //
 
         public ByteDBOkayPacket() : base(ByteDBPacketType.OkayPacket) { }
-        public ByteDBOkayPacket(byte[] packet) : base(ByteDBPacketType.OkayPacket) { Payload.AddRange(packet); }
+        public ByteDBOkayPacket(byte[] payload) : base(ByteDBPacketType.OkayPacket) { Payload.AddRange(payload); }
 
         //
         // ----------------------------- OVERRIDES ----------------------------- 
