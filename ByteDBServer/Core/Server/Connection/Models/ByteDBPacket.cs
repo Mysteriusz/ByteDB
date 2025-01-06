@@ -16,8 +16,14 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- PARAMETERS ----------------------------- 
         //
 
-        public static ByteDBCustomPacket Empty { get { return new ByteDBCustomPacket(); } } 
-        
+        /// <summary>
+        /// Static empty <see cref="ByteDBCustomPacket"/>.
+        /// </summary>
+        public static ByteDBCustomPacket Empty { get { return new ByteDBCustomPacket(); } }
+
+        /// <summary>
+        /// Packet Header as <see cref="Int3"/>.
+        /// </summary>
         public Int3 Size 
         {
             get 
@@ -25,6 +31,10 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 return new Int3(Payload.Count); 
             }
         }
+
+        /// <summary>
+        /// Packet Header as <see cref="List{byte}"/>.
+        /// </summary>
         public List<byte> Header 
         {
             get
@@ -36,6 +46,10 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 return _header;
             }
         }
+
+        /// <summary>
+        /// Packet payload as <see cref="List{byte}"/>.
+        /// </summary>
         public List<byte> Payload 
         { 
             get 
@@ -43,6 +57,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 return this; 
             }
         }
+
         public ByteDBPacketType PacketType { get; }
 
         //
@@ -69,6 +84,10 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- METHODS ----------------------------- 
         //
 
+        /// <summary>
+        /// Synchronously writes packet on provided stream.
+        /// </summary>
+        /// <param name="stream">Stream on which packet should be written.</param>
         public void Write(Stream stream)
         {
             List<byte> packet = GetPacket(this);
@@ -76,6 +95,11 @@ namespace ByteDBServer.Core.Server.Connection.Models
             stream.Write(packet.ToArray(), 0, packet.Count);
             stream.Flush();
         }
+
+        /// <summary>
+        /// Asynchronously writes packet on provided stream.
+        /// </summary>
+        /// <param name="stream">Stream on which packet should be written.</param>
         public async Task WriteAsync(Stream stream)
         {
             List<byte> packet = GetPacket(this);

@@ -1,5 +1,8 @@
 ﻿namespace ByteDBServer.Core.Server.Connection.Models
 {
+    /// <summary>
+    /// Inerface for object validation.
+    /// </summary>
     internal interface IByteDBValidator<TValidation>
     {
         /// <summary>
