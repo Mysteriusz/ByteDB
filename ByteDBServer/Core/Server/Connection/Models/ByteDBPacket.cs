@@ -13,7 +13,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
     internal abstract class ByteDBPacket : List<byte>, IDisposable, IByteDBValidator<ByteDBPacket>
     {
         //
-        // ----------------------------- PARAMETERS ----------------------------- 
+        // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         /// <summary>

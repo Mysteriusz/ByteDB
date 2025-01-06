@@ -13,7 +13,7 @@ namespace ByteDBServer.Core.DataTypes
         public const byte Null = 0x00;
 
         //
-        // ----------------------------- PARAMETERS ----------------------------- 
+        // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         private string _value = "";

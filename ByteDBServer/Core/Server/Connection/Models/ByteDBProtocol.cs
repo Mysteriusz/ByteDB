@@ -13,7 +13,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
     internal abstract class ByteDBProtocol : IDisposable
     {
         //
-        // ----------------------------- PARAMETERS ----------------------------- 
+        // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         /// <summary>

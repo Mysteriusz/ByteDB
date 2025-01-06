@@ -1,13 +1,14 @@
 ﻿using ByteDBServer.Core.Config;
 using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc;
+using ByteDBServer.Core.Server;
 
 namespace ByteDBServer.DataTypes.Models
 {
     public abstract class DataType<TValue>
     {
         //
-        // ----------------------------- PARAMETERS ----------------------------- 
+        // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         public abstract TValue Value { get; set; }
@@ -86,7 +87,7 @@ namespace ByteDBServer.DataTypes.Models
             ];
         }
 
-        public static byte[] GetBytes(string value) => ByteDBServerConfig.Encoding.GetBytes(value);
-        public static string GetString(byte[] bytes) => ByteDBServerConfig.Encoding.GetString(bytes);
+        public static byte[] GetBytes(string value) => ByteDBServerInstance.ServerEncoding.GetBytes(value);
+        public static string GetString(byte[] bytes) => ByteDBServerInstance.ServerEncoding.GetString(bytes);
     }
 }

@@ -14,7 +14,7 @@ namespace ByteDBServer.Core.DataTypes
         public const int Length = 2;
 
         //
-        // ----------------------------- PARAMETERS ----------------------------- 
+        // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         private ushort _value = 0;

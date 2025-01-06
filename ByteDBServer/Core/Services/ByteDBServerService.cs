@@ -33,7 +33,7 @@ namespace ByteDBServer.Core.Services
 
             ByteDBServerLogger.WriteToFile("Server Started!");
 
-            _listener = new ByteDBServerListener(ByteDBServerConfig.IpAddress, ByteDBServerConfig.Port);
+            _listener = new ByteDBServerListener(ByteDBServerInstance.IpAddress, ByteDBServerInstance.ListeningPort);
             _listener.StartListening();
         }
 

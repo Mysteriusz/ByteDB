@@ -14,7 +14,7 @@ namespace ByteDBServer.Core.DataTypes
         public const byte Length = 8;
 
         //
-        // ----------------------------- PARAMETERS ----------------------------- 
+        // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         private ulong _value = 0;

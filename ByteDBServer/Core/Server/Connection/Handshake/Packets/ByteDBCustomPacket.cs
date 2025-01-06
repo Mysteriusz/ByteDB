@@ -10,7 +10,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
     internal class ByteDBCustomPacket
     {
         //
-        // ----------------------------- PARAMETERS ----------------------------- 
+        // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         public List<byte> Header = new List<byte>();
