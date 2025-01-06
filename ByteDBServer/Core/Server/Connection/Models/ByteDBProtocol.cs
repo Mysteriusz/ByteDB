@@ -68,7 +68,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
         /// <param name="stream">Stream on which protocol should be initiated.</param>
         /// <param name="responseTimeout">Time in seconds in which endpoint has to respond.</param>
         /// <returns>True if the protocol completes successfully; False if an error occurs during execution.</returns>
-        public abstract bool StartProtocol(Stream stream, int responseTimeout = 5);
+        public abstract bool ExecuteProtocol(Stream stream, int responseTimeout = 5);
 
         /// <summary>
         /// Asynchronously initiates protocol execution on given stream with timeout.
@@ -76,7 +76,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
         /// <param name="stream">Stream on which protocol should be initiated.</param>
         /// <param name="responseTimeout">Time in seconds in which endpoint has to respond.</param>
         /// <returns>True if the protocol completes successfully; False if an error occurs during execution.</returns>
-        public abstract Task<bool> StartProtocolAsync(Stream stream, int responseTimeout = 5);
+        public abstract Task<bool> ExecuteProtocolAsync(Stream stream, int responseTimeout = 5);
 
         /// <summary>
         /// Synchronously waits for a response packet on the specified stream within the given timeout period.

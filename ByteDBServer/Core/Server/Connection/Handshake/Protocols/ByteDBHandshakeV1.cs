@@ -18,7 +18,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public override bool StartProtocol(Stream stream, int timeout = 5)
+        public override bool ExecuteProtocol(Stream stream, int timeout = 5)
         {
             // Log protocol execution
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
@@ -38,7 +38,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
             // Return if response packet is a valid ByteDBResponsePacketV1
             return ByteDBPacket.ValidatePacket<ByteDBResponsePacketV1>(stream, responsePacket);
         }
-        public override async Task<bool> StartProtocolAsync(Stream stream, int timeout = 5)
+        public override async Task<bool> ExecuteProtocolAsync(Stream stream, int timeout = 5)
         {
             // Log protocol execution
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);

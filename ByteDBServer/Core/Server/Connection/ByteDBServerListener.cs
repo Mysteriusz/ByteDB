@@ -71,10 +71,8 @@ namespace ByteDBServer.Core.Server
 
                         // Start the handshake protocol with client
                         var handshake = new ByteDBHandshakeV1();
-                        handshake.StartProtocol(stream);
-
-                        success = true;
-
+                        success = handshake.StartProtocol(stream);
+                        
                         if (success)
                             ConnectedClients.Add(client);
 
