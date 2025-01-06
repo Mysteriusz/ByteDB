@@ -12,12 +12,15 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         public ByteDBErrorPacket() : base(ByteDBPacketType.ErrorPacket) { }
         public ByteDBErrorPacket(byte[] payload) : base(payload, ByteDBPacketType.ErrorPacket) { }
         public ByteDBErrorPacket(byte[] header, byte[] payload) : base(header, payload) { }
+
+        public ByteDBErrorPacket(NullTerminatedString message)
+        { Payload.AddRange(message.Bytes); }
         
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //
 
-        public static bool Validate(ByteDBPacket packet)
+        public override bool Validate(ByteDBPacket packet)
         {
             //
             // ----------------------------- ERROR PACKET STRUCTURE ----------------------------- 
@@ -30,7 +33,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
                 // ----------------------------- HEADER ----------------------------- 
 
                 // Check packet type
-                if (fullPacket[0] != (byte)packet.PacketType)
+                if (fullPacket[0] != (byte)ByteDBPacketType.ErrorPacket)
                     return false;
 
                 // Payload Size

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
-using ByteDBServer.Core.DataTypes;
-using ByteDBServer.Core.Misc;
 using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.Server.Connection.Handshake.Packets;
 using ByteDBServer.Core.Server.Connection.Models;
@@ -24,88 +20,43 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
 
         public override bool StartProtocol(Stream stream, int timeout = 5)
         {
+            // Log protocol execution
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
-            List<byte> welcomePacketStructure = new List<byte>();
-            welcomePacketStructure.AddRange(new NullTerminatedString(ByteDBServer.ServerWelcomePacketMessage).Bytes);
-            welcomePacketStructure.AddRange(new NullTerminatedString(ByteDBServer.Version).Bytes);
-            welcomePacketStructure.AddRange((byte[])ByteDBServer.ServerCapabilitiesInt);
+            // Instantiate packet
+            ByteDBWelcomePacketV1 WelcomePacket = new ByteDBWelcomePacketV1(
+                ByteDBServerInstance.ServerWelcomePacketMessage,
+                ByteDBServerInstance.Version,
+                ByteDBServerInstance.ServerCapabilitiesInt);
+            
+            // Write packet to stream
+            WelcomePacket.Write(stream);
 
-            var welcomePacket = new ByteDBWelcomePacketV1(welcomePacketStructure.ToArray());
-            welcomePacket.Write(stream);
-
+            // Wait for response synchronously
             ByteDBCustomPacket responsePacket = WaitForResponseInTime(stream, timeout);
 
-            try
-            {
-                if (responsePacket.IsEmpty)
-                    throw new HandshakeTimeoutException();
-
-                ByteDBResponsePacketV1 response = responsePacket.AsPacket<ByteDBResponsePacketV1>();
-
-                bool valid = ByteDBResponsePacketV1.Validate(response);
-
-                if (valid)
-                    ByteDBServerLogger.WriteToFile("PACKET IN ORDER");
-                else
-                    throw new HandshakePacketException();
-            }
-            catch (HandshakeTimeoutException)
-            {
-                var error = new ByteDBErrorPacket(new NullTerminatedString(HandshakeTimeoutException.DefaultMessage));
-                error.Write(stream);
-
-                return false;
-            }
-            catch (HandshakePacketException)
-            {
-                var error = new ByteDBErrorPacket(new NullTerminatedString(HandshakePacketException.DefaultMessage));
-                error.Write(stream);
-
-                return false;
-            }
-
-            return true;
+            // Return if response packet is a valid ByteDBResponsePacketV1
+            return ByteDBPacket.ValidatePacket<ByteDBResponsePacketV1>(stream, responsePacket);
         }
         public override async Task<bool> StartProtocolAsync(Stream stream, int timeout = 5)
         {
+            // Log protocol execution
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
+            
+            // Instantiate packet
+            ByteDBWelcomePacketV1 WelcomePacket = new ByteDBWelcomePacketV1(
+                ByteDBServerInstance.ServerWelcomePacketMessage,
+                ByteDBServerInstance.Version,
+                ByteDBServerInstance.ServerCapabilitiesInt);
 
-            var welcomePacket = new ByteDBWelcomePacketV1(ByteDBServer.ServerEncoding.GetBytes(ByteDBServer.ServerWelcomePacketMessage));
-            welcomePacket.Write(stream);
+            // Write packet to stream
+            WelcomePacket.Write(stream);
 
+            // Wait for response asynchronously
             ByteDBCustomPacket responsePacket = await WaitForResponseInTimeAsync(stream, timeout);
 
-            try
-            {
-                if (responsePacket.IsEmpty)
-                    throw new HandshakeTimeoutException();
-
-                ByteDBResponsePacketV1 response = responsePacket.AsPacket<ByteDBResponsePacketV1>();
-
-                bool valid = ByteDBResponsePacketV1.Validate(response);
-
-                if (valid)
-                    ByteDBServerLogger.WriteToFile("PACKET IN ORDER");
-                else
-                    throw new HandshakePacketException();
-            }
-            catch (HandshakeTimeoutException)
-            {
-                var error = new ByteDBErrorPacket(ByteDBServer.ServerEncoding.GetBytes(HandshakeTimeoutException.DefaultMessage));
-                error.Write(stream);
-
-                return false;
-            }
-            catch (HandshakePacketException)
-            {
-                var error = new ByteDBErrorPacket(ByteDBServer.ServerEncoding.GetBytes(HandshakePacketException.DefaultMessage));
-                error.Write(stream);
-
-                return false;
-            }
-
-            return true;
+            // Return if response packet is a valid ByteDBResponsePacketV1
+            return ByteDBPacket.ValidatePacket<ByteDBResponsePacketV1>(stream, responsePacket);
         }
     }
 }

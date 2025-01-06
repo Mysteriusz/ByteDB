@@ -14,11 +14,14 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
         public ByteDBResponsePacketV1(byte[] payload) : base(payload, ByteDBPacketType.ResponsePacket) { }
         public ByteDBResponsePacketV1(byte[] header, byte[] payload) : base(header, payload) { }
 
+        public ByteDBResponsePacketV1(Int4 capabilities, NullTerminatedString name, byte[] digest64) 
+        { Payload.AddRange(capabilities.Bytes); Payload.AddRange(name.Bytes); Payload.AddRange(digest64); }
+
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //
 
-        public static bool Validate(ByteDBPacket packet)
+        public override bool Validate(ByteDBPacket packet)
         {
             //
             // ----------------------------- RESPONSE PACKET STRUCTURE ----------------------------- 
@@ -31,7 +34,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
                 // ----------------------------- HEADER ----------------------------- 
 
                 // Check packet type
-                if (fullPacket[0] != (byte)packet.PacketType)
+                if (fullPacket[0] != (byte)ByteDBPacketType.ResponsePacket)
                     return false;
 
                 // Payload Size

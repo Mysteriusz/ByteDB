@@ -3,7 +3,7 @@ using ByteDBServer.Core.Server.Connection.Models;
 
 namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
 {
-    internal class ByteDBOkayPacket : ByteDBPacket
+    internal class ByteDBOkayPacket : ByteDBPacket, IByteDBValidator<ByteDBPacket>
     {
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
@@ -13,11 +13,14 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
         public ByteDBOkayPacket(byte[] payload) : base(payload, ByteDBPacketType.OkayPacket) { }
         public ByteDBOkayPacket(byte[] header, byte[] payload) : base(header, payload) { }
 
+        public ByteDBOkayPacket(NullTerminatedString message) 
+        { Payload.AddRange(message.Bytes); }
+
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //
 
-        public static bool Validate(ByteDBPacket packet)
+        public override bool Validate(ByteDBPacket packet)
         {
             //
             // ----------------------------- OKAY PACKET STRUCTURE ----------------------------- 
@@ -30,7 +33,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
                 // ----------------------------- HEADER ----------------------------- 
 
                 // Check packet type
-                if (fullPacket[0] != (byte)packet.PacketType)
+                if (fullPacket[0] != (byte)ByteDBPacketType.OkayPacket)
                     return false;
 
                 // Payload Size

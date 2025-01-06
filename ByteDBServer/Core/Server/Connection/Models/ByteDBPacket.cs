@@ -4,11 +4,13 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using ByteDBServer.Core.DataTypes;
+using ByteDBServer.Core.Misc.Logs;
+using ByteDBServer.Core.Misc;
 using ByteDBServer.Core.Server.Connection.Handshake.Packets;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
-    internal abstract class ByteDBPacket : List<byte>, IDisposable
+    internal abstract class ByteDBPacket : List<byte>, IDisposable, IByteDBValidator<ByteDBPacket>
     {
         //
         // ----------------------------- PARAMETERS ----------------------------- 
@@ -47,6 +49,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
+        public ByteDBPacket() { }
         public ByteDBPacket(ByteDBPacketType packetType) 
         {
             PacketType = packetType;
@@ -81,6 +84,42 @@ namespace ByteDBServer.Core.Server.Connection.Models
             await stream.FlushAsync();
         }
 
+        /// <summary>
+        /// Validates received packet and writes error packets on given stream if its incorrect.
+        /// </summary>
+        /// <param name="stream">Stream on which error packets have to be sent.</param>
+        /// <param name="packet">Packet to validate.</param>
+        /// <returns>True if <paramref name="packet"/> is valid to <typeparamref name="TValidationPacket"/>; False if packet is not valid.</returns>
+        public static bool ValidatePacket<TValidationPacket>(Stream stream, ByteDBCustomPacket packet) where TValidationPacket : IByteDBValidator<ByteDBPacket>, new()
+        {
+            try
+            {
+                if (packet.IsEmpty)
+                    throw new HandshakeTimeoutException(stream, HandshakeTimeoutException.DefaultMessage);
+
+                ByteDBResponsePacketV1 response = packet.AsPacket<ByteDBResponsePacketV1>();
+
+                TValidationPacket validator = new TValidationPacket();
+                bool valid = validator.Validate(response);
+
+                if (valid)
+                    ByteDBServerLogger.WriteToFile("PACKET IN ORDER");
+                else
+                    throw new HandshakePacketException(stream, HandshakePacketException.DefaultMessage);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Method used to get a full packet (Header, Payload).
+        /// </summary>
+        /// <param name="packet">.</param>
+        /// <returns><see cref="List{byte}"/> of bytes in packet.</returns>
         public static List<byte> GetPacket(ByteDBPacket packet)
         {
             List<byte> _packet = new List<byte>();
@@ -90,6 +129,8 @@ namespace ByteDBServer.Core.Server.Connection.Models
             
             return _packet;
         }
+
+        public abstract bool Validate(ByteDBPacket packet);
 
         //
         // ----------------------------- DISPOSING ----------------------------- 

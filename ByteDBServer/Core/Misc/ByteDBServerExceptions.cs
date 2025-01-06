@@ -1,6 +1,8 @@
 ﻿using ByteDBServer.Core.Misc.Logs;
+using ByteDBServer.Core.Server;
+using ByteDBServer.Core.Server.Connection.Handshake;
 using System;
-using System.Windows.Forms;
+using System.IO;
 
 namespace ByteDBServer.Core.Misc
 {
@@ -10,6 +12,15 @@ namespace ByteDBServer.Core.Misc
         protected ByteDBServerException(string message) : base(message)
         {
             ByteDBServerLogger.WriteExceptionToFile(this);
+        }
+        protected ByteDBServerException(Stream stream, string message) : base(message)
+        {
+            ByteDBServerLogger.WriteExceptionToFile(this);
+
+            var packet = new ByteDBErrorPacket();
+            packet.AddRange(ByteDBServerInstance.ServerEncoding.GetBytes(message));
+
+            packet.Write(stream);
         }
     }
 
@@ -57,6 +68,9 @@ namespace ByteDBServer.Core.Misc
 
         public ConnectionsOverflowException() : base(DefaultMessage) { }
         public ConnectionsOverflowException(string message) : base(message) { }
+
+        public ConnectionsOverflowException(Stream stream) : base(stream, DefaultMessage) { }
+        public ConnectionsOverflowException(Stream stream, string message) : base(stream, message) { }
     }
 
     public class HandshakeTimeoutException : ByteDBServerException
@@ -65,6 +79,9 @@ namespace ByteDBServer.Core.Misc
 
         public HandshakeTimeoutException() : base(DefaultMessage) { }
         public HandshakeTimeoutException(string message) : base(message) { }
+
+        public HandshakeTimeoutException(Stream stream) : base(stream, DefaultMessage) { }
+        public HandshakeTimeoutException(Stream stream, string message) : base(stream, message) { }
     }
 
     public class HandshakePacketException : ByteDBServerException
@@ -73,6 +90,9 @@ namespace ByteDBServer.Core.Misc
 
         public HandshakePacketException() : base(DefaultMessage) { }
         public HandshakePacketException(string message) : base(message) { }
+
+        public HandshakePacketException(Stream stream) : base(stream, DefaultMessage) { }
+        public HandshakePacketException(Stream stream, string message) : base(stream, message) { }
     }
 
     public class InternalConnectionException : ByteDBServerException
@@ -81,5 +101,8 @@ namespace ByteDBServer.Core.Misc
 
         public InternalConnectionException() : base(DefaultMessage) { }
         public InternalConnectionException(string message) : base(message) { }
+
+        public InternalConnectionException(Stream stream) : base(stream, DefaultMessage) { }
+        public InternalConnectionException(Stream stream, string message) : base(stream, message) { }
     }
 }

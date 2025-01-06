@@ -13,11 +13,14 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         public ByteDBWelcomePacketV1(byte[] payload) : base(payload, ByteDBPacketType.WelcomePacket) { }
         public ByteDBWelcomePacketV1(byte[] header, byte[] payload) : base(header, payload) { }
 
+        public ByteDBWelcomePacketV1(NullTerminatedString message, NullTerminatedString version, Int4 capabilities)
+        { Payload.AddRange(message.Bytes); Payload.AddRange(version.Bytes); Payload.AddRange(capabilities.Bytes); }
+
         //
         // ----------------------------- OVERRIDES ----------------------------- 
         //
 
-        public static bool Validate(ByteDBPacket packet)
+        public override bool Validate(ByteDBPacket packet)
         {
             //
             // ----------------------------- WELCOME PACKET STRUCTURE ----------------------------- 
@@ -30,7 +33,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
                 // ----------------------------- HEADER ----------------------------- 
 
                 // Check packet type
-                if (fullPacket[0] != (byte)packet.PacketType)
+                if (fullPacket[0] != (byte)ByteDBPacketType.WelcomePacket)
                     return false;
 
                 // Payload Size

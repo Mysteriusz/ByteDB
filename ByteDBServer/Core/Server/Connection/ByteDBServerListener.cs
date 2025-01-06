@@ -60,7 +60,7 @@ namespace ByteDBServer.Core.Server
 
                         TcpClient client = await Listener.AcceptTcpClientAsync();
 
-                        if (ConnectedClients.Count == ByteDBServer.MaxConnections)
+                        if (ConnectedClients.Count == ByteDBServerInstance.MaxConnections)
                             throw new ConnectionsOverflowException("Server has reached maximum allowed connection count provided in config file");
 
                         if (Listener == null) throw new InternalConnectionException("Listener is null");
@@ -78,7 +78,7 @@ namespace ByteDBServer.Core.Server
                         if (success)
                             ConnectedClients.Add(client);
 
-                        Thread.Sleep(ByteDBServer.ListeningDelay);
+                        Thread.Sleep(ByteDBServerInstance.ListeningDelay);
                     }
                 }
                 catch (InternalConnectionException ex)

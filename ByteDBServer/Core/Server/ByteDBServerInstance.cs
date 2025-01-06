@@ -8,7 +8,7 @@ using ByteDBServer.Core.Services;
 
 namespace ByteDBServer.Core.Server
 {
-    internal static class ByteDBServer
+    internal static class ByteDBServerInstance
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 

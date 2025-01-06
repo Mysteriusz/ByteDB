@@ -68,13 +68,14 @@
     <Compile Include="Core\Server\Connection\Models\ByteDBPacket.cs" />
     <Compile Include="Core\Server\Connection\ByteDBServerListener.cs" />
     <Compile Include="Core\Server\Connection\Models\ByteDBProtocol.cs" />
+    <Compile Include="Core\Misc\Interfaces\IByteDBValidator.cs" />
     <Compile Include="Core\Services\ByteDBServerService.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Core\Services\ByteDBServerService.Designer.cs">
       <DependentUpon>ByteDBServerService.cs</DependentUpon>
     </Compile>
-    <Compile Include="Core\Server\ByteDBServer.cs" />
+    <Compile Include="Core\Server\ByteDBServerInstance.cs" />
     <Compile Include="Core\DataTypes\Int2.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
