@@ -11,19 +11,25 @@ namespace ByteDBServer.Core.Authentication.Models
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBKey(TimeSpan time, int saltSize)
+        public ByteDBKey(TimeSpan time, int saltSize, bool write = false)
         {
             ByteDBServerLogger.WriteToFile("AUTHENTICATION KEY CREATED, " + "EXPIRING IN: " + time);
 
             Salt = GenerateSalt(saltSize);
             DisposalTask = CreateDisposalTask(time);
+
+            if (write)
+                ByteBDAuthenticator.WriteKey(this);
         }
-        public ByteDBKey(TimeSpan time, int saltSize, byte[] salt)
+        public ByteDBKey(TimeSpan time, int saltSize, byte[] salt, bool write = false)
         {
             ByteDBServerLogger.WriteToFile("AUTHENTICATION KEY CREATED, " + "EXPIRING IN: " + time);
 
             Salt = salt;
             DisposalTask = CreateDisposalTask(time);
+
+            if (write)
+                ByteBDAuthenticator.WriteKey(this);
         }
 
         //
@@ -68,7 +74,7 @@ namespace ByteDBServer.Core.Authentication.Models
             {
                 if (disposing)
                 {
-                    ByteBDAuthenticator.ActiveKeys.Remove(this);
+                    ByteBDAuthenticator.RemoveKey(this);
                     Array.Clear(Salt, 0, Salt.Length);
                     DisposalTask.Dispose();
                 }
