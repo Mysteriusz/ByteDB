@@ -6,50 +6,21 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
     internal class ByteDBErrorPacket : ByteDBPacket
     {
         //
+        // ----------------------------- PROPERTIES ----------------------------- 
+        //
+
+        public NullTerminatedString Message { set { Payload.AddRange(value.Bytes); } }
+
+        //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
         public ByteDBErrorPacket() : base(ByteDBPacketType.ErrorPacket) { }
         public ByteDBErrorPacket(byte[] payload) : base(payload, ByteDBPacketType.ErrorPacket) { }
         public ByteDBErrorPacket(byte[] header, byte[] payload) : base(header, payload) { }
-
-        public ByteDBErrorPacket(NullTerminatedString message)
-        { Payload.AddRange(message.Bytes); }
-        
-        //
-        // ----------------------------- OVERRIDES ----------------------------- 
-        //
-
-        public override bool Validate(ByteDBPacket packet)
-        {
-            //
-            // ----------------------------- ERROR PACKET STRUCTURE ----------------------------- 
-            //
-
-            try
-            {
-                byte[] fullPacket = GetPacket(packet).ToArray();
-
-                // ----------------------------- HEADER ----------------------------- 
-
-                // Check packet type
-                if (fullPacket[0] != (byte)ByteDBPacketType.ErrorPacket)
-                    return false;
-
-                // Payload Size
-                Int3 size = new Int3(fullPacket[1], fullPacket[2], fullPacket[3]);
-
-                // ----------------------------- PAYLOAD ----------------------------- 
-
-                // Message
-                NullTerminatedString message = new NullTerminatedString(fullPacket, 4);
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
+        public ByteDBErrorPacket(NullTerminatedString message) : base(ByteDBPacketType.ErrorPacket)
+        { 
+            Message = message;
         }
     }
 }

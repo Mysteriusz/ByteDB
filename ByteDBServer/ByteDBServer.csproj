@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SecureHash">
+      <HintPath>D:\pobranex\SecureHash.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
@@ -48,6 +51,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Authentication\ByteBDAuthenticator.cs" />
+    <Compile Include="Core\Authentication\ByteDBProtocolAuthenticator.cs" />
+    <Compile Include="Core\Authentication\Models\ByteDBKey.cs" />
+    <Compile Include="Core\Authentication\Models\ByteDBUser.cs" />
     <Compile Include="Core\Config\ByteDBServerConfig.cs" />
     <Compile Include="Core\DataTypes\Models\DataType.cs" />
     <Compile Include="Core\Misc\Logs\ByteDBServerLogger.cs" />
@@ -59,7 +66,7 @@
     <Compile Include="Core\DataTypes\NullTerminatedString.cs" />
     <Compile Include="Core\Misc\ByteDBServerExceptions.cs" />
     <Compile Include="Core\Server\ByteDBServerEnums.cs" />
-    <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBCustomPacket.cs" />
+    <Compile Include="Core\Server\Connection\Handshake\Custom\ByteDBUnknownPacket.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBErrorPacket.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBOkayPacket.cs" />
     <Compile Include="Core\Server\Connection\Handshake\Packets\ByteDBResponsePacketV1.cs" />
@@ -68,7 +75,6 @@
     <Compile Include="Core\Server\Connection\Models\ByteDBPacket.cs" />
     <Compile Include="Core\Server\Connection\ByteDBServerListener.cs" />
     <Compile Include="Core\Server\Connection\Models\ByteDBProtocol.cs" />
-    <Compile Include="Core\Misc\Interfaces\IByteDBValidator.cs" />
     <Compile Include="Core\Services\ByteDBServerService.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -89,6 +95,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Core\Authentication\Users.xml" />
+    <Content Include="Core\Authentication\Keys.xml" />
     <Content Include="Core\Config\ServerConfig.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -103,6 +111,9 @@
     <EmbeddedResource Include="ProjectInstaller.resx">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="D:\pobranex\SecureHash.dll" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

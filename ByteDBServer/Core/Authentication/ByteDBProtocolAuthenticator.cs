@@ -20,7 +20,7 @@ namespace ByteDBServer.Core.Authentication
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBProtocolAuthenticator(TimeSpan expire, int saltSize = 20) { AuthenticationKey = new ByteDBKey(expire, saltSize); }
+        public ByteDBProtocolAuthenticator(TimeSpan expire, int saltSize = 20) { AuthenticationKey = new ByteDBKey(expire, saltSize, true); }
 
         //
         // ----------------------------- METHODS ----------------------------- 

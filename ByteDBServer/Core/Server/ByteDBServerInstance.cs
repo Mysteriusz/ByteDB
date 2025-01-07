@@ -30,7 +30,8 @@ namespace ByteDBServer.Core.Server
 
         public static Int4 ServerCapabilitiesInt => ByteDBServerConfig.ServerCapabilitiesInt;
         public static List<ServerCapabilities> ServerCapabilities => ByteDBServerConfig.ReadFlags<ServerCapabilities>(ServerCapabilitiesInt.Value);
-        public static Encoding ServerEncoding => ByteDBServerConfig.Encoding;   
+        public static Encoding ServerEncoding => ByteDBServerConfig.Encoding;
+        public static ServerAuthenticationType ServerAuthenticationType = ServerAuthenticationType.SHA512_256;
 
         //
         // ----------------------------- METHODS ----------------------------- 

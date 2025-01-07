@@ -6,58 +6,31 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
     internal class ByteDBWelcomePacketV1 : ByteDBPacket
     {
         //
+        // ----------------------------- PROPERTIES ----------------------------- 
+        //
+
+        public NullTerminatedString Message { set { Payload.AddRange(value.Bytes); } }
+        public NullTerminatedString Version { set { Payload.AddRange(value.Bytes); } }
+        public Int4 Capabilities { set { Payload.AddRange(value.Bytes); } }
+        public Int2 SaltLength { set { Payload.AddRange(value.Bytes); } }
+        public byte[] Salt { set { Payload.AddRange(value); } }
+        public byte AuthenticationType { set { Payload.Add(value); } }
+
+        //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
         public ByteDBWelcomePacketV1() : base(ByteDBPacketType.WelcomePacket) { }
         public ByteDBWelcomePacketV1(byte[] payload) : base(payload, ByteDBPacketType.WelcomePacket) { }
         public ByteDBWelcomePacketV1(byte[] header, byte[] payload) : base(header, payload) { }
-
-        public ByteDBWelcomePacketV1(NullTerminatedString message, NullTerminatedString version, Int4 capabilities)
-        { Payload.AddRange(message.Bytes); Payload.AddRange(version.Bytes); Payload.AddRange(capabilities.Bytes); }
-
-        //
-        // ----------------------------- OVERRIDES ----------------------------- 
-        //
-
-        public override bool Validate(ByteDBPacket packet)
-        {
-            //
-            // ----------------------------- WELCOME PACKET STRUCTURE ----------------------------- 
-            //
-
-            try
-            {
-                byte[] fullPacket = GetPacket(packet).ToArray();
-
-                // ----------------------------- HEADER ----------------------------- 
-
-                // Check packet type
-                if (fullPacket[0] != (byte)ByteDBPacketType.WelcomePacket)
-                    return false;
-
-                // Payload Size
-                Int3 size = new Int3(fullPacket[1], fullPacket[2], fullPacket[3]);
-
-                // ----------------------------- PAYLOAD ----------------------------- 
-
-                // Message
-                int messageEndingIndex;
-                NullTerminatedString message = new NullTerminatedString(fullPacket, 4, out messageEndingIndex);
-
-                // Version
-                int versionEndingIndex;
-                NullTerminatedString version = new NullTerminatedString(fullPacket, messageEndingIndex, out versionEndingIndex);
-
-                // Capabilities 
-                Int4 capabilities = new Int4(fullPacket, versionEndingIndex);
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
+        public ByteDBWelcomePacketV1(NullTerminatedString message, NullTerminatedString version, Int4 capabilities, Int2 saltLength, byte[] salt, byte authType) : base(ByteDBPacketType.WelcomePacket)
+        { 
+            Message = message;
+            Version = version;
+            Capabilities = capabilities;
+            SaltLength = saltLength;
+            Salt = salt;
+            AuthenticationType = authType;
         }
     }
 }

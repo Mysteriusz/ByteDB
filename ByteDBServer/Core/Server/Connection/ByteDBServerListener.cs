@@ -6,6 +6,7 @@ using ByteDBServer.Core.Server.Connection.Handshake;
 using ByteDBServer.Core.Misc;
 using System;
 using ByteDBServer.Core.Misc.Logs;
+using ByteDBServer.Core.Server.Connection.Handshake.Packets;
 
 namespace ByteDBServer.Core.Server
 {
@@ -56,12 +57,13 @@ namespace ByteDBServer.Core.Server
                 {
                     while (!CancellationToken.IsCancellationRequested)
                     {
-                        bool success = false;
-
                         TcpClient client = await Listener.AcceptTcpClientAsync();
 
                         if (ConnectedClients.Count == ByteDBServerInstance.MaxConnections)
                             throw new ConnectionsOverflowException("Server has reached maximum allowed connection count provided in config file");
+
+                        if (ConnectedClients.Contains(client))
+                            throw new InternalConnectionException("Connected client tried to connect again");
 
                         if (Listener == null) throw new InternalConnectionException("Listener is null");
                         if (CancellationToken == null) throw new InternalConnectionException("CancellationToken is null");
@@ -71,17 +73,22 @@ namespace ByteDBServer.Core.Server
 
                         // Start the handshake protocol with client
                         var handshake = new ByteDBHandshakeV1();
-                        success = handshake.StartProtocol(stream);
-                        
+                        bool success = handshake.ExecuteProtocol(stream);
+
+                        // Check if protocol was a success
                         if (success)
+                        {
+                            // Add client to connected
                             ConnectedClients.Add(client);
+
+                            // Send okay packet to clinet
+                            new ByteDBOkayPacket("Connection successfull!");
+                        }
+                        else
+                            client.Dispose();
 
                         Thread.Sleep(ByteDBServerInstance.ListeningDelay);
                     }
-                }
-                catch (InternalConnectionException ex)
-                {
-                    ByteDBServerLogger.WriteExceptionToFile(ex);
                 }
                 catch (Exception ex)
                 {

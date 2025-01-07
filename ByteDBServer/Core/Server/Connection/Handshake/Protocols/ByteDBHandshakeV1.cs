@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using ByteDBServer.Core.Misc.Logs;
-using ByteDBServer.Core.Server.Connection.Handshake.Packets;
+using ByteDBServer.Core.Server.Connection.Handshake.Custom;
 using ByteDBServer.Core.Server.Connection.Models;
 
 namespace ByteDBServer.Core.Server.Connection.Handshake
@@ -9,54 +9,60 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
     internal class ByteDBHandshakeV1 : ByteDBProtocol
     {
         //
+        // ----------------------------- PROPERTIES ----------------------------- 
+        //
+
+        public ByteDBWelcomePacketV1 WelcomePacket
+        {
+            get
+            {
+                return new ByteDBWelcomePacketV1
+                (
+                    ByteDBServerInstance.ServerWelcomePacketMessage,
+                    ByteDBServerInstance.Version,
+                    ByteDBServerInstance.ServerCapabilitiesInt,
+                    SaltSize,
+                    Authenticator.AuthenticationKey.Salt,
+                    (byte)ByteDBServerInstance.ServerAuthenticationType
+                );
+            }
+        }
+
+        //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBHandshakeV1() : base(1, "HandshakeV1") { }
+        public ByteDBHandshakeV1() : base(1, "HandshakeV1", 5, 20) { }
 
         //
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public override bool ExecuteProtocol(Stream stream, int timeout = 5)
+        public override bool ExecuteProtocol(Stream stream)
         {
             // Log protocol execution
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
-            // Instantiate packet
-            ByteDBWelcomePacketV1 WelcomePacket = new ByteDBWelcomePacketV1(
-                ByteDBServerInstance.ServerWelcomePacketMessage,
-                ByteDBServerInstance.Version,
-                ByteDBServerInstance.ServerCapabilitiesInt);
-            
-            // Write packet to stream
+            // Send Welcome packet on stream synchronously
             WelcomePacket.Write(stream);
 
             // Wait for response synchronously
-            ByteDBCustomPacket responsePacket = WaitForResponseInTime(stream, timeout);
+            ByteDBUnknownPacket responsePacket = WaitForResponseInTime(stream, ProtocolTimeout);
 
-            // Return if response packet is a valid ByteDBResponsePacketV1
-            return ByteDBPacket.ValidatePacket<ByteDBResponsePacketV1>(stream, responsePacket);
+            return false;
         }
-        public override async Task<bool> ExecuteProtocolAsync(Stream stream, int timeout = 5)
+        public override async Task<bool> ExecuteProtocolAsync(Stream stream)
         {
             // Log protocol execution
             ByteDBServerLogger.WriteToFile(StartProcotolMessage);
-            
-            // Instantiate packet
-            ByteDBWelcomePacketV1 WelcomePacket = new ByteDBWelcomePacketV1(
-                ByteDBServerInstance.ServerWelcomePacketMessage,
-                ByteDBServerInstance.Version,
-                ByteDBServerInstance.ServerCapabilitiesInt);
 
-            // Write packet to stream
-            WelcomePacket.Write(stream);
+            // Send Welcome packet on stream asynchronously
+            await WelcomePacket.WriteAsync(stream);
 
             // Wait for response asynchronously
-            ByteDBCustomPacket responsePacket = await WaitForResponseInTimeAsync(stream, timeout);
+            ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(stream, ProtocolTimeout);
 
-            // Return if response packet is a valid ByteDBResponsePacketV1
-            return ByteDBPacket.ValidatePacket<ByteDBResponsePacketV1>(stream, responsePacket);
+            return false;
         }
     }
 }
