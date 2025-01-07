@@ -58,6 +58,12 @@ namespace ByteDBServer.Core.Misc
         public Int8OverflowException(string message) : base(message) { }
     }
 
+    public class ByteDBInternalException : ByteDBServerException
+    {
+        public ByteDBInternalException() : base("Server threw an exception.") { }
+        public ByteDBInternalException(string message) : base(message) { }
+    }
+
     //
     // ----------------------------- CONNECTION RELATED ----------------------------- 
     //
