@@ -75,7 +75,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
             SaltSize = new Int2(authSaltSize);
 
             ByteDBServerLogger.WriteToFile(CreateProcotolMessage);
-            Authenticator = new ByteDBProtocolAuthenticator(new TimeSpan(0, 0, timeoutSeconds, authSaltSize));
+            Authenticator = new ByteDBProtocolAuthenticator(new TimeSpan(0, 0, 0, timeoutSeconds), authSaltSize);
         }
 
         //

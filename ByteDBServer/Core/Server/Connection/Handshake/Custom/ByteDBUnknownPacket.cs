@@ -8,8 +8,8 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Custom
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        public List<byte> Header { get; private set; }
-        public List<byte> Payload { get; private set; }
+        public List<byte> Header { get; private set; } = new List<byte>();
+        public List<byte> Payload { get; private set; } = new List<byte>();
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
