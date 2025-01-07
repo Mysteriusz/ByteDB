@@ -1,6 +1,7 @@
 ﻿using System;
-using ByteDBServer.Core.Authentication;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Authentication.Models
 {
@@ -10,16 +11,28 @@ namespace ByteDBServer.Core.Authentication.Models
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBKey(byte[] key, TimeSpan time) 
-        { ByteBDServerAuthenticator.ActiveKeys.Add(this); ExpireDate = DateTime.Now + time; Key = key; DisposalTask = CreateDisposalTask(time); }
+        public ByteDBKey(TimeSpan time, int saltSize)
+        {
+            ByteDBServerLogger.WriteToFile("AUTHENTICATION KEY CREATED, " + "EXPIRING IN: " + time);
+
+            Salt = GenerateSalt(saltSize);
+            DisposalTask = CreateDisposalTask(time);
+        }
+        public ByteDBKey(TimeSpan time, int saltSize, byte[] salt)
+        {
+            ByteDBServerLogger.WriteToFile("AUTHENTICATION KEY CREATED, " + "EXPIRING IN: " + time);
+
+            Salt = salt;
+            DisposalTask = CreateDisposalTask(time);
+        }
 
         //
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        public byte[] Key { get; }
-        public DateTime ExpireDate { get; }
+        public byte[] Salt { get; }
         public Task DisposalTask { get; }
+        public DateTime ExpireDate { get; }
 
         //
         // ----------------------------- METHODS ----------------------------- 
@@ -27,13 +40,16 @@ namespace ByteDBServer.Core.Authentication.Models
 
         private Task CreateDisposalTask(TimeSpan time)
         {
-            DateTime ending = DateTime.Now + time;
+            return Task.Delay(time).ContinueWith(_ => Dispose());
+        }
+        private byte[] GenerateSalt(int size)
+        {
+            byte[] salt = new byte[size];
 
-            return Task.Run(async () =>
-            {
-                await Task.Delay(time).ConfigureAwait(false);
-                Dispose();
-            });
+            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+                rng.GetBytes(salt);
+
+            return salt;
         }
 
         //
@@ -52,8 +68,8 @@ namespace ByteDBServer.Core.Authentication.Models
             {
                 if (disposing)
                 {
-                    ByteBDServerAuthenticator.ActiveKeys.Remove(this);
-                    Array.Clear(Key, 0, Key.Length);
+                    ByteBDAuthenticator.ActiveKeys.Remove(this);
+                    Array.Clear(Salt, 0, Salt.Length);
                     DisposalTask.Dispose();
                 }
 

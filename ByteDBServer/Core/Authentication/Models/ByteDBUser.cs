@@ -1,4 +1,6 @@
-﻿namespace ByteDBServer.Core.Authentication.Models
+﻿using ByteDBServer.Core.Server;
+
+namespace ByteDBServer.Core.Authentication.Models
 {
     internal class ByteDBUser
     {
@@ -7,14 +9,15 @@
         //
 
         public ByteDBUser() { }
-        public ByteDBUser(string username, string passwordHash) { Username = username; PassowrdHash = passwordHash; }
+        public ByteDBUser(string username, string passwordHash) { Username = username; PasswordHash = passwordHash; }
 
         //
         // ----------------------------- PROPERTIES ----------------------------- 
         //
+        public byte[] PasswordHashBytes => ByteDBServerInstance.ServerEncoding.GetBytes(PasswordHash);
 
-        public string PassowrdHash { get; }
         public string Username { get; }
+        public string PasswordHash { get; }
    
         public bool Logged { get; }
     }

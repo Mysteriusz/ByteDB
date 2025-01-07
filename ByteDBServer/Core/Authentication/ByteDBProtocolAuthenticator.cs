@@ -1,6 +1,9 @@
 ﻿using ByteDBServer.Core.Authentication.Models;
+using ByteDBServer.Core.Authentication;
 using System;
+using System.Linq;
 using System.Security.Cryptography;
+using ByteDBServer.Core.Misc.Logs;
 
 #nullable enable
 namespace ByteDBServer.Core.Authentication
@@ -11,33 +14,24 @@ namespace ByteDBServer.Core.Authentication
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        public byte[]? Salt { get; }
-        public ByteDBKey? AuthenticationKey { get; }
+        public ByteDBKey AuthenticationKey { get; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBProtocolAuthenticator() { }
-        public ByteDBProtocolAuthenticator(TimeSpan expire, int saltSize = 64)
-        { Salt = GenerateSalt(saltSize); AuthenticationKey = GenerateAuthenticationKey(expire); }
+        public ByteDBProtocolAuthenticator(TimeSpan expire, int saltSize = 20) { AuthenticationKey = new ByteDBKey(expire, saltSize); }
 
         //
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public ByteDBKey GenerateAuthenticationKey(TimeSpan expire)
+        public bool ValidateAuthentication(byte[] bytes, string username)
         {
-            return new ByteDBKey(Salt, expire);
-        }
-        public byte[] GenerateSalt(int size)
-        {
-            byte[] salt = new byte[size];
+            byte[] userPassBytes = ByteBDAuthenticator.GetUser(username).PasswordHashBytes;
+            byte[] expected = ByteBDAuthenticator.Hash(userPassBytes.Concat(AuthenticationKey.Salt).ToArray());
 
-            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-                rng.GetBytes(salt);
-
-            return salt;
+            return bytes.SequenceEqual(expected);
         }
 
         //
@@ -56,10 +50,7 @@ namespace ByteDBServer.Core.Authentication
             {
                 if (disposing)
                 {
-                    if (Salt != null)
-                        Array.Clear(Salt, 0, Salt.Length);
-
-                    AuthenticationKey?.Dispose();
+                    AuthenticationKey.Dispose();
                 }
 
                 _disposed = true;
