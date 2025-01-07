@@ -60,14 +60,14 @@ namespace ByteDBServer.Core.Server
                         TcpClient client = await Listener.AcceptTcpClientAsync();
 
                         if (ConnectedClients.Count == ByteDBServerInstance.MaxConnections)
-                            throw new ConnectionsOverflowException("Server has reached maximum allowed connection count provided in config file");
+                            throw new ByteDBConnectionOverflowException("Server has reached maximum allowed connection count provided in config file");
 
                         if (ConnectedClients.Contains(client))
-                            throw new InternalConnectionException("Connected client tried to connect again");
+                            throw new ByteDBInternalException("Connected client tried to connect again");
 
-                        if (Listener == null) throw new InternalConnectionException("Listener is null");
-                        if (CancellationToken == null) throw new InternalConnectionException("CancellationToken is null");
-                        if (ConnectedClients == null) throw new InternalConnectionException("ConnectedClients is null");
+                        if (Listener == null) throw new ByteDBInternalException("Listener is null");
+                        if (CancellationToken == null) throw new ByteDBInternalException("CancellationToken is null");
+                        if (ConnectedClients == null) throw new ByteDBInternalException("ConnectedClients is null");
 
                         NetworkStream stream = client.GetStream();
 

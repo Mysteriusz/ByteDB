@@ -113,6 +113,12 @@ namespace ByteDBServer.Core.Server.Connection.Models
             await stream.FlushAsync();
         }
 
+        /// <summary>
+        /// Synchronously reads packet from provided bytes.
+        /// </summary>
+        /// <param name="bytes">Bytes from which packet should be read.</param>
+        public abstract void Read(byte[] bytes, int index);
+
         //
         // ----------------------------- DISPOSING ----------------------------- 
         //
