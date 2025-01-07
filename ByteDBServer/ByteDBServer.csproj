@@ -53,7 +53,6 @@
   <ItemGroup>
     <Compile Include="Core\Authentication\ByteBDAuthenticator.cs" />
     <Compile Include="Core\Authentication\ByteDBProtocolAuthenticator.cs" />
-    <Compile Include="Core\Authentication\Models\ByteDBKey.cs" />
     <Compile Include="Core\Authentication\Models\ByteDBUser.cs" />
     <Compile Include="Core\Config\ByteDBServerConfig.cs" />
     <Compile Include="Core\DataTypes\Models\DataType.cs" />
@@ -96,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Core\Authentication\Users.xml" />
-    <Content Include="Core\Authentication\Keys.xml" />
     <Content Include="Core\Config\ServerConfig.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

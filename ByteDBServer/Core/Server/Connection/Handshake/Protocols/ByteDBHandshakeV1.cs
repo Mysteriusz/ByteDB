@@ -22,7 +22,7 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
                     ByteDBServerInstance.Version,
                     ByteDBServerInstance.ServerCapabilitiesInt,
                     SaltSize,
-                    Authenticator.AuthenticationKey.Salt,
+                    Authenticator.Salt,
                     (byte)ByteDBServerInstance.ServerAuthenticationType
                 );
             }

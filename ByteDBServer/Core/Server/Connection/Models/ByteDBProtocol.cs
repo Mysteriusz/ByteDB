@@ -6,6 +6,7 @@ using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.Server.Connection.Handshake.Custom;
 using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.DataTypes;
+using System.Linq;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
@@ -75,7 +76,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
             SaltSize = new Int2(authSaltSize);
 
             ByteDBServerLogger.WriteToFile(CreateProcotolMessage);
-            Authenticator = new ByteDBProtocolAuthenticator(new TimeSpan(0, 0, 0, timeoutSeconds), authSaltSize);
+            Authenticator = new ByteDBProtocolAuthenticator(authSaltSize);
         }
 
         //
@@ -118,20 +119,27 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 // Returns index of the first completed task.
                 int completedTask = Task.WaitAny(responseTask, timeoutTask);
 
+                ByteDBServerLogger.WriteToFile(BitConverter.ToString(buffer));
+
                 // If first completed task was responseTask then log and return response.
                 if (completedTask == 0)
                 {
+                    // Assume that packet with only 0x00 bytes is a FIN type packet
+                    if (buffer.All(b => b == 0x00) && stream.CanRead)
+                    {
+                        ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
+                        return ByteDBPacket.Empty;
+                    }
+
                     cts.Cancel();
 
                     ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
-                    
                     return new ByteDBUnknownPacket(buffer);
                 }
                 // Else if first completed task was timeoutTask then log and return an empty packet.
                 else
                 {
                     ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
-
                     return ByteDBPacket.Empty;
                 }
             }

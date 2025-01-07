@@ -1,11 +1,6 @@
-﻿using ByteDBServer.Core.Authentication.Models;
-using ByteDBServer.Core.Authentication;
+﻿using System.Linq;
 using System;
-using System.Linq;
-using System.Security.Cryptography;
-using ByteDBServer.Core.Misc.Logs;
 
-#nullable enable
 namespace ByteDBServer.Core.Authentication
 {
     internal class ByteDBProtocolAuthenticator : IDisposable
@@ -14,13 +9,13 @@ namespace ByteDBServer.Core.Authentication
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        public ByteDBKey AuthenticationKey { get; }
+        public byte[] Salt { get; private set; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBProtocolAuthenticator(TimeSpan expire, int saltSize = 20) { AuthenticationKey = new ByteDBKey(expire, saltSize, true); }
+        public ByteDBProtocolAuthenticator(int saltSize = 20) { Salt = ByteBDAuthenticator.GenerateSalt(saltSize); }
 
         //
         // ----------------------------- METHODS ----------------------------- 
@@ -29,7 +24,7 @@ namespace ByteDBServer.Core.Authentication
         public bool ValidateAuthentication(byte[] bytes, string username)
         {
             byte[] userPassBytes = ByteBDAuthenticator.GetUser(username).PasswordHashBytes;
-            byte[] expected = ByteBDAuthenticator.Hash(userPassBytes.Concat(AuthenticationKey.Salt).ToArray());
+            byte[] expected = ByteBDAuthenticator.Hash(userPassBytes.Concat(Salt).ToArray());
 
             return bytes.SequenceEqual(expected);
         }
@@ -50,7 +45,7 @@ namespace ByteDBServer.Core.Authentication
             {
                 if (disposing)
                 {
-                    AuthenticationKey.Dispose();
+                    Salt = [];
                 }
 
                 _disposed = true;

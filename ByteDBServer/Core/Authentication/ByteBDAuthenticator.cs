@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Xml.Linq;
 
 namespace ByteDBServer.Core.Authentication
@@ -15,10 +16,6 @@ namespace ByteDBServer.Core.Authentication
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        // KEYS
-        public static List<ByteDBKey> ActiveKeys { get; private set; }
-        public const string KeysFilePath = "Core\\Authentication\\Keys.xml";
-
         // USERS
         public static List<ByteDBUser> ActiveUsers { get; private set; }
         public const string UsersFilePath = "Core\\Authentication\\Users.xml";
@@ -26,59 +23,6 @@ namespace ByteDBServer.Core.Authentication
         //
         // ----------------------------- METHODS ----------------------------- 
         //
-
-        // ----------------------------- KEY METHODS ----------------------------- 
-        public static void InitializeKeys()
-        {
-            XDocument doc = XDocument.Load(Path.Combine(AppContext.BaseDirectory + KeysFilePath));
-
-            //
-            // ----------------------------- READ ALL KEYS ----------------------------- 
-            //
-
-            foreach (var xmlkey in doc.Root.Elements())
-            {
-                TimeSpan timeSpan = DateTime.Now - DateTime.Parse(xmlkey.Attribute("ExpireDate").Value);
-                int saltSize = int.Parse(xmlkey.Attribute("SaltSize").Value);
-                byte[] salt = xmlkey.Attribute("Salt").Value.Split('-').Select(byte.Parse).ToArray();
-
-                if (DateTime.Parse(xmlkey.Attribute("ExpireDate").Value) >= DateTime.Now)
-                    continue;
-
-                ActiveKeys.Add(new ByteDBKey(timeSpan, saltSize, salt));
-            }
-        }
-        public static void WriteKey(ByteDBKey key)
-        {
-            string path = Path.Combine(AppContext.BaseDirectory + KeysFilePath);
-            XDocument doc = XDocument.Load(path);
-
-            //
-            // ----------------------------- WRITE KEY ----------------------------- 
-            //
-
-            doc.Root.Add(NewKeyElement(key));
-            doc.Save(path);
-        }
-        public static void RemoveKey(ByteDBKey key)
-        {
-            string filePath = Path.Combine(AppContext.BaseDirectory, KeysFilePath);
-            XDocument doc = XDocument.Load(filePath);
-
-            var keyElement = doc.Root.Elements("Key").FirstOrDefault(e =>
-                DateTime.Parse(e.Attribute("ExpireDate").Value) == key.ExpireDate &&
-                int.Parse(e.Attribute("SaltSize").Value) == key.Salt.Length &&
-                e.Attribute("Salt").Value == string.Join("-", key.Salt)
-            );
-
-            if (keyElement != null)
-            {
-                keyElement.Remove();
-                ActiveKeys.Remove(key);
-            }
-
-            doc.Save(filePath);
-        }
 
         // ----------------------------- USER METHODS ----------------------------- 
         public static void InitializeUsers()
@@ -122,26 +66,26 @@ namespace ByteDBServer.Core.Authentication
 
             doc.Save(filePath);
         }
-
-        private static XElement NewKeyElement(ByteDBKey key)
-        {
-            return new XElement("Key",
-                new XAttribute("ExpireDate", key.ExpireDate),
-                new XAttribute("SaltSize", key.Salt.Length),
-                new XAttribute("Salt", string.Join("-", key.Salt))
-            );
-        }
-        private static XElement NewUserElement(ByteDBUser user)
+        public static XElement NewUserElement(ByteDBUser user)
         {
             return new XElement("User",
                 new XAttribute("Name", user.Username),
                 new XAttribute("PasswordHash", user.PasswordHash)
             );
         }
-
         public static ByteDBUser GetUser(string username)
         {
             return ActiveUsers.Find(x => x.Username == username);
+        }
+
+        public static byte[] GenerateSalt(int saltSize)
+        {
+            byte[] buffer = new byte[saltSize];
+
+            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+                rng.GetBytes(buffer);
+
+            return buffer;
         }
         public static byte[] Hash(byte[] bytes)
         {
