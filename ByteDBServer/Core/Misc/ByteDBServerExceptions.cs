@@ -68,47 +68,47 @@ namespace ByteDBServer.Core.Misc
     // ----------------------------- CONNECTION RELATED ----------------------------- 
     //
 
-    public class ConnectionsOverflowException : ByteDBServerException
+    public class ByteDBConnectionOverflowException : ByteDBServerException
     {
         public const string DefaultMessage = "Server connection overflow";
 
-        public ConnectionsOverflowException() : base(DefaultMessage) { }
-        public ConnectionsOverflowException(string message) : base(message) { }
+        public ByteDBConnectionOverflowException() : base(DefaultMessage) { }
+        public ByteDBConnectionOverflowException(string message) : base(message) { }
 
-        public ConnectionsOverflowException(Stream stream) : base(stream, DefaultMessage) { }
-        public ConnectionsOverflowException(Stream stream, string message) : base(stream, message) { }
+        public ByteDBConnectionOverflowException(Stream stream) : base(stream, DefaultMessage) { }
+        public ByteDBConnectionOverflowException(Stream stream, string message) : base(stream, message) { }
     }
 
-    public class HandshakeTimeoutException : ByteDBServerException
+    public class ByteDBTimeoutException : ByteDBServerException
     {
         public const string DefaultMessage = "Handshake Timeout";
 
-        public HandshakeTimeoutException() : base(DefaultMessage) { }
-        public HandshakeTimeoutException(string message) : base(message) { }
+        public ByteDBTimeoutException() : base(DefaultMessage) { }
+        public ByteDBTimeoutException(string message) : base(message) { }
 
-        public HandshakeTimeoutException(Stream stream) : base(stream, DefaultMessage) { }
-        public HandshakeTimeoutException(Stream stream, string message) : base(stream, message) { }
+        public ByteDBTimeoutException(Stream stream) : base(stream, DefaultMessage) { }
+        public ByteDBTimeoutException(Stream stream, string message) : base(stream, message) { }
     }
 
-    public class HandshakePacketException : ByteDBServerException
+    public class ByteDBPacketException : ByteDBServerException
     {
         public const string DefaultMessage = "Packet out of order";
 
-        public HandshakePacketException() : base(DefaultMessage) { }
-        public HandshakePacketException(string message) : base(message) { }
+        public ByteDBPacketException() : base(DefaultMessage) { }
+        public ByteDBPacketException(string message) : base(message) { }
 
-        public HandshakePacketException(Stream stream) : base(stream, DefaultMessage) { }
-        public HandshakePacketException(Stream stream, string message) : base(stream, message) { }
+        public ByteDBPacketException(Stream stream) : base(stream, DefaultMessage) { }
+        public ByteDBPacketException(Stream stream, string message) : base(stream, message) { }
     }
 
-    public class InternalConnectionException : ByteDBServerException
+    public class ByteDBConnectionException : ByteDBServerException
     {
         public const string DefaultMessage = "Exception was thrown";
 
-        public InternalConnectionException() : base(DefaultMessage) { }
-        public InternalConnectionException(string message) : base(message) { }
+        public ByteDBConnectionException() : base(DefaultMessage) { }
+        public ByteDBConnectionException(string message) : base(message) { }
 
-        public InternalConnectionException(Stream stream) : base(stream, DefaultMessage) { }
-        public InternalConnectionException(Stream stream, string message) : base(stream, message) { }
+        public ByteDBConnectionException(Stream stream) : base(stream, DefaultMessage) { }
+        public ByteDBConnectionException(Stream stream, string message) : base(stream, message) { }
     }
 }
