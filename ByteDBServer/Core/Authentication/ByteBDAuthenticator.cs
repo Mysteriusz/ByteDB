@@ -126,7 +126,7 @@ namespace ByteDBServer.Core.Authentication
         private static XElement NewKeyElement(ByteDBKey key)
         {
             return new XElement("Key",
-                new XAttribute("ExpireDate", DateTime.Now.Subtract(key.ExpireDate)),
+                new XAttribute("ExpireDate", key.ExpireDate),
                 new XAttribute("SaltSize", key.Salt.Length),
                 new XAttribute("Salt", string.Join("-", key.Salt))
             );
