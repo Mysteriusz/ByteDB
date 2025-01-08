@@ -1,12 +1,10 @@
-﻿using ByteDBServer.Core.DataTypes;
+﻿using ByteDBServer.Core.Server.Connection.Models;
+using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc;
-using ByteDBServer.Core.Server.Connection.Models;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using System.Linq;
 using System;
-using System.Threading.Tasks;
 
-namespace ByteDBServer.Core.Server.Connection.Handshake
+namespace ByteDBServer.Core.Server.Connection
 {
     internal class ByteDBWelcomePacketV1 : ByteDBPacket
     {
@@ -14,35 +12,45 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        public NullTerminatedString Message { set { Payload.AddRange(value.Bytes); } }
-        public NullTerminatedString Version { set { Payload.AddRange(value.Bytes); } }
-        public Int4 Capabilities { set { Payload.AddRange(value.Bytes); } }
-        public Int2 SaltLength { set { Payload.AddRange(value.Bytes); } }
-        public byte[] Salt { set { Payload.AddRange(value); } }
-        public byte AuthenticationType { set { Payload.Add(value); } }
+        public NullTerminatedString Message { get; private set; }
+        public NullTerminatedString Version { get; private set; }
+        public Int4 Capabilities { get; private set; }
+        public Int2 SaltLength { get; private set; }
+        public byte[] Salt { get; private set; }
+        public byte AuthenticationType { get; private set; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
         public ByteDBWelcomePacketV1() : base(ByteDBPacketType.WelcomePacket) { }
-        public ByteDBWelcomePacketV1(byte[] payload) : base(payload, ByteDBPacketType.WelcomePacket) { }
-        public ByteDBWelcomePacketV1(byte[] header, byte[] payload) : base(header, payload) { }
+        public ByteDBWelcomePacketV1(byte[] payload) : base(ByteDBPacketType.WelcomePacket, payload) { }
         public ByteDBWelcomePacketV1(NullTerminatedString message, NullTerminatedString version, Int4 capabilities, Int2 saltLength, byte[] salt, byte authType) : base(ByteDBPacketType.WelcomePacket)
-        { 
+        {
+            AddRange(message.Bytes);
             Message = message;
+
+            AddRange(version.Bytes);
             Version = version;
+
+            AddRange(capabilities.Bytes);
             Capabilities = capabilities;
+
+            AddRange(saltLength.Bytes);
             SaltLength = saltLength;
+
+            AddRange(salt);
             Salt = salt;
+
+            Add(authType);
             AuthenticationType = authType;
         }
 
         //
-        // ----------------------------- METHODS ----------------------------- 
+        // ----------------------------- OVERRIDES ----------------------------- 
         //
 
-        public override void Read(byte[] bytes, int index = 0)
+        public override void ReInitialize(byte[] bytes, int index = 0)
         {
             Payload.Clear();
 
@@ -57,18 +65,27 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
 
                 // ----------------------------- PAYLOAD ----------------------------- 
 
-                Message = new NullTerminatedString(bytes, index + 4, out int usernameIndex);
+                byte[] packetPayload = bytes.Skip(index + 4).Take(packetSize).ToArray();
 
-                Version = new NullTerminatedString(bytes, usernameIndex + 1, out int versionIndex);
+                // ----------------------------- TRY TO ASSIGN VALUES ----------------------------- 
 
-                Capabilities = new Int4(bytes, versionIndex + 1);
+                Message = new NullTerminatedString(packetPayload, 0, out int usernameIndex);
+                AddRange(Message.Bytes);
 
-                var saltLength = new Int2(bytes, versionIndex + 5);
-                SaltLength = saltLength;
+                Version = new NullTerminatedString(packetPayload, usernameIndex + 1, out int versionIndex);
+                AddRange(Version.Bytes);
 
-                Salt = bytes.Skip(versionIndex + 7).Take(saltLength).ToArray();
+                Capabilities = new Int4(packetPayload, versionIndex + 1);
+                AddRange(Capabilities.Bytes);
 
-                AuthenticationType = bytes[versionIndex + 7 + saltLength];
+                SaltLength = new Int2(packetPayload, versionIndex + 5);
+                AddRange(SaltLength.Bytes);
+
+                Salt = packetPayload.Skip(versionIndex + 7).Take(SaltLength).ToArray();
+                AddRange(Salt);
+
+                AuthenticationType = packetPayload[versionIndex + 7 + SaltLength];
+                Add(AuthenticationType);
             }
             catch (IndexOutOfRangeException)
             {

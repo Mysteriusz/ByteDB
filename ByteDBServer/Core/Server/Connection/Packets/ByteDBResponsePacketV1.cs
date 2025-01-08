@@ -1,11 +1,10 @@
-﻿using ByteDBServer.Core.DataTypes;
+﻿using ByteDBServer.Core.Server.Connection.Models;
+using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc;
-using ByteDBServer.Core.Server.Connection.Models;
-using System;
 using System.Linq;
-using System.Threading.Tasks;
+using System;
 
-namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
+namespace ByteDBServer.Core.Server.Connection.Packets
 {
     internal class ByteDBResponsePacketV1 : ByteDBPacket
     {
@@ -13,31 +12,37 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        public NullTerminatedString Username { set { Payload.AddRange(value.Bytes); } }
-        public Int4 Capabilities { set { Payload.AddRange(value.Bytes); } }
-        public Int2 AuthScrambleSize { set { Payload.AddRange(value.Bytes); } }
-        public byte[] AuthScramble { set { Payload.AddRange(value); } }
+        public NullTerminatedString Username { get; private set; }
+        public Int4 Capabilities { get; private set; }
+        public Int2 AuthScrambleSize { get; private set; }
+        public byte[] AuthScramble { get; private set; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
         public ByteDBResponsePacketV1() : base(ByteDBPacketType.ResponsePacket) { }
-        public ByteDBResponsePacketV1(byte[] payload) : base(payload, ByteDBPacketType.ResponsePacket) { }
-        public ByteDBResponsePacketV1(byte[] header, byte[] payload) : base(header, payload) { }
+        public ByteDBResponsePacketV1(byte[] payload) : base(ByteDBPacketType.ResponsePacket, payload) { }
         public ByteDBResponsePacketV1(NullTerminatedString username, Int4 capabilities, Int2 authScrambleSize, byte[] authScramble) : base(ByteDBPacketType.ResponsePacket)
         {
+            AddRange(username.Bytes);
             Username = username;
+
+            AddRange(capabilities.Bytes);
             Capabilities = capabilities;
+            
+            AddRange(authScrambleSize.Bytes);
             AuthScrambleSize = authScrambleSize;
+            
+            AddRange(authScramble);
             AuthScramble = authScramble;
         }
 
         //
-        // ----------------------------- METHODS ----------------------------- 
+        // ----------------------------- OVERRIDES ----------------------------- 
         //
 
-        public override void Read(byte[] bytes, int index = 0)
+        public override void ReInitialize(byte[] bytes, int index = 0)
         {
             Payload.Clear();
 
@@ -52,14 +57,21 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
 
                 // ----------------------------- PAYLOAD ----------------------------- 
 
-                Username = new NullTerminatedString(bytes, index + 4, out int usernameIndex);
+                byte[] packetPayload = bytes.Skip(index + 4).Take(packetSize).ToArray();
 
-                Capabilities = new Int4(bytes, usernameIndex + 1);
+                // ----------------------------- TRY TO ASSIGN VALUES ----------------------------- 
 
-                Int2 authScrambleSize = new Int2(bytes, usernameIndex + 5);
-                AuthScrambleSize = authScrambleSize;
+                Username = new NullTerminatedString(packetPayload, 0, out int usernameIndex);
+                AddRange(Username.Bytes);
 
-                AuthScramble = bytes.Skip(usernameIndex + 7).Take(authScrambleSize).ToArray();
+                Capabilities = new Int4(packetPayload, usernameIndex + 1);
+                AddRange(Capabilities.Bytes);
+
+                AuthScrambleSize = new Int2(packetPayload, usernameIndex + 5);
+                AddRange(AuthScrambleSize.Bytes);
+
+                AuthScramble = packetPayload.Skip(usernameIndex + 7).Take(AuthScrambleSize).ToArray();
+                AddRange(AuthScramble);
             }
             catch (IndexOutOfRangeException)
             {

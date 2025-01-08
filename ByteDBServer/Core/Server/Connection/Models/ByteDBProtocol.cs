@@ -1,12 +1,12 @@
-﻿using System;
-using System.IO;
+﻿using ByteDBServer.Core.Server.Connection.Custom;
+using ByteDBServer.Core.Authentication;
+using ByteDBServer.Core.Misc.Logs;
+using ByteDBServer.Core.DataTypes;
 using System.Threading.Tasks;
 using System.Threading;
-using ByteDBServer.Core.Misc.Logs;
-using ByteDBServer.Core.Server.Connection.Handshake.Custom;
-using ByteDBServer.Core.Authentication;
-using ByteDBServer.Core.DataTypes;
 using System.Linq;
+using System.IO;
+using System;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
@@ -84,14 +84,14 @@ namespace ByteDBServer.Core.Server.Connection.Models
         //
 
         /// <summary>
-        /// Synchronously initiates protocol execution on given stream with timeout.
+        /// Synchronously initiates protocol execution on the given stream with a timeout specified by <see cref="ProtocolTimeout"/>.
         /// </summary>
         /// <param name="stream">Stream on which protocol should be initiated.</param>
         /// <returns>True if the protocol completes successfully; False if an error occurs during execution.</returns>
         public abstract bool ExecuteProtocol(Stream stream);
 
         /// <summary>
-        /// Asynchronously initiates protocol execution on given stream with timeout.
+        /// Asynchronously initiates protocol execution on the given stream with a timeout specified by <see cref="ProtocolTimeout"/>.
         /// </summary>
         /// <param name="stream">Stream on which protocol should be initiated.</param>
         /// <returns>True if the protocol completes successfully; False if an error occurs during execution.</returns>
@@ -102,45 +102,44 @@ namespace ByteDBServer.Core.Server.Connection.Models
         /// </summary>
         /// <param name="stream">The stream to listen for a response.</param>
         /// <param name="seconds">The maximum time, in seconds, to wait for a response.</param>
-        /// <returns>A <see cref="ByteDBCustomPacket"/> containing the response data if received in time; otherwise, returns an empty packet.</returns>
+        /// <returns>A <see cref="ByteDBUnknownPacket"/> containing the response data if received in time; otherwise, returns an empty packet.</returns>
         public virtual ByteDBUnknownPacket WaitForResponseInTime(Stream stream, int seconds)
         {
             using (CancellationTokenSource cts = new CancellationTokenSource())
             {
                 // Creates a buffer
                 byte[] buffer = new byte[ByteDBServerInstance.BufferSize];
+                int bytesRead = 0;
 
                 // Creates a task that completes after the specified time duration or is canceled using the provided CancellationToken.
                 Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(seconds), cts.Token);
 
                 // Creates a task that reads data from the stream into the buffer or is canceled using the provided CancellationToken.
-                Task responseTask = Task.Run(() => stream.Read(buffer, 0, buffer.Length), cts.Token);
+                Task<int> responseTask = Task.Run(() => { bytesRead = stream.Read(buffer, 0, buffer.Length); return bytesRead; }, cts.Token);
 
                 // Returns index of the first completed task.
                 int completedTask = Task.WaitAny(responseTask, timeoutTask);
 
-                ByteDBServerLogger.WriteToFile(BitConverter.ToString(buffer));
-
                 // If first completed task was responseTask then log and return response.
                 if (completedTask == 0)
                 {
-                    // Assume that packet with only 0x00 bytes is a FIN type packet
-                    if (buffer.All(b => b == 0x00) && stream.CanRead)
-                    {
-                        ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
-                        return ByteDBPacket.Empty;
-                    }
-
                     cts.Cancel();
 
+                    // Assume that if packet had 0 bytes it`s a FIN packet.
+                    if (bytesRead == 0)
+                    {
+                        ByteDBServerLogger.WriteToFile("CONNECTION ENDED");
+                        return new ByteDBUnknownPacket() { FIN = true };
+                    }
+
                     ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
-                    return new ByteDBUnknownPacket(buffer);
+                    return new ByteDBUnknownPacket(buffer.Take(bytesRead).ToArray());
                 }
-                // Else if first completed task was timeoutTask then log and return an empty packet.
+                // Else if first completed task was timeoutTask then log and return an empty packet marked as TIMEOUT.
                 else
                 {
                     ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
-                    return ByteDBPacket.Empty;
+                    return new ByteDBUnknownPacket() { TIMEOUT = true };
                 }
             }
         }
@@ -150,7 +149,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
         /// </summary>
         /// <param name="stream">The stream to listen for a response.</param>
         /// <param name="seconds">The maximum time, in seconds, to wait for a response.</param>
-        /// <returns>A <see cref="ByteDBCustomPacket"/> containing the response data if received in time; otherwise, returns an empty packet.</returns>
+        /// <returns>A <see cref="ByteDBUnknownPacket"/> containing the response data if received in time; otherwise, returns an empty packet.</returns>
         public virtual async Task<ByteDBUnknownPacket> WaitForResponseInTimeAsync(Stream stream, int seconds)
         {
             using (CancellationTokenSource cts = new CancellationTokenSource())
@@ -170,17 +169,22 @@ namespace ByteDBServer.Core.Server.Connection.Models
                 // If first completed task was responseTask then log and return response.
                 if (completedTask == responseTask)
                 {
+                    // Assume that packet with only 0x00 bytes is a FIN type packet
+                    if (buffer.All(b => b == 0x00))
+                    {
+                        ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
+                        return ByteDBPacket.Empty;
+                    }
+
                     cts.Cancel();
 
                     ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
-
                     return new ByteDBUnknownPacket(buffer);
                 }
                 // Else if first completed task was timeoutTask then log and return an empty packet.
                 else
                 {
                     ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
-                    
                     return ByteDBPacket.Empty;
                 }
             }

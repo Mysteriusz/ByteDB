@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ByteDBServer.Core.Server.Connection.Custom;
 using ByteDBServer.Core.DataTypes;
-using ByteDBServer.Core.Server.Connection.Handshake.Custom;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Text;
+using System.IO;
+using System;
+using ByteDBServer.Core.Misc;
 
 namespace ByteDBServer.Core.Server.Connection.Models
 {
@@ -25,9 +26,9 @@ namespace ByteDBServer.Core.Server.Connection.Models
         public Int3 Size => new Int3(Payload.Count);
 
         /// <summary>
-        /// Packet payload as <see cref="List{byte}"/>.
+        /// Packet Payload as <see cref="List{byte}"/>.
         /// </summary>
-        public List<byte> Payload { get; } = new List<byte>();
+        public List<byte> Payload => this;
 
         /// <summary>
         /// Packet Header as <see cref="List{byte}"/>.
@@ -63,7 +64,7 @@ namespace ByteDBServer.Core.Server.Connection.Models
         /// <summary>
         /// Static empty <see cref="ByteDBUnknownPacket"/>.
         /// </summary>
-        public static ByteDBUnknownPacket Empty { get { return new ByteDBUnknownPacket(); } }
+        public static ByteDBUnknownPacket Empty => new ByteDBUnknownPacket();
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
@@ -74,15 +75,10 @@ namespace ByteDBServer.Core.Server.Connection.Models
         {
             PacketType = packetType;
         }
-        public ByteDBPacket(byte[] payload, ByteDBPacketType packetType)
+        public ByteDBPacket(ByteDBPacketType packetType, byte[] payload) 
         {
             AddRange(payload);
             PacketType = packetType;
-        }
-        public ByteDBPacket(byte[] header, byte[] payload)
-        {
-            PacketType = (ByteDBPacketType)header[0];
-            AddRange(payload);
         }
 
         //
@@ -117,7 +113,59 @@ namespace ByteDBServer.Core.Server.Connection.Models
         /// Synchronously reads packet from provided bytes.
         /// </summary>
         /// <param name="bytes">Bytes from which packet should be read.</param>
-        public abstract void Read(byte[] bytes, int index);
+        /// <param name="index">Index from which reading should start.</param>
+        public abstract void ReInitialize(byte[] bytes, int index = 0);
+
+        /// <summary>
+        /// Method for packet validation.
+        /// </summary>
+        /// <returns>True if packet is correct; False if packet is incorrect.</returns>
+        public virtual bool Validate()
+        {
+            try
+            {
+                ReInitialize(Packet.ToArray());
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Method for packet validation using <paramref name="packet"/>.
+        /// </summary>
+        /// <returns>True if <paramref name="packet"/> is correct; False if <paramref name="packet"/> is incorrect.</returns>
+        public virtual bool Validate(byte[] packet)
+        {
+            try
+            {
+                ReInitialize(packet);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Method for packet casting.
+        /// </summary>
+        /// <returns><typeparamref name="TPacket"/> if it`s possible to cast.</returns>
+        /// <exception cref="ByteDBPacketException">Thrown when packet cannot be casted.</exception>
+        public static TPacket ToPacket<TPacket>(ByteDBUnknownPacket unk) where TPacket : ByteDBPacket, new()
+        {
+            TPacket packet = new TPacket();
+
+            if (!packet.Validate(unk.Packet.ToArray()))
+                throw new ByteDBPacketException("Unable to cast");
+
+            return packet;
+        }
 
         //
         // ----------------------------- DISPOSING ----------------------------- 

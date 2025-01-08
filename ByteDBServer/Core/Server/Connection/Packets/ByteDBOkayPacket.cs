@@ -1,12 +1,10 @@
-﻿using ByteDBServer.Core.DataTypes;
+﻿using ByteDBServer.Core.Server.Connection.Models;
+using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc;
-using ByteDBServer.Core.Server.Connection.Models;
 using System.Linq;
 using System;
-using System.Threading.Tasks;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
-namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
+namespace ByteDBServer.Core.Server.Connection.Packets
 {
     internal class ByteDBOkayPacket : ByteDBPacket
     {
@@ -14,25 +12,25 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        public NullTerminatedString Message { set { Payload.AddRange(value.Bytes); } }
+        public NullTerminatedString Message { get; private set; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
         public ByteDBOkayPacket() : base(ByteDBPacketType.OkayPacket) { }
-        public ByteDBOkayPacket(byte[] payload) : base(payload, ByteDBPacketType.OkayPacket) { }
-        public ByteDBOkayPacket(byte[] header, byte[] payload) : base(header, payload) { }
+        public ByteDBOkayPacket(byte[] payload) : base(ByteDBPacketType.OkayPacket, payload) { }
         public ByteDBOkayPacket(NullTerminatedString message) : base(ByteDBPacketType.OkayPacket)
         {
+            AddRange(message.Bytes);
             Message = message;
         }
 
         //
-        // ----------------------------- METHODS ----------------------------- 
+        // ----------------------------- OVERRIDES ----------------------------- 
         //
 
-        public override void Read(byte[] bytes, int index = 0)
+        public override void ReInitialize(byte[] bytes, int index = 0)
         {
             Payload.Clear();
 
@@ -47,7 +45,12 @@ namespace ByteDBServer.Core.Server.Connection.Handshake.Packets
 
                 // ----------------------------- PAYLOAD ----------------------------- 
 
-                Message = new NullTerminatedString(bytes, index + 4);
+                byte[] packetPayload = bytes.Skip(index + 4).Take(packetSize).ToArray();
+
+                // ----------------------------- TRY TO ASSIGN VALUES ----------------------------- 
+                
+                Message = new NullTerminatedString(packetPayload, 0);
+                AddRange(Message.Bytes);
             }
             catch (IndexOutOfRangeException)
             {
