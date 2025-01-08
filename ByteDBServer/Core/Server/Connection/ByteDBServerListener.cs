@@ -6,7 +6,7 @@ using ByteDBServer.Core.Server.Connection.Handshake;
 using ByteDBServer.Core.Misc;
 using System;
 using ByteDBServer.Core.Misc.Logs;
-using ByteDBServer.Core.Server.Connection.Handshake.Packets;
+using ByteDBServer.Core.Server.Connection.Packets;
 
 namespace ByteDBServer.Core.Server
 {
@@ -75,15 +75,9 @@ namespace ByteDBServer.Core.Server
                         var handshake = new ByteDBHandshakeV1();
                         bool success = handshake.ExecuteProtocol(stream);
 
-                        // Check if protocol was a success
+                        // Check if protocol was a success and if so add client to ConnectedClients
                         if (success)
-                        {
-                            // Add client to connected
                             ConnectedClients.Add(client);
-
-                            // Send okay packet to clinet
-                            new ByteDBOkayPacket("Connection successfull!");
-                        }
                         else
                             client.Dispose();
 

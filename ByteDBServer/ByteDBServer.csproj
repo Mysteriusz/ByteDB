@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SecureHash">
-      <HintPath>D:\pobranex\SecureHash.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
@@ -51,7 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Authentication\ByteBDAuthenticator.cs" />
+    <Compile Include="Core\Authentication\ByteDBAuthenticator.cs" />
     <Compile Include="Core\Authentication\ByteDBProtocolAuthenticator.cs" />
     <Compile Include="Core\Authentication\Models\ByteDBUser.cs" />
     <Compile Include="Core\Config\ByteDBServerConfig.cs" />

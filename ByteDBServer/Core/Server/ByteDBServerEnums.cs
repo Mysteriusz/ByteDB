@@ -14,11 +14,8 @@
     }
     public enum ServerAuthenticationType : byte
     {
-        SHA224 = 0x01,
-        SHA256 = 0x02,
-        SHA384 = 0x03,
-        SHA512 = 0x04,
-        SHA512_224 = 0x05,
-        SHA512_256 = 0x06,
+        SHA256 = 0x01,
+        SHA384 = 0x02,
+        SHA512 = 0x03,
     }
 }
