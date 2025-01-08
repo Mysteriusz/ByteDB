@@ -1,5 +1,6 @@
 ﻿using ByteDBServer.Core.Authentication.Models;
 using ByteDBServer.Core.Misc;
+using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.Server;
 using System;
 using System.Collections.Generic;
@@ -10,14 +11,14 @@ using System.Xml.Linq;
 
 namespace ByteDBServer.Core.Authentication
 {
-    internal static class ByteBDAuthenticator
+    internal static class ByteDBAuthenticator
     {
         //
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         // USERS
-        public static List<ByteDBUser> ActiveUsers { get; private set; }
+        public static List<ByteDBUser> ActiveUsers { get; private set; } = new List<ByteDBUser>();
         public const string UsersFilePath = "Core\\Authentication\\Users.xml";
 
         //
@@ -34,7 +35,7 @@ namespace ByteDBServer.Core.Authentication
             //
 
             foreach (var xmluser in doc.Root.Elements())
-                ActiveUsers.Add(new ByteDBUser(xmluser.Attribute("Name").ToString(), xmluser.Attribute("PasswordHash").ToString()));
+                ActiveUsers.Add(new ByteDBUser(xmluser.Attribute("Name").Value, xmluser.Attribute("PasswordHash").Value));
         }
         public static void WriteUser(ByteDBUser user)
         {
@@ -73,7 +74,9 @@ namespace ByteDBServer.Core.Authentication
                 new XAttribute("PasswordHash", user.PasswordHash)
             );
         }
-        public static ByteDBUser GetUser(string username)
+        
+        #nullable enable
+        public static ByteDBUser? GetUser(string username)
         {
             return ActiveUsers.Find(x => x.Username == username);
         }
@@ -91,29 +94,17 @@ namespace ByteDBServer.Core.Authentication
         {
             switch (ByteDBServerInstance.ServerAuthenticationType)
             {
-                case ServerAuthenticationType.SHA224:
-                    using (SecureHash.SHA2.SHA224 sha = SecureHash.SHA2.SHA224.Create())
-                    return sha.ComputeHashBytes(bytes);
-
                 case ServerAuthenticationType.SHA256:
-                    using (SecureHash.SHA2.SHA256 sha = SecureHash.SHA2.SHA256.Create())
-                    return sha.ComputeHashBytes(bytes);
+                    using (SHA256 sha = SHA256.Create())
+                    return sha.ComputeHash(bytes);
                 
                 case ServerAuthenticationType.SHA384:
-                    using (SecureHash.SHA2.SHA384 sha = SecureHash.SHA2.SHA384.Create())
-                    return sha.ComputeHashBytes(bytes);
+                    using (SHA384 sha = SHA384.Create())
+                    return sha.ComputeHash(bytes);
                 
                 case ServerAuthenticationType.SHA512:
-                    using (SecureHash.SHA2.SHA512 sha = SecureHash.SHA2.SHA512.Create())
-                    return sha.ComputeHashBytes(bytes);
-                
-                case ServerAuthenticationType.SHA512_224:
-                    using (SecureHash.SHA2.SHA512_224 sha = SecureHash.SHA2.SHA512_224.Create())
-                    return sha.ComputeHashBytes(bytes);
-                
-                case ServerAuthenticationType.SHA512_256:
-                    using (SecureHash.SHA2.SHA512_256 sha = SecureHash.SHA2.SHA512_256.Create())
-                    return sha.ComputeHashBytes(bytes);
+                    using (SHA512 sha = SHA512.Create())
+                    return sha.ComputeHash(bytes);
             }
 
             throw new ByteDBInternalException("Unknown server authentication type.");

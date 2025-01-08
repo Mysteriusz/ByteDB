@@ -16,7 +16,7 @@ namespace ByteDBServer.Core.Authentication.Models
             PasswordHash = passwordHash; 
 
             if (write)
-                ByteBDAuthenticator.WriteUser(this);
+                ByteDBAuthenticator.WriteUser(this);
         }
 
         //
@@ -45,7 +45,7 @@ namespace ByteDBServer.Core.Authentication.Models
             {
                 if (disposing)
                 {
-                    ByteBDAuthenticator.RemoveUser(this);
+                    ByteDBAuthenticator.RemoveUser(this);
                     Username = null;
                     PasswordHash = null;
                 }

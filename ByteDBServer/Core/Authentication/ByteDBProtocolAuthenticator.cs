@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using System;
+using ByteDBServer.Core.Misc.Logs;
+using ByteDBServer.Core.Authentication.Models;
 
 namespace ByteDBServer.Core.Authentication
 {
@@ -15,18 +17,24 @@ namespace ByteDBServer.Core.Authentication
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBProtocolAuthenticator(int saltSize = 20) { Salt = ByteBDAuthenticator.GenerateSalt(saltSize); }
+        public ByteDBProtocolAuthenticator(int saltSize = 20) { Salt = ByteDBAuthenticator.GenerateSalt(saltSize); }
 
         //
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public bool ValidateAuthentication(byte[] bytes, string username)
+        #nullable enable
+        public bool ValidateAuthentication(byte[] scramble, string username)
         {
-            byte[] userPassBytes = ByteBDAuthenticator.GetUser(username).PasswordHashBytes;
-            byte[] expected = ByteBDAuthenticator.Hash(userPassBytes.Concat(Salt).ToArray());
+            ByteDBUser? user = ByteDBAuthenticator.GetUser(username);
 
-            return bytes.SequenceEqual(expected);
+            if (user == null)
+                return false;
+
+            byte[] userPassBytes = user.PasswordHashBytes;
+            byte[] expected = ByteDBAuthenticator.Hash(userPassBytes.Concat(Salt).ToArray());
+
+            return scramble.SequenceEqual(expected);
         }
 
         //
