@@ -9,8 +9,6 @@ namespace ByteDBServer.Core.Services
 {
     partial class ByteDBServerService : ServiceBase
     {
-        private ByteDBServerListener _listener;
-
         public ByteDBServerService()
         {
             InitializeComponent();
@@ -32,9 +30,7 @@ namespace ByteDBServer.Core.Services
             // TODO: Add code here to start your service.
 
             ByteDBServerLogger.WriteToFile("Server Started!");
-
-            _listener = new ByteDBServerListener(ByteDBServerInstance.IpAddress, ByteDBServerInstance.ListeningPort);
-            _listener.StartListening();
+            ByteDBServerListener.StartListening();
         }
 
         protected override void OnStop()
@@ -42,9 +38,7 @@ namespace ByteDBServer.Core.Services
             // TODO: Add code here to perform any tear-down necessary to stop your service.
 
             ByteDBServerLogger.WriteToFile("Server Stopped!");
-
-            _listener.StopListening();
-            _listener = null;
+            ByteDBServerListener.StopListening();
         }
 
         [DllImport("advapi32.dll", SetLastError = true)]

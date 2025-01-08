@@ -21,16 +21,25 @@ namespace ByteDBServer.Core.Server
         // ----------------------------- PROPERITES ----------------------------- 
         //
 
+        // General Server Information
         public static string Version => ByteDBServerConfig.ServerVersion;
         public static string IpAddress => ByteDBServerConfig.IpAddress;
 
+        // Networking and Listening
         public static int ListeningPort => ByteDBServerConfig.Port;
-        public static int MaxConnections => ByteDBServerConfig.MaxConnections;
-        public static int BufferSize => ByteDBServerConfig.BufferSize;
         public static int ListeningDelay => ByteDBServerConfig.ListeningDelay;
 
+        // Thread Pool Configuration
+        public static int MaxThreadPoolSize => ByteDBServerConfig.MaxThreadPoolSize;
+        public static int MinThreadPoolSize => ByteDBServerConfig.MinThreadPoolSize;
+        public static int MaxConnections => ByteDBServerConfig.MaxConnections;
+        public static int BufferSize => ByteDBServerConfig.BufferSize;
+
+        // Server Capabilities
         public static Int4 ServerCapabilitiesInt => ByteDBServerConfig.ServerCapabilitiesInt;
         public static List<ServerCapabilities> ServerCapabilities => ByteDBServerConfig.ReadFlags<ServerCapabilities>(ServerCapabilitiesInt.Value);
+
+        // Server Encoding and Authentication
         public static Encoding ServerEncoding => ByteDBServerConfig.Encoding;
         public static ServerAuthenticationType ServerAuthenticationType = ServerAuthenticationType.SHA512;
 
