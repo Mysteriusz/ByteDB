@@ -74,6 +74,14 @@ namespace ByteDBServer.Core.Misc
         public ByteDBPacketException(string message) : base(message) { }
     }
 
+    public class ByteDBPacketDataException : Exception
+    {
+        public const string DefaultMessage = "Packet data incorrect";
+
+        public ByteDBPacketDataException() : base(DefaultMessage) { }
+        public ByteDBPacketDataException(string message) : base(message) { }
+    }
+
     public class ByteDBConnectionException : Exception
     {
         public const string DefaultMessage = "Exception was thrown";
