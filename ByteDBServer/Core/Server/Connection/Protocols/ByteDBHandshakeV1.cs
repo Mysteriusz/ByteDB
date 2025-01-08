@@ -109,16 +109,59 @@ namespace ByteDBServer.Core.Server.Connection.Handshake
         }
         public override async Task<bool> ExecuteProtocolAsync(Stream stream)
         {
-            // Log protocol execution
-            ByteDBServerLogger.WriteToFile(StartProcotolMessage);
+            try
+            {
+                // Log protocol execution
+                ByteDBServerLogger.WriteToFile(StartProcotolMessage);
 
-            // Send Welcome packet on stream asynchronously
-            await WelcomePacket.WriteAsync(stream);
+                // Send Welcome packet on stream asynchronously
+                await WelcomePacket.WriteAsync(stream);
 
-            // Wait for response asynchronously
-            ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(stream, ProtocolTimeout);
+                // Wait for response asynchronously
+                ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(stream, ProtocolTimeout);
 
-            return false;
+                // Check if response packet is a finalizer packet
+                if (responsePacket.FIN)
+                    throw new ByteDBConnectionException();
+                // Check if response packet was never received packet
+                else if (responsePacket.TIMEOUT)
+                    throw new ByteDBTimeoutException();
+
+                // Cast response packet to correct packet
+                ByteDBResponsePacketV1 casted = ByteDBPacket.ToPacket<ByteDBResponsePacketV1>(responsePacket);
+
+                // Check if response data is correct
+                if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username))
+                    throw new ByteDBPacketDataException();
+            }
+            catch (Exception ex)
+            {
+                // Check the type of exception and assign packet message
+                string exceptionMessage = ex switch
+                {
+                    ByteDBConnectionException => "ConnectionWasClosed",
+                    ByteDBPacketException => "PacketOutOfOrder",
+                    ByteDBTimeoutException => "HandshakeTimeout",
+                    ByteDBPacketDataException => "IncorrectPacketData",
+                    _ => "UnexpectedError"
+                };
+
+                // Write exception to file
+                ByteDBServerLogger.WriteExceptionToFile(ex);
+
+                // Write error packet to stream
+                var errorPacket = new ByteDBErrorPacket(exceptionMessage);
+                await errorPacket.WriteAsync(stream);
+
+                return false;
+            }
+
+            ByteDBServerLogger.WriteToFile("Handshake Successfull!");
+
+            // Write okay packet to stream
+            await OkayPacket.WriteAsync(stream);
+
+            return true;
         }
     }
 }
