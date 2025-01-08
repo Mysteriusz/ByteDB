@@ -1,13 +1,14 @@
-﻿using ByteDBServer.Core.Server.Connection.Packets;
-using ByteDBServer.Core.Server.Connection.Custom;
-using ByteDBServer.Core.Server.Connection.Models;
+﻿using ByteDBServer.Core.Server.Protocols.Models;
+using ByteDBServer.Core.Server.Packets.Models;
+using ByteDBServer.Core.Server.Packets.Custom;
+using ByteDBServer.Core.Server.Packets;
 using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
 using System.IO;
 using System;
 
-namespace ByteDBServer.Core.Server.Connection.Handshake
+namespace ByteDBServer.Core.Server.Protocols
 {
     internal class ByteDBHandshakeV1 : ByteDBProtocol
     {

@@ -1,12 +1,11 @@
-﻿using System.Net;
-using System.Threading;
-using System.Net.Sockets;
-using System.Collections.Generic;
-using ByteDBServer.Core.Server.Connection.Handshake;
-using ByteDBServer.Core.Misc;
-using System;
+﻿using ByteDBServer.Core.Server.Protocols;
 using ByteDBServer.Core.Misc.Logs;
-using ByteDBServer.Core.Server.Connection.Packets;
+using System.Collections.Generic;
+using ByteDBServer.Core.Misc;
+using System.Net.Sockets;
+using System.Threading;
+using System.Net;
+using System;
 
 namespace ByteDBServer.Core.Server
 {

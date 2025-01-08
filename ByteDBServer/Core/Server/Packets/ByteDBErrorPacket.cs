@@ -1,10 +1,10 @@
-﻿using ByteDBServer.Core.Server.Connection.Models;
+﻿using ByteDBServer.Core.Server.Packets.Models;
 using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc;
 using System.Linq;
 using System;
 
-namespace ByteDBServer.Core.Server.Connection
+namespace ByteDBServer.Core.Server.Packets
 {
     internal class ByteDBErrorPacket : ByteDBPacket
     {

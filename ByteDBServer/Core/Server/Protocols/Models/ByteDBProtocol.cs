@@ -1,4 +1,4 @@
-﻿using ByteDBServer.Core.Server.Connection.Custom;
+﻿using ByteDBServer.Core.Server.Packets.Custom;
 using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.DataTypes;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.IO;
 using System;
 
-namespace ByteDBServer.Core.Server.Connection.Models
+namespace ByteDBServer.Core.Server.Protocols.Models
 {
     /// <summary>
     /// Base protocol model with methods for handling custom protocols.

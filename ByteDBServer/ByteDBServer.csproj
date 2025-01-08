@@ -62,15 +62,16 @@
     <Compile Include="Core\DataTypes\NullTerminatedString.cs" />
     <Compile Include="Core\Misc\ByteDBServerExceptions.cs" />
     <Compile Include="Core\Server\ByteDBServerEnums.cs" />
-    <Compile Include="Core\Server\Connection\Custom\ByteDBUnknownPacket.cs" />
-    <Compile Include="Core\Server\Connection\Packets\ByteDBErrorPacket.cs" />
-    <Compile Include="Core\Server\Connection\Packets\ByteDBOkayPacket.cs" />
-    <Compile Include="Core\Server\Connection\Packets\ByteDBResponsePacketV1.cs" />
-    <Compile Include="Core\Server\Connection\Protocols\ByteDBHandshakeV1.cs" />
-    <Compile Include="Core\Server\Connection\Packets\ByteDBWelcomePacketV1.cs" />
-    <Compile Include="Core\Server\Connection\Models\ByteDBPacket.cs" />
-    <Compile Include="Core\Server\Connection\ByteDBServerListener.cs" />
-    <Compile Include="Core\Server\Connection\Models\ByteDBProtocol.cs" />
+    <Compile Include="Core\Server\Networking\Models\ByteDBClient.cs" />
+    <Compile Include="Core\Server\Packets\Custom\ByteDBUnknownPacket.cs" />
+    <Compile Include="Core\Server\Packets\ByteDBErrorPacket.cs" />
+    <Compile Include="Core\Server\Packets\ByteDBOkayPacket.cs" />
+    <Compile Include="Core\Server\Packets\ByteDBResponsePacketV1.cs" />
+    <Compile Include="Core\Server\Protocols\ByteDBHandshakeV1.cs" />
+    <Compile Include="Core\Server\Packets\ByteDBWelcomePacketV1.cs" />
+    <Compile Include="Core\Server\Packets\Models\ByteDBPacket.cs" />
+    <Compile Include="Core\Server\Networking\ByteDBServerListener.cs" />
+    <Compile Include="Core\Server\Protocols\Models\ByteDBProtocol.cs" />
     <Compile Include="Core\Services\ByteDBServerService.cs">
       <SubType>Component</SubType>
     </Compile>

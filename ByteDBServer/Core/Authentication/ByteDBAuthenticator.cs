@@ -1,13 +1,12 @@
 ﻿using ByteDBServer.Core.Authentication.Models;
-using ByteDBServer.Core.Misc;
-using ByteDBServer.Core.Misc.Logs;
-using ByteDBServer.Core.Server;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
+using System.Collections.Generic;
+using ByteDBServer.Core.Server;
+using ByteDBServer.Core.Misc;
 using System.Xml.Linq;
+using System.Linq;
+using System.IO;
+using System;
 
 namespace ByteDBServer.Core.Authentication
 {

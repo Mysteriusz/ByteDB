@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.ServiceProcess;
-using System.Text;
-using ByteDBServer.Core.Authentication;
-using ByteDBServer.Core.Config;
+﻿using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc.Logs;
+using System.Collections.Generic;
 using ByteDBServer.Core.Services;
+using ByteDBServer.Core.Config;
+using System.ServiceProcess;
+using System.Text;
 
 namespace ByteDBServer.Core.Server
 {

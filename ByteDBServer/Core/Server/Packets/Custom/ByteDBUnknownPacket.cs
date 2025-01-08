@@ -1,8 +1,7 @@
-﻿using ByteDBServer.Core.Server.Connection.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace ByteDBServer.Core.Server.Connection.Custom
+namespace ByteDBServer.Core.Server.Packets.Custom
 {
     /// <summary>
     /// Custom, non-templated Packet.

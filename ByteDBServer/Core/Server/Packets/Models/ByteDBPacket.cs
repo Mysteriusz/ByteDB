@@ -1,13 +1,13 @@
-﻿using ByteDBServer.Core.Server.Connection.Custom;
+﻿using ByteDBServer.Core.Server.Packets.Custom;
 using ByteDBServer.Core.DataTypes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ByteDBServer.Core.Misc;
 using System.Text;
 using System.IO;
 using System;
-using ByteDBServer.Core.Misc;
 
-namespace ByteDBServer.Core.Server.Connection.Models
+namespace ByteDBServer.Core.Server.Packets.Models
 {
     internal abstract class ByteDBPacket : List<byte>, IDisposable
     {

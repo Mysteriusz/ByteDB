@@ -1,7 +1,6 @@
-﻿using System.Linq;
+﻿using ByteDBServer.Core.Authentication.Models;
+using System.Linq;
 using System;
-using ByteDBServer.Core.Misc.Logs;
-using ByteDBServer.Core.Authentication.Models;
 
 namespace ByteDBServer.Core.Authentication
 {
