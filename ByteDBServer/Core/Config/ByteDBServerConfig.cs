@@ -35,8 +35,7 @@ namespace ByteDBServer.Core.Config
         public static int BufferSize { get; private set; }
         public static int ListeningDelay { get; private set; }
         
-        public static int MaxThreadPoolSize { get; private set; }
-        public static int MinThreadPoolSize { get; private set; }
+        public static int HandlerPoolSize { get; private set; }
 
         //
         // ----------------------------- METHODS ----------------------------- 
@@ -59,8 +58,7 @@ namespace ByteDBServer.Core.Config
             BufferSize = int.Parse(config.Root.Element("BufferSize").Value);
             
             MaxConnections = int.Parse(config.Root.Element("MaxConnections").Value);
-            MaxThreadPoolSize = int.Parse(config.Root.Element("MaxThreadPoolSize").Value);
-            MinThreadPoolSize = int.Parse(config.Root.Element("MinThreadPoolSize").Value);
+            HandlerPoolSize = int.Parse(config.Root.Element("HandlerPoolSize").Value);
             
             ServerCapabilitiesInt = new Int4(uint.Parse(config.Root.Element("ServerCapabilities").Value));
 

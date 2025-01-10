@@ -7,4 +7,5 @@
 	<Encoding>ASCII</Encoding>
 	<ServerCapabilities>00000001</ServerCapabilities>
 	<BufferSize>2048</BufferSize>
+	<HandlerPoolSize>5</HandlerPoolSize>
 </ServerConfig>
