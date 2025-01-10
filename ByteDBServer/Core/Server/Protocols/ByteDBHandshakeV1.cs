@@ -7,6 +7,7 @@ using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
 using System.IO;
 using System;
+using System.Net.Sockets;
 
 namespace ByteDBServer.Core.Server.Protocols
 {
@@ -56,9 +57,6 @@ namespace ByteDBServer.Core.Server.Protocols
         {
             try
             {
-                // Log protocol execution
-                ByteDBServerLogger.WriteToFile(StartProcotolMessage);
-
                 // Send Welcome packet to stream synchronously
                 WelcomePacket.Write(stream);
 
@@ -101,8 +99,6 @@ namespace ByteDBServer.Core.Server.Protocols
                 return false;
             }
 
-            ByteDBServerLogger.WriteToFile("Handshake Successfull!");
-            
             // Write okay packet to stream
             OkayPacket.Write(stream);
             
@@ -112,11 +108,10 @@ namespace ByteDBServer.Core.Server.Protocols
         {
             try
             {
-                // Log protocol execution
-                ByteDBServerLogger.WriteToFile(StartProcotolMessage);
-
+                ByteDBServerLogger.WriteToFile("Sending Welcome Packet...");
                 // Send Welcome packet on stream asynchronously
                 await WelcomePacket.WriteAsync(stream);
+                ByteDBServerLogger.WriteToFile("Welcome Packet sent, waiting for response...");
 
                 // Wait for response asynchronously
                 ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(stream, ProtocolTimeout);
@@ -156,8 +151,6 @@ namespace ByteDBServer.Core.Server.Protocols
 
                 return false;
             }
-
-            ByteDBServerLogger.WriteToFile("Handshake Successfull!");
 
             // Write okay packet to stream
             await OkayPacket.WriteAsync(stream);
