@@ -49,7 +49,7 @@ namespace ByteDBServer.Core.Server.Networking
                             var handler = await GetHandler();
                             handler.ExecuteReadingTask(task);
 
-                            BusyHandlers.Enqueue(IdleHandlers.Dequeue());
+                            IdleHandlers.Enqueue(BusyHandlers.Dequeue());
                         }
                         else
                             await Task.Delay(50);
