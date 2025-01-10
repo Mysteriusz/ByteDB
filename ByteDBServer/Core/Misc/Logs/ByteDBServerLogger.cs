@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System;
+using ByteDBServer.Core.Server;
+using System.Threading.Tasks;
 
 namespace ByteDBServer.Core.Misc.Logs
 {
@@ -23,11 +25,17 @@ namespace ByteDBServer.Core.Misc.Logs
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public static void WriteToFile(string text)
+        public static void WriteToFile(string text, LogType logType = LogType.Message)
         {
             using (StreamWriter writer = LogFile.AppendText())
-                writer.WriteLine($"[{DateTime.Now:yyyy-MM-dd_HH:mm:ss}] - ({text})");
+                writer.WriteLine($"[{logType}] [{DateTime.Now:yyyy-MM-dd_HH:mm:ss}] - ({text})");
         }
+        public static async Task WriteToFileAsync(string text, LogType logType = LogType.Message)
+        {
+            using (StreamWriter writer = LogFile.AppendText())
+                await writer.WriteLineAsync($"[{logType}] [{DateTime.Now:yyyy-MM-dd_HH:mm:ss}] - ({text})");
+        }
+
         public static void WriteExceptionToFile(Exception exception)
         {
             using (StreamWriter writer = LogFile.AppendText())
@@ -45,6 +53,24 @@ namespace ByteDBServer.Core.Misc.Logs
                 writer.WriteLine();
             }
         }
+        public static async Task WriteExceptionToFileAsync(Exception exception)
+        {
+            using (StreamWriter writer = LogFile.AppendText())
+            {
+                await writer.WriteLineAsync($"[{DateTime.Now:yyyy-MM-dd_HH:mm:ss}] - ({exception.GetType().Name}): {exception.Message}");
+                await writer.WriteAsync("Stack Trace:");
+                await writer.WriteAsync(exception.StackTrace);
+
+                if (exception.InnerException != null)
+                {
+                    await writer.WriteLineAsync("Inner Exception:");
+                    await WriteInnerExceptionAsync(writer, exception.InnerException);
+                }
+
+                await writer.WriteLineAsync();
+            }
+        }
+
         private static void WriteInnerException(StreamWriter writer, Exception innerException)
         {
             writer.WriteLine($"\t({innerException.GetType().Name}): {innerException.Message}");
@@ -57,6 +83,19 @@ namespace ByteDBServer.Core.Misc.Logs
                 WriteInnerException(writer, innerException.InnerException);
             }
         }
+        private static async Task WriteInnerExceptionAsync(StreamWriter writer, Exception innerException)
+        {
+            await writer.WriteLineAsync($"\t({innerException.GetType().Name}): {innerException.Message}");
+            await writer.WriteLineAsync("\tStack Trace:");
+            await writer.WriteLineAsync(innerException.StackTrace);
+
+            if (innerException.InnerException != null)
+            {
+                await writer.WriteLineAsync("\tInner Exception:");
+                await WriteInnerExceptionAsync(writer, innerException.InnerException);
+            }
+        }
+
 
         public static void CreateFile(string fileName)
         {
