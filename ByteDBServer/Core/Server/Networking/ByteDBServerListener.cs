@@ -1,10 +1,14 @@
-﻿using ByteDBServer.Core.Server.Networking.Handlers;
-using ByteDBServer.Core.Server.Connection;
+﻿using ByteDBServer.Core.Misc.Logs;
+using ByteDBServer.Core.Server.Networking;
+using ByteDBServer.Core.Server.Networking.Handlers;
+using ByteDBServer.Core.Server.Networking.Models;
+using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Net;
+using System.Threading.Tasks;
 
 namespace ByteDBServer.Core.Server
 {
@@ -14,15 +18,11 @@ namespace ByteDBServer.Core.Server
         // ----------------------------------- PROPERTIES -----------------------------------
         //
 
-        public static List<ByteDBClient> ConnectedClients { get; } = new List<ByteDBClient>();
-        
-        public static TcpListener Listener { get; } = new TcpListener(IPAddress.Parse(ByteDBServerInstance.IpAddress), ByteDBServerInstance.ListeningPort);
         public static CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
-       
-        public static Task ClientsTask { get; } = AwaitClients();
-
-        public static ByteDBConnectedClientHandler ConnectedClientsHandler { get; }
-        public static ByteDBNewClientHandler NewClientsHandler { get; }
+        
+        public static Socket Listener { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        
+        public static List<ByteDBClient> ConnectedClients { get; set; } = new List<ByteDBClient>();
 
         //
         // -------------------------------------- METHODS --------------------------------------
@@ -30,31 +30,71 @@ namespace ByteDBServer.Core.Server
 
         public static void StartListening()
         {
-            ThreadPool.SetMinThreads(ByteDBServerInstance.MinThreadPoolSize, ByteDBServerInstance.MinThreadPoolSize);
-            ThreadPool.SetMaxThreads(ByteDBServerInstance.MaxThreadPoolSize, ByteDBServerInstance.MaxThreadPoolSize);
+            ByteDBReadingHandlerPool.InitializePool();
+            ByteDBReadingHandlerPool.StartPoolProcessing();
 
-            Listener.Start();
-            ClientsTask.Start();
+            Listener.Bind(new IPEndPoint(IPAddress.Parse(ByteDBServerInstance.IpAddress), ByteDBServerInstance.ListeningPort));
+
+            Listener.Listen(10);
+            _ = ListeningTask();
+
+            ByteDBServerLogger.WriteToFile("SERVER LISTENING STARTED!");
         }
         public static void StopListening()
         {
-            Listener.Stop();
-            ClientsTask.Dispose();
+            ByteDBReadingHandlerPool.StopPoolProcessing();
+
+            Listener.Close();    
+            CancellationToken.Cancel();
+
+            ByteDBServerLogger.WriteToFile("SERVER LISTENING STOPPED!");
         }
 
-        private async static Task AwaitClients()
+        private static Task ListeningTask()
         {
-            while (!CancellationToken.IsCancellationRequested)
+            return Task.Run(async () =>
             {
-                ByteDBClient client = new ByteDBClient(await Listener.AcceptTcpClientAsync());
+                try
+                {
+                    while (!CancellationToken.IsCancellationRequested)
+                    {
+                        // Get the list of sockets from connected clients
+                        var connectedSockets = ConnectedClients.Select(c => c.Socket).ToList();
 
-                if (IsConnected(client))
-                    ConnectedClientsHandler.AddToPool(client);
-                else
-                    NewClientsHandler.AddToPool(client);
-            }
+                        // Add listener socket to both reading and writing requests
+                        var readingRequests = new List<Socket>(connectedSockets) { Listener };
+                        var writingRequests = new List<Socket>(connectedSockets) { Listener };
+
+                        // Perform select with a 1-second timeout
+                        Socket.Select(readingRequests, writingRequests, null, 1000);
+
+                        // Handle readable sockets (those that have data to read)
+                        _ = ReadingHandle(readingRequests);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ByteDBServerLogger.WriteExceptionToFile(ex);
+                }
+            });
         }
 
-        private static bool IsConnected(ByteDBClient client) => ConnectedClients.Contains(client);
+        private static Task ReadingHandle(List<Socket> sockets)
+        {
+            return Task.Run(async () =>
+            {
+                foreach (var socket in sockets)
+                {
+                    if (!IsConnected(socket))
+                    {
+                        var client = await Listener.AcceptAsync();
+                        ByteDBReadingHandlerPool.EnqueueTask(ByteDBTasks.NewConnectionTask(client));
+                    }
+                }
+                await Task.CompletedTask;
+            });
+        }
+
+        private static bool IsConnected(Socket socket) => ConnectedClients.Select(c => c.Socket).Contains(socket);
     }
 }
