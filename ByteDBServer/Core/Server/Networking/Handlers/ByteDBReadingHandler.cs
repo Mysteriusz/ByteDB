@@ -1,14 +1,10 @@
 ﻿using ByteDBServer.Core.Server.Networking.Models;
-using ByteDBServer.Core.Server.Protocols;
 using ByteDBServer.Core.Misc.Logs;
 using System.Threading.Tasks;
-using System.Net.Sockets;
 using System;
 
 namespace ByteDBServer.Core.Server.Networking.Handlers
 {
-    public delegate Task ByteDBReadingTask();
-
     internal class ByteDBReadingHandler
     {
         private readonly object _lock = new object();

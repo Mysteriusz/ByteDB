@@ -1,14 +1,13 @@
-﻿using ByteDBServer.Core.Misc.Logs;
+﻿using ByteDBServer.Core.Server.Networking.Models;
 using ByteDBServer.Core.Server.Networking;
-using ByteDBServer.Core.Server.Networking.Handlers;
-using ByteDBServer.Core.Server.Networking.Models;
-using System;
+using ByteDBServer.Core.Misc.Logs;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Net;
+using System;
 
 namespace ByteDBServer.Core.Server
 {
@@ -70,6 +69,8 @@ namespace ByteDBServer.Core.Server
 
                         // Handle readable sockets (those that have data to read)
                         _ = ReadingHandle(readingRequests);
+
+                        await Task.Delay(50);
                     }
                 }
                 catch (Exception ex)

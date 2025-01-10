@@ -1,11 +1,14 @@
-﻿using ByteDBServer.Core.Server.Networking.Handlers;
-using ByteDBServer.Core.Server.Protocols;
+﻿using ByteDBServer.Core.Server.Protocols;
 using ByteDBServer.Core.Misc.Logs;
+using System.Threading.Tasks;
 using System.Net.Sockets;
 using System;
 
 namespace ByteDBServer.Core.Server.Networking.Models
 {
+    public delegate Task ByteDBReadingTask();
+    public delegate Task ByteDBWritingTask();
+
     internal static class ByteDBTasks
     {
         public static ByteDBReadingTask NewConnectionTask(Socket socket)
