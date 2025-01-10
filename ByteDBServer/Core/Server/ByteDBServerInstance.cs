@@ -30,8 +30,7 @@ namespace ByteDBServer.Core.Server
         public static int ListeningDelay => ByteDBServerConfig.ListeningDelay;
 
         // Thread Pool Configuration
-        public static int MaxThreadPoolSize => ByteDBServerConfig.MaxThreadPoolSize;
-        public static int MinThreadPoolSize => ByteDBServerConfig.MinThreadPoolSize;
+        public static int HandlerPoolSize => ByteDBServerConfig.HandlerPoolSize;
         public static int MaxConnections => ByteDBServerConfig.MaxConnections;
         public static int BufferSize => ByteDBServerConfig.BufferSize;
 

@@ -18,4 +18,10 @@
         SHA384 = 0x02,
         SHA512 = 0x03,
     }
+    public enum LogType
+    {
+        Message,
+        Warning,
+        Error,
+    }
 }
