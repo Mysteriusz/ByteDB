@@ -107,12 +107,12 @@ namespace ByteDBServer.Core.Server.Protocols
         {
             try
             {
-                ByteDBServerLogger.WriteToFile("Sending Welcome Packet...");
+                //ByteDBServerLogger.WriteToFile("Sending Welcome Packet...");
 
                 // Send Welcome packet on stream asynchronously
                 await WelcomePacket.WriteAsync(stream);
 
-                ByteDBServerLogger.WriteToFile("Welcome Packet sent, waiting for response...");
+                //ByteDBServerLogger.WriteToFile("Welcome Packet sent, waiting for response...");
 
                 // Wait for response asynchronously
                 using (ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(stream, ProtocolTimeout))
@@ -147,7 +147,7 @@ namespace ByteDBServer.Core.Server.Protocols
                 };
 
                 // Write exception to file
-                ByteDBServerLogger.WriteExceptionToFile(ex);
+                await ByteDBServerLogger.WriteExceptionToFileAsync(ex);
 
                 // Write error packet to stream
                 using (var errorPacket = new ByteDBErrorPacket(exceptionMessage))

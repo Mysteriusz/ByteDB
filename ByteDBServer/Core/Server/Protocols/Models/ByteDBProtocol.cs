@@ -127,17 +127,17 @@ namespace ByteDBServer.Core.Server.Protocols.Models
                     // Assume that if packet had 0 bytes it`s a FIN packet.
                     if (bytesRead == 0)
                     {
-                        ByteDBServerLogger.WriteToFile("CONNECTION ENDED");
+                        //ByteDBServerLogger.WriteToFile("CONNECTION ENDED");
                         return new ByteDBUnknownPacket() { FIN = true };
                     }
 
-                    ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
+                    //ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
                     return new ByteDBUnknownPacket(buffer.Take(bytesRead).ToArray());
                 }
                 // Else if first completed task was timeoutTask then log and return an empty packet marked as TIMEOUT.
                 else
                 {
-                    ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
+                    //ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
                     return new ByteDBUnknownPacket() { TIMEOUT = true };
                 }
             }
@@ -176,17 +176,17 @@ namespace ByteDBServer.Core.Server.Protocols.Models
                     // Assume that if packet had 0 bytes it`s a FIN packet.
                     if (bytesRead == 0)
                     {
-                        ByteDBServerLogger.WriteToFile("CONNECTION ENDED");
+                        //ByteDBServerLogger.WriteToFile("CONNECTION ENDED");
                         return new ByteDBUnknownPacket() { FIN = true };
                     }
 
-                    ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
+                    //ByteDBServerLogger.WriteToFile("RESPONDED IN TIME");
                     return new ByteDBUnknownPacket(buffer.Take(bytesRead).ToArray());
                 }
                 // Else if first completed task was timeoutTask then log and return an empty packet marked as TIMEOUT.
                 else
                 {
-                    ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
+                    //ByteDBServerLogger.WriteToFile("NEVER RESPONDED");
                     return new ByteDBUnknownPacket() { TIMEOUT = true };
                 }
             }
