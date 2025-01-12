@@ -62,10 +62,12 @@
     <Compile Include="Core\DataTypes\NullTerminatedString.cs" />
     <Compile Include="Core\Misc\ByteDBServerExceptions.cs" />
     <Compile Include="Core\Server\ByteDBServerEnums.cs" />
+    <Compile Include="Core\Server\Networking\Handlers\ByteDBWritingHandler.cs" />
     <Compile Include="Core\Server\Networking\Handlers\ByteDBReadingHandler.cs" />
     <Compile Include="Core\Server\Networking\Models\ByteDBClient.cs" />
     <Compile Include="Core\Server\Networking\Models\ByteDBTasks.cs" />
-    <Compile Include="Core\Server\Networking\Pools\ByteDBReadingHandlerPool.cs" />
+    <Compile Include="Core\Server\Networking\Pools\ByteDBWritingPool.cs" />
+    <Compile Include="Core\Server\Networking\Pools\ByteDBReadingPool.cs" />
     <Compile Include="Core\Server\Packets\Custom\ByteDBUnknownPacket.cs" />
     <Compile Include="Core\Server\Packets\ByteDBErrorPacket.cs" />
     <Compile Include="Core\Server\Packets\ByteDBOkayPacket.cs" />

@@ -4,6 +4,7 @@ using ByteDBServer.Core.Misc.Logs;
 using System.Collections.Generic;
 using ByteDBServer.Core.Services;
 using ByteDBServer.Core.Config;
+using System.Threading.Tasks;
 using System.ServiceProcess;
 using System.Text;
 
@@ -34,6 +35,11 @@ namespace ByteDBServer.Core.Server
         public static int MaxConnections => ByteDBServerConfig.MaxConnections;
         public static int BufferSize => ByteDBServerConfig.BufferSize;
 
+        // Delays Tasks Configuration
+        public static Task ShortDelayTask => ByteDBServerConfig.ShortDelayTask;
+        public static Task ModerateDelayTask => ByteDBServerConfig.ModerateDelayTask;
+        public static Task LongDelayTask => ByteDBServerConfig.LongDelayTask;
+
         // Server Capabilities
         public static Int4 ServerCapabilitiesInt => ByteDBServerConfig.ServerCapabilitiesInt;
         public static List<ServerCapabilities> ServerCapabilities => ByteDBServerConfig.ReadFlags<ServerCapabilities>(ServerCapabilitiesInt.Value);
@@ -51,8 +57,8 @@ namespace ByteDBServer.Core.Server
         /// </summary>
         static void Main()
         {
-            ByteDBServerConfig.InitializeConfig();
             ByteDBServerLogger.CreateFile(ByteDBServerLogger.LogFileFullPath);
+            ByteDBServerConfig.InitializeConfig();
             ByteDBAuthenticator.InitializeUsers();
 
             ServiceBase[] ServicesToRun;
