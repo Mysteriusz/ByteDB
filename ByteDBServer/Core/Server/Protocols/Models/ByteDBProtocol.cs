@@ -22,27 +22,27 @@ namespace ByteDBServer.Core.Server.Protocols.Models
         /// <summary>
         /// Protocol authenticator.
         /// </summary>
-        public ByteDBProtocolAuthenticator Authenticator { get; }
+        public ByteDBProtocolAuthenticator Authenticator { get; private set; }
 
         /// <summary>
         /// Protocol name.
         /// </summary>
-        public string Name { get; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Protocol version.
         /// </summary>
-        public byte Version { get; }
+        public byte Version { get; private set; }
 
         /// <summary>
         /// Protocol timeout in seconds.
         /// </summary>
-        public int ProtocolTimeout { get; }
+        public int ProtocolTimeout { get; private set; }
 
         /// <summary>
         /// Protocol salt size.
         /// </summary>
-        public Int2 SaltSize { get; }
+        public Int2 SaltSize { get; private set; }
 
         /// <summary>
         /// Protocol create log message.
@@ -208,7 +208,11 @@ namespace ByteDBServer.Core.Server.Protocols.Models
             {
                 if (disposing)
                 {
-
+                    Authenticator.Dispose();
+                    Name = null;
+                    Version = 0;
+                    ProtocolTimeout = 0;
+                    SaltSize = null;
                 }
 
                 _disposed = true;

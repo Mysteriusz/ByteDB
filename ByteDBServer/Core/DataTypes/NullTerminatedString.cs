@@ -1,10 +1,11 @@
 ﻿using ByteDBServer.DataTypes.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace ByteDBServer.Core.DataTypes
 {
-    public class NullTerminatedString : DataType<string>
+    public class NullTerminatedString : DataType<string>, IDisposable
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
@@ -91,6 +92,19 @@ namespace ByteDBServer.Core.DataTypes
         public static implicit operator string(NullTerminatedString value)
         {
             return value.Value;
+        }
+
+        //
+        // ----------------------------- DISPOSAL ----------------------------- 
+        //
+
+        public void Dispose()
+        {
+            _value = null;
+            _bytes.Clear();
+            _bytes = null;
+
+            GC.SuppressFinalize(this);
         }
     }
 }

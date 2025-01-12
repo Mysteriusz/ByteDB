@@ -51,6 +51,9 @@ namespace ByteDBServer.Core.Server.Packets
 
                 Message = new NullTerminatedString(packetPayload, 0);
                 AddRange(Message.Bytes);
+
+                payloadSize.Dispose();
+                packetPayload = null;
             }
             catch (IndexOutOfRangeException)
             {
@@ -60,6 +63,13 @@ namespace ByteDBServer.Core.Server.Packets
             {
                 throw ex;
             }
+        }
+
+        public override void Dispose()
+        {
+            Message?.Dispose();
+
+            base.Dispose();
         }
     }
 }

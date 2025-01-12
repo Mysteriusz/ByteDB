@@ -86,6 +86,9 @@ namespace ByteDBServer.Core.Server.Packets
 
                 AuthenticationType = packetPayload[versionIndex + 7 + SaltLength];
                 Add(AuthenticationType);
+
+                packetPayload = null;
+                packetSize.Dispose();
             }
             catch (IndexOutOfRangeException)
             {
@@ -95,6 +98,18 @@ namespace ByteDBServer.Core.Server.Packets
             {
                 throw ex;
             }
+        }
+
+        public override void Dispose()
+        {
+            Message?.Dispose();
+            Version?.Dispose();
+            Capabilities?.Dispose();
+            SaltLength?.Dispose();
+            Salt = null;
+            AuthenticationType = 0;
+
+            base.Dispose();
         }
     }
 }

@@ -3,7 +3,7 @@ using System;
 
 namespace ByteDBServer.Core.DataTypes
 {
-    internal class Int2 : DataType<ushort>
+    internal class Int2 : DataType<ushort>, IDisposable
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
@@ -191,6 +191,18 @@ namespace ByteDBServer.Core.DataTypes
         public override string ToString()
         {
             return $"Int2: Value = {_value}, Bytes = {BitConverter.ToString(_bytes)}";
+        }
+
+        //
+        // ----------------------------- DISPOSAL ----------------------------- 
+        //
+
+        public void Dispose()
+        {
+            _value = 0;
+            _bytes = null;
+
+            GC.SuppressFinalize(this);
         }
     }
 }

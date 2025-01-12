@@ -183,8 +183,8 @@ namespace ByteDBServer.Core.Server.Packets.Models
             {
                 if (disposing)
                 {
-                    this.Header.Clear();
-                    this.Payload.Clear();
+                    Header.Clear();
+                    Payload.Clear();
                 }
 
                 _disposed = true;

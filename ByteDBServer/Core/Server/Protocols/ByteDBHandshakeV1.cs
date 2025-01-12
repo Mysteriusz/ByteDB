@@ -7,7 +7,6 @@ using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
 using System.IO;
 using System;
-using System.Net.Sockets;
 
 namespace ByteDBServer.Core.Server.Protocols
 {
@@ -109,26 +108,31 @@ namespace ByteDBServer.Core.Server.Protocols
             try
             {
                 ByteDBServerLogger.WriteToFile("Sending Welcome Packet...");
+
                 // Send Welcome packet on stream asynchronously
                 await WelcomePacket.WriteAsync(stream);
+
                 ByteDBServerLogger.WriteToFile("Welcome Packet sent, waiting for response...");
 
                 // Wait for response asynchronously
-                ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(stream, ProtocolTimeout);
+                using (ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(stream, ProtocolTimeout))
+                {
+                    // Check if response packet is a finalizer packet
+                    if (responsePacket.FIN)
+                        throw new ByteDBConnectionException();
 
-                // Check if response packet is a finalizer packet
-                if (responsePacket.FIN)
-                    throw new ByteDBConnectionException();
-                // Check if response packet was never received packet
-                else if (responsePacket.TIMEOUT)
-                    throw new ByteDBTimeoutException();
+                    // Check if response packet was never received packet
+                    else if (responsePacket.TIMEOUT)
+                        throw new ByteDBTimeoutException();
 
-                // Cast response packet to correct packet
-                ByteDBResponsePacketV1 casted = ByteDBPacket.ToPacket<ByteDBResponsePacketV1>(responsePacket);
-
-                // Check if response data is correct
-                if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username))
-                    throw new ByteDBPacketDataException();
+                    // Cast response packet to correct packet
+                    using (ByteDBResponsePacketV1 casted = ByteDBPacket.ToPacket<ByteDBResponsePacketV1>(responsePacket))
+                    {
+                        // Check if response data is correct
+                        if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username))
+                            throw new ByteDBPacketDataException();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -146,8 +150,8 @@ namespace ByteDBServer.Core.Server.Protocols
                 ByteDBServerLogger.WriteExceptionToFile(ex);
 
                 // Write error packet to stream
-                var errorPacket = new ByteDBErrorPacket(exceptionMessage);
-                await errorPacket.WriteAsync(stream);
+                using (var errorPacket = new ByteDBErrorPacket(exceptionMessage))
+                    await errorPacket.WriteAsync(stream);
 
                 return false;
             }

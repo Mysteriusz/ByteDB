@@ -3,7 +3,7 @@ using System;
 
 namespace ByteDBServer.Core.DataTypes
 {
-    internal class Int8 : DataType<ulong>
+    internal class Int8 : DataType<ulong>, IDisposable
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
@@ -197,6 +197,18 @@ namespace ByteDBServer.Core.DataTypes
         public override string ToString()
         {
             return $"Int8: Value = {_value}, Bytes = {BitConverter.ToString(_bytes)}";
+        }
+
+        //
+        // ----------------------------- DISPOSAL ----------------------------- 
+        //
+
+        public void Dispose()
+        {
+            _value = 0;
+            _bytes = null;
+
+            GC.SuppressFinalize(this);
         }
     }
 }

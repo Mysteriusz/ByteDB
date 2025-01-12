@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ByteDBServer.Core.Server.Packets.Custom
@@ -6,7 +7,7 @@ namespace ByteDBServer.Core.Server.Packets.Custom
     /// <summary>
     /// Custom, non-templated Packet.
     /// </summary>
-    internal class ByteDBUnknownPacket
+    internal class ByteDBUnknownPacket : IDisposable
     {
         //
         // ----------------------------- PROPERTIES ----------------------------- 
@@ -54,5 +55,31 @@ namespace ByteDBServer.Core.Server.Packets.Custom
         public ByteDBUnknownPacket() { }
         public ByteDBUnknownPacket(byte[] packet) { Header.AddRange(packet.Take(4)); Payload.AddRange(packet.Skip(4)); }
         public ByteDBUnknownPacket(byte[] header, byte[] payload) { Header.AddRange(header); Payload.AddRange(payload); }
+        
+        //
+        // ----------------------------- DISPOSING ----------------------------- 
+        //
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                Header.Clear();
+                Payload.Clear();
+            }
+
+            disposed = true;
+        }
     }
 }

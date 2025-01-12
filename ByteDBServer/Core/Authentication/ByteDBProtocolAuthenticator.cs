@@ -52,7 +52,7 @@ namespace ByteDBServer.Core.Authentication
             {
                 if (disposing)
                 {
-                    Salt = [];
+                    Salt = null;
                 }
 
                 _disposed = true;

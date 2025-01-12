@@ -72,6 +72,9 @@ namespace ByteDBServer.Core.Server.Packets
 
                 AuthScramble = packetPayload.Skip(usernameIndex + 7).Take(AuthScrambleSize).ToArray();
                 AddRange(AuthScramble);
+
+                packetSize.Dispose();
+                packetPayload = null;
             }
             catch (IndexOutOfRangeException)
             {
@@ -81,6 +84,16 @@ namespace ByteDBServer.Core.Server.Packets
             {
                 throw ex;
             }
+        }
+
+        public override void Dispose()
+        {
+            Username?.Dispose();
+            Capabilities?.Dispose();
+            AuthScrambleSize?.Dispose();
+            AuthScramble = null;
+
+            base.Dispose();
         }
     }
 }
