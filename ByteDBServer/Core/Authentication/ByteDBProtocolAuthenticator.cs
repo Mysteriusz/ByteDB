@@ -23,14 +23,14 @@ namespace ByteDBServer.Core.Authentication
         //
 
         #nullable enable
-        public bool ValidateAuthentication(byte[] scramble, string username)
+        public bool ValidateAuthentication(byte[] scramble, string username, out ByteDBUser? outputUser)
         {
-            ByteDBUser? user = ByteDBAuthenticator.GetUser(username);
+            outputUser = ByteDBAuthenticator.GetUser(username);
 
-            if (user == null)
+            if (outputUser == null)
                 return false;
 
-            byte[] userPassBytes = user.PasswordHashBytes;
+            byte[] userPassBytes = outputUser.PasswordHashBytes;
             byte[] expected = ByteDBAuthenticator.Hash(userPassBytes.Concat(Salt).ToArray());
 
             return scramble.SequenceEqual(expected);

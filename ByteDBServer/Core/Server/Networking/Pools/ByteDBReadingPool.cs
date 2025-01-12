@@ -11,6 +11,10 @@ namespace ByteDBServer.Core.Server.Networking.Pools
 {
     internal static class ByteDBReadingPool
     {
+        //
+        // ----------------------------- PROPERTIES ----------------------------- 
+        //
+
         public static int MaxHandlerCount { get; } = ByteDBServerInstance.HandlerPoolSize;
 
         public static ConcurrentQueue<ByteDBReadingTask> TaskQueue = new ConcurrentQueue<ByteDBReadingTask>();
@@ -19,16 +23,36 @@ namespace ByteDBServer.Core.Server.Networking.Pools
 
         public static CancellationTokenSource CancellationToken = new CancellationTokenSource();
 
+        //
+        // ----------------------------- METHODS ----------------------------- 
+        //
+
+        /// <summary>
+        /// Starts processing tasks in the pool by running the processing task asynchronously.
+        /// </summary>
         public static void StartProcessing()
         {
             _ = ProcessingTask();
         }
+
+        /// <summary>
+        /// Stops the task processing by canceling the cancellation token.
+        /// </summary>
         public static void StopProcessing()
         {
             CancellationToken.Cancel();
         }
+
+        /// <summary>
+        /// Enqueues a writing task to the task queue for processing.
+        /// </summary>
+        /// <param name="task">The writing task to be enqueued</param>
         public static void EnqueueTask(ByteDBReadingTask task) => TaskQueue.Enqueue(task);
 
+        /// <summary>
+        /// The main processing task that dequeues and handles tasks from the task queue.
+        /// </summary>
+        /// <returns>A Task that represents the ongoing processing of tasks</returns>
         public static Task ProcessingTask()
         {
             return Task.Run(async () =>

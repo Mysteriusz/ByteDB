@@ -77,16 +77,5 @@ namespace ByteDBServer.Core.Config
             // Other
             Encoding = ByteDBServerEncoding.EncodingType[config.Root.Element("Encoding").Value];
         }
-
-        public static List<TEnum> ReadFlags<TEnum>(uint flagValue) where TEnum : Enum
-        {
-            List<TEnum> result = new List<TEnum>();
-
-            foreach (TEnum enumValue in Enum.GetValues(typeof(TEnum)))
-                if ((flagValue & Convert.ToUInt32(enumValue)) != 0)
-                    result.Add(enumValue);
-
-            return result;
-        }
     }
 }

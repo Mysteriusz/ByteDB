@@ -28,6 +28,9 @@ namespace ByteDBServer.Core.Server
         // -------------------------------------- METHODS --------------------------------------
         //
 
+        /// <summary>
+        /// Starts listening on <see cref="ByteDBServerInstance.ListeningPort"/> port to connection attempts
+        /// </summary>
         public static void StartListening()
         {
             Listener.Bind(new IPEndPoint(IPAddress.Parse(ByteDBServerInstance.IpAddress), ByteDBServerInstance.ListeningPort));
@@ -41,6 +44,10 @@ namespace ByteDBServer.Core.Server
 
             ByteDBServerLogger.WriteToFile("SERVER LISTENING STARTED!");
         }
+
+        /// <summary>
+        /// Stops the server from listening for connections and cleans up resources
+        /// </summary>
         public static void StopListening()
         {
             ByteDBWritingPool.StopProcessing();
@@ -52,52 +59,74 @@ namespace ByteDBServer.Core.Server
             ByteDBServerLogger.WriteToFile("SERVER LISTENING STOPPED!");
         }
 
+        /// <summary>
+        /// Listens for new connections and enqueues tasks to handle the connected clients.
+        /// </summary>
         private async static Task NewListener()
         {
             try
             {
+                // Continues listening for new connections until cancellation is requested
                 while (!CancellationToken.IsCancellationRequested)
                 {
+                    // Asynchronously accepts a new incoming connection from the listener
                     Socket socket = await Listener.AcceptAsync();
+
+                    // Enqueues a task to handle the new connection using the ByteDBWritingPool
                     ByteDBWritingPool.EnqueueTask(ByteDBTasks.ConnectTask(new ByteDBClient(socket)));
                 }
             }
             catch (Exception ex)
             {
-                await ByteDBServerLogger.WriteExceptionToFileAsync(ex);
+                ByteDBServerLogger.WriteExceptionToFile(ex);
             }
         }
+
+        /// <summary>
+        /// Handles the connected clients, managing read and write operations for them.
+        /// </summary>
         private async static Task ConnectedListener()
         {
             try
             {
+                // Lists to hold the sockets that need to be read from or written to
                 List<Socket> readSockets = new List<Socket>();
                 List<Socket> writeSockets = new List<Socket>();
 
                 while (!CancellationToken.IsCancellationRequested)
                 {
+                    // Forces garbage collection to free up memory resources 
                     GC.Collect();
-                    
+
+                    // If there are no connected clients, wait before checking again
                     if (ConnectedClients.Count == 0)
                     {
                         await ByteDBServerConfig.LongDelayTask;
                         continue;
                     }
 
+                    // Clears the lists for the next iteration
                     readSockets.Clear();
                     writeSockets.Clear();
+
+                    // Adds all connected clients' sockets to the read and write lists
                     foreach (ByteDBClient client in ConnectedClients)
                     {
                         writeSockets.Add(client);
                         readSockets.Add(client);
                     }
 
+                    // If there are any sockets to read or write to, proceed with select operation
                     if (readSockets.Count > 0)
                     {
+                        // Perform a non-blocking select on the sockets for reading and writing
                         Socket.Select(readSockets, writeSockets, null, 1000);
+
+                        // If there are sockets ready to be read from, process them asynchronously
                         if (readSockets.Count > 0)
                             _ = ProcessReading(readSockets);
 
+                        // If there are sockets ready to be written to, process them asynchronously
                         //if (writeSockets.Count > 0)
                         //    _ = ProcessWriting(writeSockets);
                     }
@@ -107,7 +136,7 @@ namespace ByteDBServer.Core.Server
             }
             catch (Exception ex)
             {
-                await ByteDBServerLogger.WriteExceptionToFileAsync(ex);
+                ByteDBServerLogger.WriteExceptionToFile(ex);
             }
         }
 

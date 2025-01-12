@@ -1,6 +1,6 @@
-﻿using ByteDBServer.Core.Server.Packets.Custom;
+﻿using ByteDBServer.Core.Server.Networking.Models;
+using ByteDBServer.Core.Server.Packets.Custom;
 using ByteDBServer.Core.Authentication;
-using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.DataTypes;
 using System.Threading.Tasks;
 using System.Threading;
@@ -87,14 +87,14 @@ namespace ByteDBServer.Core.Server.Protocols.Models
         /// </summary>
         /// <param name="stream">Stream on which protocol should be initiated.</param>
         /// <returns>True if the protocol completes successfully; False if an error occurs during execution.</returns>
-        public abstract bool ExecuteProtocol(Stream stream);
+        public abstract bool ExecuteProtocol(ByteDBClient client);
 
         /// <summary>
         /// Asynchronously initiates protocol execution on the given stream with a timeout specified by <see cref="ProtocolTimeout"/>.
         /// </summary>
         /// <param name="stream">Stream on which protocol should be initiated.</param>
         /// <returns>True if the protocol completes successfully; False if an error occurs during execution.</returns>
-        public abstract Task<bool> ExecuteProtocolAsync(Stream stream);
+        public abstract Task<bool> ExecuteProtocolAsync(ByteDBClient client);
 
         /// <summary>
         /// Synchronously waits for a response packet on the specified stream within the given timeout period.

@@ -7,6 +7,10 @@ using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
 using System.IO;
 using System;
+using ByteDBServer.Core.Server.Networking.Models;
+using ByteDBServer.Core.Authentication;
+using ByteDBServer.Core.Authentication.Models;
+using System.IO.Compression;
 
 namespace ByteDBServer.Core.Server.Protocols
 {
@@ -52,29 +56,45 @@ namespace ByteDBServer.Core.Server.Protocols
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        public override bool ExecuteProtocol(Stream stream)
+        public override bool ExecuteProtocol(ByteDBClient client)
         {
             try
             {
-                // Send Welcome packet to stream synchronously
-                WelcomePacket.Write(stream);
+                //ByteDBServerLogger.WriteToFile("Sending Welcome Packet...");
 
-                // Wait for response synchronously
-                ByteDBUnknownPacket responsePacket = WaitForResponseInTime(stream, ProtocolTimeout);
+                // Send Welcome packet on stream asynchronously
+                WelcomePacket.Write(client.Stream);
 
-                // Check if response packet is a finalizer packet
-                if (responsePacket.FIN)
-                    throw new ByteDBConnectionException();
-                // Check if response packet was never received packet
-                else if (responsePacket.TIMEOUT)
-                    throw new ByteDBTimeoutException();
+                //ByteDBServerLogger.WriteToFile("Welcome Packet sent, waiting for response...");
 
-                // Cast response packet to correct packet
-                ByteDBResponsePacketV1 casted = ByteDBPacket.ToPacket<ByteDBResponsePacketV1>(responsePacket);
+                // Wait for response asynchronously
+                using (ByteDBUnknownPacket responsePacket = WaitForResponseInTime(client.Stream, ProtocolTimeout))
+                {
+                    // Check if response packet is a finalizer packet
+                    if (responsePacket.FIN)
+                        throw new ByteDBConnectionException();
 
-                // Check if response data is correct
-                if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username))
-                    throw new ByteDBPacketDataException();
+                    // Check if response packet was never received packet
+                    else if (responsePacket.TIMEOUT)
+                        throw new ByteDBTimeoutException();
+
+                    // Cast response packet to correct packet
+                    using (ByteDBResponsePacketV1 casted = ByteDBPacket.ToPacket<ByteDBResponsePacketV1>(responsePacket))
+                    {
+                        // Check if response data is correct
+                        if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username, out ByteDBUser requestedUser))
+                            throw new ByteDBPacketDataException();
+
+                        // Assign user to client
+                        client.UserData = requestedUser;
+
+                        // Read requested flags from packet
+                        client.RequestedCapabilities = ByteDBAuthenticator.ReadFlags<ServerCapabilities>(casted.Capabilities);
+
+                        // Read requested flags int from packet
+                        client.RequestedCapabilitiesInt = casted.Capabilities;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -92,30 +112,30 @@ namespace ByteDBServer.Core.Server.Protocols
                 ByteDBServerLogger.WriteExceptionToFile(ex);
 
                 // Write error packet to stream
-                var errorPacket = new ByteDBErrorPacket(exceptionMessage);
-                errorPacket.Write(stream);
+                using (var errorPacket = new ByteDBErrorPacket(exceptionMessage))
+                    errorPacket.Write(client.Stream);
 
                 return false;
             }
 
             // Write okay packet to stream
-            OkayPacket.Write(stream);
-            
+            OkayPacket.Write(client.Stream);
+
             return true;
         }
-        public override async Task<bool> ExecuteProtocolAsync(Stream stream)
+        public override async Task<bool> ExecuteProtocolAsync(ByteDBClient client)
         {
             try
             {
                 //ByteDBServerLogger.WriteToFile("Sending Welcome Packet...");
 
                 // Send Welcome packet on stream asynchronously
-                await WelcomePacket.WriteAsync(stream);
+                await WelcomePacket.WriteAsync(client.Stream);
 
                 //ByteDBServerLogger.WriteToFile("Welcome Packet sent, waiting for response...");
 
                 // Wait for response asynchronously
-                using (ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(stream, ProtocolTimeout))
+                using (ByteDBUnknownPacket responsePacket = await WaitForResponseInTimeAsync(client.Stream, ProtocolTimeout))
                 {
                     // Check if response packet is a finalizer packet
                     if (responsePacket.FIN)
@@ -129,8 +149,17 @@ namespace ByteDBServer.Core.Server.Protocols
                     using (ByteDBResponsePacketV1 casted = ByteDBPacket.ToPacket<ByteDBResponsePacketV1>(responsePacket))
                     {
                         // Check if response data is correct
-                        if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username))
+                        if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username, out ByteDBUser requestedUser))
                             throw new ByteDBPacketDataException();
+
+                        // Assign user to client
+                        client.UserData = requestedUser;
+
+                        // Read requested flags from packet
+                        client.RequestedCapabilities = ByteDBAuthenticator.ReadFlags<ServerCapabilities>(casted.Capabilities);
+
+                        // Read requested flags int from packet
+                        client.RequestedCapabilitiesInt = casted.Capabilities;
                     }
                 }
             }
@@ -147,17 +176,17 @@ namespace ByteDBServer.Core.Server.Protocols
                 };
 
                 // Write exception to file
-                await ByteDBServerLogger.WriteExceptionToFileAsync(ex);
+                ByteDBServerLogger.WriteExceptionToFile(ex);
 
                 // Write error packet to stream
                 using (var errorPacket = new ByteDBErrorPacket(exceptionMessage))
-                    await errorPacket.WriteAsync(stream);
+                    await errorPacket.WriteAsync(client.Stream);
 
                 return false;
             }
 
             // Write okay packet to stream
-            await OkayPacket.WriteAsync(stream);
+            await OkayPacket.WriteAsync(client.Stream);
 
             return true;
         }

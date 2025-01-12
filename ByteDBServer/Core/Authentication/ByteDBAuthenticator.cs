@@ -108,5 +108,16 @@ namespace ByteDBServer.Core.Authentication
 
             throw new ByteDBInternalException("Unknown server authentication type.");
         }
+
+        public static HashSet<TEnum> ReadFlags<TEnum>(uint flagValue) where TEnum : Enum
+        {
+            HashSet<TEnum> result = new HashSet<TEnum>();
+
+            foreach (TEnum enumValue in Enum.GetValues(typeof(TEnum)))
+                if ((flagValue & Convert.ToUInt32(enumValue)) != 0)
+                    result.Add(enumValue);
+
+            return result;
+        }
     }
 }

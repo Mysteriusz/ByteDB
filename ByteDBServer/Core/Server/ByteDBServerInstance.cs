@@ -42,7 +42,7 @@ namespace ByteDBServer.Core.Server
 
         // Server Capabilities
         public static Int4 ServerCapabilitiesInt => ByteDBServerConfig.ServerCapabilitiesInt;
-        public static List<ServerCapabilities> ServerCapabilities => ByteDBServerConfig.ReadFlags<ServerCapabilities>(ServerCapabilitiesInt.Value);
+        public static HashSet<ServerCapabilities> ServerCapabilities => ByteDBAuthenticator.ReadFlags<ServerCapabilities>(ServerCapabilitiesInt.Value);
 
         // Server Encoding and Authentication
         public static Encoding ServerEncoding => ByteDBServerConfig.Encoding;

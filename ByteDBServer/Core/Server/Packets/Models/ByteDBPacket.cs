@@ -110,7 +110,7 @@ namespace ByteDBServer.Core.Server.Packets.Models
         }
 
         /// <summary>
-        /// Synchronously reads packet from provided bytes.
+        /// Synchronously reinitializes packet from provided bytes.
         /// </summary>
         /// <param name="bytes">Bytes from which packet should be read.</param>
         /// <param name="index">Index from which reading should start.</param>
