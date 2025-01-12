@@ -7,5 +7,8 @@
 	<Encoding>ASCII</Encoding>
 	<ServerCapabilities>00000001</ServerCapabilities>
 	<BufferSize>2048</BufferSize>
-	<HandlerPoolSize>5</HandlerPoolSize>
+	<HandlerPoolSize>20</HandlerPoolSize>
+	<ShortDelayDuration>50</ShortDelayDuration>
+	<ModerateDelayDuration>150</ModerateDelayDuration>
+	<LongDelayDuration>300</LongDelayDuration>
 </ServerConfig>

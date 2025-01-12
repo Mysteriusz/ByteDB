@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Xml;
 using System.Text;
 using System.Collections.Generic;
 using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Server;
 using System.Xml.Linq;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ByteDBServer.Core.Config
 {
@@ -37,6 +37,14 @@ namespace ByteDBServer.Core.Config
         
         public static int HandlerPoolSize { get; private set; }
 
+        public static int ShortDelayDuration { get; private set; }
+        public static int ModerateDelayDuration { get; private set; }
+        public static int LongDelayDuration { get; private set; }
+
+        public static Task ShortDelayTask => Task.Delay(ShortDelayDuration);
+        public static Task ModerateDelayTask => Task.Delay(ModerateDelayDuration);
+        public static Task LongDelayTask => Task.Delay(LongDelayDuration);
+
         //
         // ----------------------------- METHODS ----------------------------- 
         //
@@ -61,6 +69,10 @@ namespace ByteDBServer.Core.Config
             HandlerPoolSize = int.Parse(config.Root.Element("HandlerPoolSize").Value);
             
             ServerCapabilitiesInt = new Int4(uint.Parse(config.Root.Element("ServerCapabilities").Value));
+
+            ShortDelayDuration = int.Parse(config.Root.Element("ShortDelayDuration").Value);
+            ModerateDelayDuration = int.Parse(config.Root.Element("ModerateDelayDuration").Value);
+            LongDelayDuration = int.Parse(config.Root.Element("LongDelayDuration").Value);
 
             // Other
             Encoding = ByteDBServerEncoding.EncodingType[config.Root.Element("Encoding").Value];
