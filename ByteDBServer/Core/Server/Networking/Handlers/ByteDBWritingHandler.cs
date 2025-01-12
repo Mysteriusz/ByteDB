@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace ByteDBServer.Core.Server.Networking.Handlers
 {
-    internal class ByteDBReadingHandler
+    internal class ByteDBWritingHandler
     {
-        public async Task ExecuteTask(ByteDBReadingTask task)
+        public async Task ExecuteTask(ByteDBWritingTask task)
         {
             try
             {
@@ -14,7 +14,7 @@ namespace ByteDBServer.Core.Server.Networking.Handlers
             }
             finally
             {
-                ByteDBReadingPool.Handlers.Remove(this);
+                ByteDBWritingPool.Handlers.Remove(this);
             }
         }
     }

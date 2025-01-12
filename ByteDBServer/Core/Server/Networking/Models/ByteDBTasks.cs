@@ -11,21 +11,43 @@ namespace ByteDBServer.Core.Server.Networking.Models
 
     internal static class ByteDBTasks
     {
-        public static ByteDBReadingTask NewConnectionTask(Socket socket)
+        public static ByteDBReadingTask DisconnectTask(ByteDBClient client)
         {
             return async () =>
             {
                 try
                 {
-                    ByteDBClient client = new ByteDBClient(socket);
-                    bool success = await new ByteDBHandshakeV1().ExecuteProtocolAsync(client.Stream);
-
-                    if (success)
-                        ByteDBServerListener.ConnectedClients.Add(client);
+                    using (client)
+                    {
+                        ByteDBServerListener.ConnectedClients.Remove(client);
+                        //ByteDBServerLogger.WriteToFile("DISCONNECTED");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    ByteDBServerLogger.WriteExceptionToFile(ex);
+                    await ByteDBServerLogger.WriteExceptionToFileAsync(ex);
+                }
+
+                await Task.CompletedTask;
+            };
+        }
+        public static ByteDBWritingTask ConnectTask(ByteDBClient client)
+        {
+            return async () =>
+            {
+                try
+                {
+                    using (ByteDBHandshakeV1 protocol = new ByteDBHandshakeV1())
+                    {
+                        bool success = await protocol.ExecuteProtocolAsync(client.Stream);
+
+                        if (success)
+                            ByteDBServerListener.ConnectedClients.Add(client);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await ByteDBServerLogger.WriteExceptionToFileAsync(ex);
                 }
             };
         }
