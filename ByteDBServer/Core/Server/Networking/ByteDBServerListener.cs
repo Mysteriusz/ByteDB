@@ -22,7 +22,7 @@ namespace ByteDBServer.Core.Server
         
         public static Socket Listener { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-        public static HashSet<ByteDBClient> ConnectedClients { get; set; } = new HashSet<ByteDBClient>();
+        public static List<ByteDBClient> ConnectedClients { get; set; } = new List<ByteDBClient>();
 
         //
         // -------------------------------------- METHODS --------------------------------------
@@ -109,7 +109,7 @@ namespace ByteDBServer.Core.Server
                     readSockets.Clear();
                     writeSockets.Clear();
 
-                    // Adds all connected clients' sockets to the read and write lists
+                    // Adds all connected clients sockets to the read and write lists
                     foreach (ByteDBClient client in ConnectedClients)
                     {
                         writeSockets.Add(client);
@@ -119,16 +119,26 @@ namespace ByteDBServer.Core.Server
                     // If there are any sockets to read or write to, proceed with select operation
                     if (readSockets.Count > 0)
                     {
+                        // Iterate to remove all dead sockets
+                        for (int i = readSockets.Count - 1; i >= 0; i--)
+                        {
+                            if (!readSockets[i].Connected)
+                            {
+                                readSockets.RemoveAt(i);
+                                ConnectedClients.RemoveAt(i);
+                            }
+                        }
+
+                        // Continue if after cleanup there is no sockets
+                        if (readSockets.Count == 0)
+                            continue;
+
                         // Perform a non-blocking select on the sockets for reading and writing
-                        Socket.Select(readSockets, writeSockets, null, 1000);
+                        Socket.Select(readSockets, null, null, 1000);
 
                         // If there are sockets ready to be read from, process them asynchronously
                         if (readSockets.Count > 0)
                             _ = ProcessReading(readSockets);
-
-                        // If there are sockets ready to be written to, process them asynchronously
-                        //if (writeSockets.Count > 0)
-                        //    _ = ProcessWriting(writeSockets);
                     }
 
                     await ByteDBServerConfig.ModerateDelayTask;
@@ -149,6 +159,7 @@ namespace ByteDBServer.Core.Server
                 {
                     ByteDBClient client = ConnectedClients.FirstOrDefault(c => c.Socket == socket);
 
+                    // If clients socket is disconnected
                     if (!IsConnected(client))
                     {
                         ByteDBReadingPool.EnqueueTask(ByteDBTasks.DisconnectTask(client));
@@ -156,7 +167,15 @@ namespace ByteDBServer.Core.Server
                     }
 
                     int received = socket.Receive(buffer);
-                    ByteDBServerLogger.WriteToFile("RECEIVED PACKET");
+
+                    ByteDBServerLogger.WriteToFile("PACKET RECEIVED");
+
+                    // Execute clients query if it requests SERVER_HANDLE_QUERIES and packet is a QueryPacketType (0x04)
+                    if (client.RequestedCapabilities.Contains(ServerCapabilities.SERVER_HANDLE_QUERIES) && buffer[0] == (byte)ByteDBPacketType.QueryPacket)
+                    {
+                        ByteDBReadingPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, buffer.Take(received).ToArray()));
+                        continue;
+                    }
                 }
             });
         }

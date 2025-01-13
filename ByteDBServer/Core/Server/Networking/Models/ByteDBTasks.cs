@@ -1,9 +1,9 @@
 ﻿using ByteDBServer.Core.Server.Protocols;
 using ByteDBServer.Core.Misc.Logs;
 using System.Threading.Tasks;
-using System.Net.Sockets;
 using System;
 using ByteDBServer.Core.Authentication;
+using ByteDBServer.Core.Server.Packets;
 
 namespace ByteDBServer.Core.Server.Networking.Models
 {
@@ -19,8 +19,8 @@ namespace ByteDBServer.Core.Server.Networking.Models
         /// <summary>
         /// Creates a task to disconnect a client and removes their data from active connections.
         /// </summary>
-        /// <param name="client">The client to be disconnected</param>
-        /// <returns>A task that disconnects the client and cleans up resources</returns>
+        /// <param name="client">The client to be disconnected.</param>
+        /// <returns>A task that disconnects the client and cleans up resources.</returns>
         public static ByteDBReadingTask DisconnectTask(ByteDBClient client)
         {
             return async () =>
@@ -46,8 +46,8 @@ namespace ByteDBServer.Core.Server.Networking.Models
         /// <summary>
         /// Creates a task to connect a client, authenticate them, and add them to active connections.
         /// </summary>
-        /// <param name="client">The client to be connected and authenticated</param>
-        /// <returns>A task that connects the client and handles authentication</returns>
+        /// <param name="client">The client to be connected and authenticated.</param>
+        /// <returns>A task that connects the client and handles authentication.</returns>
         public static ByteDBWritingTask ConnectTask(ByteDBClient client)
         {
             return async () =>
@@ -66,6 +66,38 @@ namespace ByteDBServer.Core.Server.Networking.Models
                             ByteDBServerListener.ConnectedClients.Add(client);
                             ByteDBAuthenticator.ActiveUsers.Add(client.UserData);
                         }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ByteDBServerLogger.WriteExceptionToFile(ex);
+                }
+            };
+        }
+
+        /// <summary>
+        /// Tokenizes and executes query from client.
+        /// </summary>
+        /// <param name="query">Query bytes to be executed.</param>
+        /// <returns>A task that connects the client and handles authentication.</returns>
+        public static ByteDBReadingTask ExecuteQuery(ByteDBClient client, byte[] query)
+        {
+            return async () =>
+            {
+                try
+                {
+                    using (ByteDBQueryReader qr = new ByteDBQueryReader())
+                    {
+                        ByteDBQuery parsedQuery = await qr.Read(query);
+
+                        bool success = ByteDBQueryActions.Execute(parsedQuery);
+
+                        if (!success)
+                            using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
+                                await err.WriteAsync(client);
+                        else
+                            using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
+                                await okay.WriteAsync(client);
                     }
                 }
                 catch (Exception ex)
