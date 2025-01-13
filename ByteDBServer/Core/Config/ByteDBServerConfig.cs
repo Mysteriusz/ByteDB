@@ -30,6 +30,9 @@ namespace ByteDBServer.Core.Config
         //
 
         public static string IpAddress { get; private set; }
+        public static string TablesPath { get; private set; }
+        public static string TablesExtension { get; private set; }
+
         public static int Port { get; private set; }
         public static int MaxConnections { get; private set; }
         public static int BufferSize { get; private set; }
@@ -60,6 +63,8 @@ namespace ByteDBServer.Core.Config
             // Strings
             ServerVersion = config.Root.Element("ServerVersion").Value;
             IpAddress = config.Root.Element("Address").Value;
+            TablesPath = Path.Combine(AppContext.BaseDirectory, config.Root.Element("TablesPath").Value);
+            TablesExtension = config.Root.Element("TablesExtension").Value;
 
             // Intigers
             Port = int.Parse(config.Root.Element("Port").Value);
@@ -75,7 +80,7 @@ namespace ByteDBServer.Core.Config
             LongDelayDuration = int.Parse(config.Root.Element("LongDelayDuration").Value);
 
             // Other
-            Encoding = ByteDBServerEncoding.EncodingType[config.Root.Element("Encoding").Value];
+            Encoding = ByteDBServerInstance.EncodingType[config.Root.Element("Encoding").Value];
         }
     }
 }

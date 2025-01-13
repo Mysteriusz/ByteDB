@@ -11,4 +11,6 @@
 	<ShortDelayDuration>50</ShortDelayDuration>
 	<ModerateDelayDuration>150</ModerateDelayDuration>
 	<LongDelayDuration>300</LongDelayDuration>
+	<TablesPath>Core\Server\Tables</TablesPath>
+	<TablesExtension>xml</TablesExtension>
 </ServerConfig>

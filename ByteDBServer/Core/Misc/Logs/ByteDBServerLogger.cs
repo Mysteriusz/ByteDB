@@ -11,31 +11,60 @@ namespace ByteDBServer.Core.Misc.Logs
         // ----------------------------- CONSTANTS ----------------------------- 
         //
 
+        /// <summary>
+        /// Name of the log file.
+        /// </summary>
         public static readonly string LogFileName = $"Log-{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt";
+
+        /// <summary>
+        /// Log file`s path.
+        /// </summary>
         public static readonly string LogFilePath = Path.Combine("Core", "Misc", "Logs", LogFileName);
+
+        /// <summary>
+        /// Log file`s full path.
+        /// </summary>
         public static readonly string LogFileFullPath = Path.Combine(AppContext.BaseDirectory, LogFilePath);
 
         //
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
+        /// <summary>
+        /// Log file`s info from <see cref="LogFileFullPath"/>.
+        /// </summary>
         public static FileInfo LogFile { get { return new FileInfo(LogFileFullPath); } }
 
         //
         // ----------------------------- METHODS ----------------------------- 
         //
 
+        /// <summary>
+        /// Synchronously writes log to created file from <see cref="CreateFile(string)"/>.
+        /// </summary>
+        /// <param name="text">Log message.</param>
+        /// <param name="logType">Type of log ex: <see cref="[MESSAGE]"/>, <see cref="[WARNING]"/>.</param>
         public static void WriteToFile(string text, LogType logType = LogType.Message)
         {
             using (StreamWriter writer = LogFile.AppendText())
                 writer.WriteLine($"[{logType}] [{DateTime.Now:yyyy-MM-dd_HH:mm:ss}] - ({text})");
         }
+
+        /// <summary>
+        /// Asynchronously writes log to created file from <see cref="CreateFile(string)"/>.
+        /// </summary>
+        /// <param name="text">Log message.</param>
+        /// <param name="logType">Type of log ex: <see cref="[MESSAGE]"/>, <see cref="[WARNING]"/>.</param>
         public static async Task WriteToFileAsync(string text, LogType logType = LogType.Message)
         {
             using (StreamWriter writer = LogFile.AppendText())
                 await writer.WriteLineAsync($"[{logType}] [{DateTime.Now:yyyy-MM-dd_HH:mm:ss}] - ({text})");
         }
 
+        /// <summary>
+        /// Synchronously writes an exception to created file from <see cref="CreateFile(string)"/>.
+        /// </summary>
+        /// <param name="exception">Exception to write.</param>
         public static void WriteExceptionToFile(Exception exception)
         {
             using (StreamWriter writer = LogFile.AppendText())
@@ -53,6 +82,11 @@ namespace ByteDBServer.Core.Misc.Logs
                 writer.WriteLine();
             }
         }
+
+        /// <summary>
+        /// Asynchronously writes an exception to created file from <see cref="CreateFile(string)"/>.
+        /// </summary>
+        /// <param name="exception">Exception to write.</param>
         public static async Task WriteExceptionToFileAsync(Exception exception)
         {
             using (StreamWriter writer = LogFile.AppendText())
@@ -96,7 +130,10 @@ namespace ByteDBServer.Core.Misc.Logs
             }
         }
 
-
+        /// <summary>
+        /// Creates a log file on specified path.
+        /// </summary>
+        /// <param name="fileName">Full file path with name and extension.</param>
         public static void CreateFile(string fileName)
         {
             using (var fs = File.Create(fileName)) { }
