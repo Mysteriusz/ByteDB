@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Table Name="Workers" ColumnNames="Index,Name" ColumnTypes="Int32,String">
+	<Entry Index="1" Name="MAIN"/>
+</Table>
