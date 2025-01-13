@@ -7,6 +7,7 @@ using ByteDBServer.Core.Config;
 using System.Threading.Tasks;
 using System.ServiceProcess;
 using System.Text;
+using System;
 
 namespace ByteDBServer.Core.Server
 {
@@ -25,6 +26,8 @@ namespace ByteDBServer.Core.Server
         // General Server Information
         public static string Version => ByteDBServerConfig.ServerVersion;
         public static string IpAddress => ByteDBServerConfig.IpAddress;
+        public static string TablesPath => ByteDBServerConfig.TablesPath;
+        public static string TablesExtension => ByteDBServerConfig.TablesExtension;
 
         // Networking and Listening
         public static int ListeningPort => ByteDBServerConfig.Port;
@@ -47,6 +50,32 @@ namespace ByteDBServer.Core.Server
         // Server Encoding and Authentication
         public static Encoding ServerEncoding => ByteDBServerConfig.Encoding;
         public static ServerAuthenticationType ServerAuthenticationType = ServerAuthenticationType.SHA512;
+        public static readonly Dictionary<string, Encoding> EncodingType = new Dictionary<string, Encoding>()
+        {
+            { "UTF8", Encoding.UTF8 },
+            { "ASCII", Encoding.ASCII },
+        };
+
+        // Server Table Values Types
+        public static readonly Dictionary<string, Type> TableValueTypes = new Dictionary<string, Type>()
+        {
+            { "Int64", Type.GetType("System.Int64") },
+            { "Int32", Type.GetType("System.Int32") },
+            { "Int16", Type.GetType("System.Int16") },
+            { "String", Type.GetType("System.String") },
+        };
+
+        // Query Settings
+        public const char QueryEndingChar = ';';
+        public const char QueryStartArgumentChar = '(';
+        public const char QueryEndArgumentChar = ')';
+        public const char QueryArgumentDivider = ',';
+        public const char QueryValueChar = '"';
+        public static readonly HashSet<string> QueryKeywords = new HashSet<string>()
+        {
+            "INSERT INTO",
+            "VALUES",
+        };
 
         //
         // ----------------------------- METHODS ----------------------------- 

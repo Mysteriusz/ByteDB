@@ -9,6 +9,7 @@
         WelcomePacket = 0x01,
         ResponsePacket = 0x02,
         OkayPacket = 0x03,
+        QueryPacket = 0x04,
         EmptyPacket = 0x05,
         ErrorPacket = 0xff,
     }
