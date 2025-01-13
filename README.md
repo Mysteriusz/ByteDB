@@ -1,1 +1,7 @@
 # ByteDB
+
+##SYNTAX
+Every query has to end with ';' 
+
+### INSERT INTO
+  ex. "INSERT INTO "TABLE_NAME" (COLUMN1, COLUMN2, COLUMN3) VALUES (VALUE1, VALUE2, VALUE3);"
