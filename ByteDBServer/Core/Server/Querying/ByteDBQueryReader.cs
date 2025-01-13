@@ -7,10 +7,24 @@ namespace ByteDBServer.Core.Server.Networking
 {
     internal class ByteDBQueryReader : IDisposable
     {
+        //
+        // ----------------------------- PROPERTIES ----------------------------- 
+        //
+
         private List<ByteDBValueCollection> queryArguments = new List<ByteDBValueCollection>();
         private List<string> queryTokens = new List<string>();
         private List<string> queryValues = new List<string>();
 
+        //
+        // ----------------------------- METHODS ----------------------------- 
+        //
+
+        /// <summary>
+        /// Tries to tokenize the query bytes.
+        /// </summary>
+        /// <param name="query">Bytes of a query.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task<ByteDBQuery> Read(byte[] query)
         {
             return await Task.Run(() =>
@@ -96,6 +110,10 @@ namespace ByteDBServer.Core.Server.Networking
                 }
             });
         }
+
+        //
+        // ----------------------------- DISPOSAL ----------------------------- 
+        //
 
         public void Dispose()
         {

@@ -49,15 +49,15 @@ namespace ByteDBServer.Core.Server
 
         // Server Encoding and Authentication
         public static Encoding ServerEncoding => ByteDBServerConfig.Encoding;
-        public static ServerAuthenticationType ServerAuthenticationType = ServerAuthenticationType.SHA512;
-        public static readonly Dictionary<string, Encoding> EncodingType = new Dictionary<string, Encoding>()
+        public static ServerAuthenticationType ServerAuthenticationType { get; } = ServerAuthenticationType.SHA512;
+        public static Dictionary<string, Encoding> EncodingType { get; } = new Dictionary<string, Encoding>()
         {
             { "UTF8", Encoding.UTF8 },
             { "ASCII", Encoding.ASCII },
         };
 
         // Server Table Values Types
-        public static readonly Dictionary<string, Type> TableValueTypes = new Dictionary<string, Type>()
+        public static Dictionary<string, Type> TableValueTypes { get; } = new Dictionary<string, Type>()
         {
             { "Int64", Type.GetType("System.Int64") },
             { "Int32", Type.GetType("System.Int32") },
