@@ -1,6 +1,6 @@
 # ByteDB
 
-##SYNTAX
+## SYNTAX
 Every query has to end with ';' 
 
 ### INSERT INTO
