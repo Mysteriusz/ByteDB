@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using System.Linq;
 using System;
 using ByteDBServer.Core.Server.Tables;
+using System.Threading.Tasks;
 
 namespace ByteDBServer.Core.Server.Databases
 {
@@ -63,6 +64,36 @@ namespace ByteDBServer.Core.Server.Databases
             // Add Entry
             tableDoc.Root.Add(new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray()).GetElement());
             
+            // Save the file
+            tableDoc.Save(TableFullPath);
+        }
+
+        /// <summary>
+        /// Adds an entry to the table and saves it to file.
+        /// </summary>
+        /// <param name="columns">Columns to which values should be assigned.</param>
+        /// <param name="values">Values that are assigned to columns.</param>
+        public async Task AddRowAsync(List<string> columns, List<string> values)
+        {
+            XDocument tableDoc = await Task.Run(() => XDocument.Load(TableFullPath));
+
+            List<string> tableColumns = Columns.Keys.ToList();
+            List<string> toAddValues = new List<string>(Enumerable.Repeat("", tableColumns.Count));
+
+            // Start interating and assigning values to columns that are referenced
+            for (int rIndex = 0; rIndex < columns.Count; rIndex++)
+            {
+                // Find the column index in the table columns
+                int columnIndex = tableColumns.IndexOf(columns[rIndex]);
+
+                // If the column exists in the table, add the corresponding value at the correct position
+                if (columnIndex >= 0)
+                    toAddValues[columnIndex] = values[rIndex];
+            }
+
+            // Add Entry
+            tableDoc.Root.Add(new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray()).GetElement());
+
             // Save the file
             tableDoc.Save(TableFullPath);
         }

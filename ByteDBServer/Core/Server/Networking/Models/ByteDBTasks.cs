@@ -92,14 +92,7 @@ namespace ByteDBServer.Core.Server.Networking.Models
                     {
                         ByteDBQuery parsedQuery = await qr.Read(query);
 
-                        bool success = ByteDBQueryTasks.Execute(parsedQuery);
-
-                        if (!success)
-                            using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
-                                await err.WriteAsync(client);
-                        else
-                            using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
-                                await okay.WriteAsync(client);
+                        await ByteDBQueryTasks.Execute(client, parsedQuery);
                     }
                 }
                 catch (Exception ex)
