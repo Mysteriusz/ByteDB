@@ -35,8 +35,10 @@ namespace ByteDBServer.Core.Server
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                ByteDBServerLogger.WriteExceptionToFile(ex);
+
                 return false;
             }
 
@@ -57,8 +59,10 @@ namespace ByteDBServer.Core.Server
 
                 if (query.Keywords.Length == 1)
                     await InsertInto(table, [], []);
-                else if (query.Keywords.Length == 2 && query.Keywords[1] == "VALUES")
+                else if (query.Keywords.Length == 2 && query.Keywords[1] == "WITH VALUES")
                     await InsertInto(table, query.ArgumentCollections[0], query.ArgumentCollections[1]);
+                else 
+                    throw new Exception();
             }
             catch
             {

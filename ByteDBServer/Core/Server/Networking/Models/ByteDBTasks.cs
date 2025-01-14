@@ -5,6 +5,7 @@ using System;
 using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.Server.Packets;
 using ByteDBServer.Core.Server.Querying.Models;
+using System.Linq;
 
 namespace ByteDBServer.Core.Server.Networking.Models
 {
@@ -91,7 +92,6 @@ namespace ByteDBServer.Core.Server.Networking.Models
                     using (ByteDBQueryReader qr = new ByteDBQueryReader())
                     {
                         ByteDBQuery parsedQuery = await qr.Read(query);
-
                         await ByteDBQueryTasks.Execute(client, parsedQuery);
                     }
                 }

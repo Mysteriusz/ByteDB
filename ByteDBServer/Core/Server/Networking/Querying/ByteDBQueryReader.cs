@@ -3,6 +3,7 @@ using System.Text;
 using System;
 using System.Threading.Tasks;
 using ByteDBServer.Core.Server.Querying.Models;
+using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Server.Networking
 {
@@ -32,12 +33,12 @@ namespace ByteDBServer.Core.Server.Networking
             {
                 try
                 {
-                    string queryString = ByteDBServerInstance.ServerEncoding.GetString(query).Trim();
+                    string queryString = Encoding.ASCII.GetString(query).Trim();
 
                     int qIndex = 0;
                     char qChar = '0';
 
-                    while (qChar != ByteDBServerInstance.QueryEndingChar)
+                    while (qChar != ByteDBServerInstance.QueryEndingChar) // QueryEndingChar
                     {
                         // Check for keyword
                         foreach (string word in ByteDBServerInstance.QueryKeywords)
@@ -53,15 +54,15 @@ namespace ByteDBServer.Core.Server.Networking
                         qChar = queryString[qIndex++];
 
                         // Check if char is a VALUECHAR
-                        if (qChar == ByteDBServerInstance.QueryValueChar)
+                        if (qChar == ByteDBServerInstance.QueryValueChar) // QueryValueChar
                         {
                             qChar = queryString[qIndex++];
 
-                            while (qIndex < queryString.Length && qChar != ByteDBServerInstance.QueryValueChar)
+                            while (qIndex < queryString.Length && qChar != ByteDBServerInstance.QueryValueChar) // QueryValueChar
                             {
                                 StringBuilder arg = new StringBuilder();
 
-                                while (qIndex < queryString.Length && qChar != ByteDBServerInstance.QueryValueChar)
+                                while (qIndex < queryString.Length && qChar != ByteDBServerInstance.QueryValueChar) // QueryValueChar
                                 {
                                     arg.Append(qChar);
                                     qChar = queryString[qIndex++];
@@ -72,33 +73,31 @@ namespace ByteDBServer.Core.Server.Networking
                         }
 
                         // Check if char is a ARGUMENT STARTER CHAR
-                        if (qChar == ByteDBServerInstance.QueryStartArgumentChar)
+                        if (qChar == ByteDBServerInstance.QueryStartArgumentChar) // QueryStartArgumentChar
                         {
                             qChar = queryString[qIndex++];
 
-                            ByteDBArgumentCollection argCollection = new ByteDBArgumentCollection();
+                            ByteDBArgumentCollection args = new ByteDBArgumentCollection();
 
                             while (qChar != ByteDBServerInstance.QueryEndArgumentChar)
                             {
-                                StringBuilder arg = new StringBuilder();
+                                StringBuilder str = new StringBuilder();
 
                                 while (qChar != ByteDBServerInstance.QueryArgumentDivider && qChar != ByteDBServerInstance.QueryEndArgumentChar)
                                 {
-                                    arg.Append(qChar);
+                                    str.Append(qChar);
                                     qChar = queryString[qIndex++];
                                 }
 
-                                argCollection.Add(arg.ToString().Trim());
+                                args.Add(str.ToString().Trim());
 
                                 if (qChar == ByteDBServerInstance.QueryArgumentDivider)
+                                {
                                     qChar = queryString[qIndex++];
+                                }
                             }
 
-                            queryArguments.Add(argCollection);
-
-                            // Skip the EndArgumentChar
-                            if (qIndex < queryString.Length)
-                                qChar = queryString[qIndex++];
+                            queryArguments.Add(args);
                         }
                     }
 
@@ -107,6 +106,7 @@ namespace ByteDBServer.Core.Server.Networking
                 catch (Exception ex)
                 {
                     // Log the error or handle it
+                    ByteDBServerLogger.WriteExceptionToFile(ex);
                     throw new Exception("Error while reading the query", ex);
                 }
             });

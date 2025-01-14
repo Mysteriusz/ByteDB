@@ -74,7 +74,7 @@ namespace ByteDBServer.Core.Server
         public static readonly HashSet<string> QueryKeywords = new HashSet<string>()
         {
             "INSERT INTO",
-            "VALUES",
+            "WITH VALUES",
         };
 
         //
