@@ -4,6 +4,7 @@ using System.Linq;
 using System;
 using ByteDBServer.Core.Server.Tables;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace ByteDBServer.Core.Server.Databases
 {
@@ -73,29 +74,43 @@ namespace ByteDBServer.Core.Server.Databases
         /// </summary>
         /// <param name="columns">Columns to which values should be assigned.</param>
         /// <param name="values">Values that are assigned to columns.</param>
+        private static readonly SemaphoreSlim _fileLock = new SemaphoreSlim(1, 1); // Allows only 1 thread to access at a time
         public async Task AddRowAsync(List<string> columns, List<string> values)
         {
-            XDocument tableDoc = await Task.Run(() => XDocument.Load(TableFullPath));
+            await _fileLock.WaitAsync();
 
-            List<string> tableColumns = Columns.Keys.ToList();
-            List<string> toAddValues = new List<string>(Enumerable.Repeat("", tableColumns.Count));
-
-            // Start interating and assigning values to columns that are referenced
-            for (int rIndex = 0; rIndex < columns.Count; rIndex++)
+            try
             {
-                // Find the column index in the table columns
-                int columnIndex = tableColumns.IndexOf(columns[rIndex]);
+                XDocument tableDoc = await Task.Run(() => XDocument.Load(TableFullPath));
 
-                // If the column exists in the table, add the corresponding value at the correct position
-                if (columnIndex >= 0)
-                    toAddValues[columnIndex] = values[rIndex];
+                List<string> tableColumns = Columns.Keys.ToList();
+                List<string> toAddValues = new List<string>(Enumerable.Repeat("", tableColumns.Count));
+
+                // Start interating and assigning values to columns that are referenced
+                for (int rIndex = 0; rIndex < columns.Count; rIndex++)
+                {
+                    // Find the column index in the table columns
+                    int columnIndex = tableColumns.IndexOf(columns[rIndex]);
+
+                    // If the column exists in the table, add the corresponding value at the correct position
+                    if (columnIndex >= 0)
+                        toAddValues[columnIndex] = values[rIndex];
+                }
+
+                // Add Entry
+                tableDoc.Root.Add(new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray()).GetElement());
+
+                // Save the file
+                await Task.Run(() => tableDoc.Save(TableFullPath));
             }
-
-            // Add Entry
-            tableDoc.Root.Add(new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray()).GetElement());
-
-            // Save the file
-            tableDoc.Save(TableFullPath);
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                _fileLock.Release();
+            }
         }
 
         /// <summary>

@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 using ByteDBServer.Core.Server.Packets;
+using ByteDBServer.Core.Misc.Logs;
+using System;
 
 namespace ByteDBServer.Core.Server
 {
@@ -45,6 +47,7 @@ namespace ByteDBServer.Core.Server
         /// Executes insert with arguments from query.
         /// </summary>
         /// <param name="query">Query to execute.</param>
+        /// <param name="client">Client to which info packets should be sent.</param>
         public static async Task ExecuteInsertInto(ByteDBClient client, ByteDBQuery query)
         {
             try
@@ -78,7 +81,7 @@ namespace ByteDBServer.Core.Server
         public static async Task InsertInto(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values)
         {
             if (table.Columns.Count < columns.Count || table.Columns.Count < values.Count || columns.Count != values.Count)
-                throw new System.Exception();
+                throw new Exception();
 
             await table.AddRowAsync(columns, values);
         }
