@@ -2,6 +2,7 @@
 using System.Text;
 using System;
 using System.Threading.Tasks;
+using ByteDBServer.Core.Server.Querying.Models;
 
 namespace ByteDBServer.Core.Server.Networking
 {
@@ -11,7 +12,7 @@ namespace ByteDBServer.Core.Server.Networking
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
-        private List<ByteDBValueCollection> queryArguments = new List<ByteDBValueCollection>();
+        private List<ByteDBArgumentCollection> queryArguments = new List<ByteDBArgumentCollection>();
         private List<string> queryTokens = new List<string>();
         private List<string> queryValues = new List<string>();
 
@@ -75,7 +76,7 @@ namespace ByteDBServer.Core.Server.Networking
                         {
                             qChar = queryString[qIndex++];
 
-                            ByteDBValueCollection argCollection = new ByteDBValueCollection();
+                            ByteDBArgumentCollection argCollection = new ByteDBArgumentCollection();
 
                             while (qChar != ByteDBServerInstance.QueryEndArgumentChar)
                             {
@@ -87,7 +88,7 @@ namespace ByteDBServer.Core.Server.Networking
                                     qChar = queryString[qIndex++];
                                 }
 
-                                argCollection.Values.Add(arg.ToString().Trim());
+                                argCollection.Add(arg.ToString().Trim());
 
                                 if (qChar == ByteDBServerInstance.QueryArgumentDivider)
                                     qChar = queryString[qIndex++];
@@ -101,7 +102,7 @@ namespace ByteDBServer.Core.Server.Networking
                         }
                     }
 
-                    return new ByteDBQuery(queryTokens, queryValues, queryArguments.ToArray());
+                    return new ByteDBQuery(queryTokens.ToArray(), queryValues.ToArray(), queryArguments.ToArray());
                 }
                 catch (Exception ex)
                 {

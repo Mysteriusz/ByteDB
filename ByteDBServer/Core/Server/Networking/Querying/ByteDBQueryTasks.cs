@@ -1,18 +1,11 @@
-﻿using ByteDBServer.Core.Server.Networking;
+﻿using ByteDBServer.Core.Server.Querying.Models;
 using ByteDBServer.Core.Server.Databases;
 using ByteDBServer.Core.Misc.Logs;
-using System.Collections.Generic;
 using System.IO;
 
 namespace ByteDBServer.Core.Server
 {
-    internal class ByteDBValueCollection
-    {
-        public List<string> Values = new List<string>();
-        public int Count => Values.Count;
-    }
-
-    internal static class ByteDBQueryActions
+    internal static class ByteDBQueryTasks
     {
         //
         // ----------------------------- METHODS ----------------------------- 
@@ -32,8 +25,8 @@ namespace ByteDBServer.Core.Server
                     switch (query.Keywords[0])
                     {
                         case "INSERT INTO":
-                            ByteDBServerLogger.WriteToFile($"INSERTING INTO {query.Values![0]}");
-                            InsertInto(query.Values![0], query.Arguments[0], query.Arguments[1]);
+                            //ByteDBServerLogger.WriteToFile($"INSERTING INTO {query.Values![0]}");
+                            //InsertInto(query.Values![0], query.Arguments[0], query.Arguments[1]);
                             break;
                     }
                 }
@@ -52,7 +45,7 @@ namespace ByteDBServer.Core.Server
         /// <param name="tableName">Name of a table.</param>
         /// <param name="columns">Columns of <paramref name="tableName"/> to which values should be assigned.</param>
         /// <param name="values">Values of columns.</param>
-        public static void InsertInto(string tableName, ByteDBValueCollection columns, ByteDBValueCollection values)
+        public static void InsertInto(string tableName, ByteDBArgumentCollection columns, ByteDBArgumentCollection values)
         {
             try
             {
@@ -63,7 +56,7 @@ namespace ByteDBServer.Core.Server
                 if (table.Columns.Count < columns.Count || table.Columns.Count < values.Count || columns.Count != values.Count)
                     throw new System.Exception();
 
-                table.AddRow(columns.Values, values.Values);
+                table.AddRow(columns, values);
             }
             catch
             {

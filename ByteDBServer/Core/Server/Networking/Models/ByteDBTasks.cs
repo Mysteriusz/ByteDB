@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using System;
 using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.Server.Packets;
+using ByteDBServer.Core.Server.Querying.Models;
 
 namespace ByteDBServer.Core.Server.Networking.Models
 {
     public delegate Task ByteDBReadingTask();
     public delegate Task ByteDBWritingTask();
+    public delegate Task ByteDBQueryTask();
 
     //
     // ----------------------------- TASKS ----------------------------- 
@@ -80,7 +82,7 @@ namespace ByteDBServer.Core.Server.Networking.Models
         /// </summary>
         /// <param name="query">Query bytes to be executed.</param>
         /// <returns>A task that connects the client and handles authentication.</returns>
-        public static ByteDBReadingTask ExecuteQuery(ByteDBClient client, byte[] query)
+        public static ByteDBQueryTask ExecuteQuery(ByteDBClient client, byte[] query)
         {
             return async () =>
             {
@@ -90,7 +92,7 @@ namespace ByteDBServer.Core.Server.Networking.Models
                     {
                         ByteDBQuery parsedQuery = await qr.Read(query);
 
-                        bool success = ByteDBQueryActions.Execute(parsedQuery);
+                        bool success = ByteDBQueryTasks.Execute(parsedQuery);
 
                         if (!success)
                             using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))

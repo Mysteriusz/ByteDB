@@ -1,5 +1,4 @@
 ﻿using ByteDBServer.Core.Server.Networking.Models;
-using ByteDBServer.Core.Server.Networking.Pools;
 using ByteDBServer.Core.Misc.Logs;
 using System.Collections.Generic;
 using ByteDBServer.Core.Config;
@@ -24,6 +23,10 @@ namespace ByteDBServer.Core.Server
 
         public static List<ByteDBClient> ConnectedClients { get; set; } = new List<ByteDBClient>();
 
+        public static ByteDBReadingPool ReadingPool { get; } = new ByteDBReadingPool();
+        public static ByteDBWritingPool WritingPool { get; } = new ByteDBWritingPool();
+        public static ByteDBQueryPool QueryPool { get; } = new ByteDBQueryPool();
+
         //
         // -------------------------------------- METHODS --------------------------------------
         //
@@ -36,8 +39,9 @@ namespace ByteDBServer.Core.Server
             Listener.Bind(new IPEndPoint(IPAddress.Parse(ByteDBServerInstance.IpAddress), ByteDBServerInstance.ListeningPort));
             Listener.Listen(0);
 
-            ByteDBReadingPool.StartProcessing();
-            ByteDBWritingPool.StartProcessing();
+            ReadingPool.StartProcessing();
+            WritingPool.StartProcessing();
+            QueryPool.StartProcessing();
 
             _ = NewListener();
             _ = ConnectedListener();
@@ -50,8 +54,9 @@ namespace ByteDBServer.Core.Server
         /// </summary>
         public static void StopListening()
         {
-            ByteDBWritingPool.StopProcessing();
-            ByteDBReadingPool.StopProcessing();
+            ReadingPool.StopProcessing();
+            WritingPool.StopProcessing();
+            QueryPool.StopProcessing();
 
             Listener.Close();    
             CancellationToken.Cancel();
@@ -73,7 +78,7 @@ namespace ByteDBServer.Core.Server
                     Socket socket = await Listener.AcceptAsync();
 
                     // Enqueues a task to handle the new connection using the ByteDBWritingPool
-                    ByteDBWritingPool.EnqueueTask(ByteDBTasks.ConnectTask(new ByteDBClient(socket)));
+                    WritingPool.EnqueueTask(ByteDBTasks.ConnectTask(new ByteDBClient(socket)));
                 }
             }
             catch (Exception ex)
@@ -162,7 +167,7 @@ namespace ByteDBServer.Core.Server
                     // If clients socket is disconnected
                     if (!IsConnected(client))
                     {
-                        ByteDBReadingPool.EnqueueTask(ByteDBTasks.DisconnectTask(client));
+                        ReadingPool.EnqueueTask(ByteDBTasks.DisconnectTask(client));
                         continue;
                     }
 
@@ -173,7 +178,7 @@ namespace ByteDBServer.Core.Server
                     // Execute clients query if it requests SERVER_HANDLE_QUERIES and packet is a QueryPacketType (0x04)
                     if (client.RequestedCapabilities.Contains(ServerCapabilities.SERVER_HANDLE_QUERIES) && buffer[0] == (byte)ByteDBPacketType.QueryPacket)
                     {
-                        ByteDBReadingPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, buffer.Take(received).ToArray()));
+                        QueryPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, buffer.Take(received).ToArray()));
                         continue;
                     }
                 }
