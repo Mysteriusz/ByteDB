@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.ServiceProcess;
 using System.Text;
 using System;
+using ByteDBServer.Core.Server.Databases;
 
 namespace ByteDBServer.Core.Server
 {
@@ -28,6 +29,7 @@ namespace ByteDBServer.Core.Server
         public static string IpAddress => ByteDBServerConfig.IpAddress;
         public static string TablesPath => ByteDBServerConfig.TablesPath;
         public static string TablesExtension => ByteDBServerConfig.TablesExtension;
+        public static Dictionary<string, ByteDBTable> Tables => ByteDBServerConfig.DataTables;
 
         // Networking and Listening
         public static int ListeningPort => ByteDBServerConfig.Port;
@@ -71,10 +73,16 @@ namespace ByteDBServer.Core.Server
         public const char QueryEndArgumentChar = ')';
         public const char QueryArgumentDivider = ',';
         public const char QueryValueChar = '"';
+
+        public static readonly HashSet<char> QueryOperators = new HashSet<char>()
+        {
+            '=',
+        };
         public static readonly HashSet<string> QueryKeywords = new HashSet<string>()
         {
             "INSERT INTO",
             "WITH VALUES",
+            "IF CONTAINS",
         };
 
         //

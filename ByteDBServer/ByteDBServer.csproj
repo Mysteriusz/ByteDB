@@ -58,6 +58,7 @@
     <Compile Include="Core\Server\Networking\Models\ByteDBPool.cs" />
     <Compile Include="Core\Server\Networking\Querying\Models\ByteDBArgumentCollection.cs" />
     <Compile Include="Core\Server\Networking\Querying\Models\ByteDBQuery.cs" />
+    <Compile Include="Core\Server\Networking\Querying\Models\ByteDBQueryFunction.cs" />
     <Compile Include="Core\Server\Tables\ByteDBTableEntry.cs" />
     <Compile Include="Core\Server\Tables\ByteDBTable.cs" />
     <Compile Include="Core\Server\Networking\Querying\ByteDBQueryTasks.cs" />
