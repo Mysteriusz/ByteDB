@@ -1,11 +1,10 @@
-﻿using ByteDBServer.Core.Server.Protocols;
+﻿using ByteDBServer.Core.Server.Networking.Querying.Models;
+using ByteDBServer.Core.Server.Protocols;
+using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.Misc.Logs;
 using System.Threading.Tasks;
 using System;
-using ByteDBServer.Core.Authentication;
-using ByteDBServer.Core.Server.Packets;
-using ByteDBServer.Core.Server.Querying.Models;
-using System.Linq;
+using ByteDBServer.Core.Server.Networking.Querying;
 
 namespace ByteDBServer.Core.Server.Networking.Models
 {

@@ -1,4 +1,4 @@
-﻿namespace ByteDBServer.Core.Server.Querying.Models
+﻿namespace ByteDBServer.Core.Server.Networking.Querying.Models
 {
     internal class ByteDBQuery
     {

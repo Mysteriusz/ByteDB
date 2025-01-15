@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using ByteDBServer.Core.Server.Networking.Querying.Models;
+using ByteDBServer.Core.Misc.Logs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Text;
 using System;
-using System.Threading.Tasks;
-using ByteDBServer.Core.Server.Querying.Models;
-using ByteDBServer.Core.Misc.Logs;
+using ByteDBServer.Core.Misc;
 
-namespace ByteDBServer.Core.Server.Networking
+namespace ByteDBServer.Core.Server.Networking.Querying
 {
     internal class ByteDBQueryReader : IDisposable
     {
@@ -72,6 +73,7 @@ namespace ByteDBServer.Core.Server.Networking
                             }
                         }
 
+                        #nullable enable
                         // Check if char is a ARGUMENT STARTER CHAR
                         if (qChar == ByteDBServerInstance.QueryStartArgumentChar) // QueryStartArgumentChar
                         {
@@ -82,14 +84,36 @@ namespace ByteDBServer.Core.Server.Networking
                             while (qChar != ByteDBServerInstance.QueryEndArgumentChar)
                             {
                                 StringBuilder str = new StringBuilder();
+                                ByteDBQueryFunction? func = null;
 
                                 while (qChar != ByteDBServerInstance.QueryArgumentDivider && qChar != ByteDBServerInstance.QueryEndArgumentChar)
                                 {
-                                    str.Append(qChar);
+                                    if (ByteDBServerInstance.QueryOperators.Contains(qChar))
+                                    {
+                                        func = new ByteDBQueryFunction
+                                        {
+                                            Operator = qChar,
+                                            Arg1 = str.ToString().Trim()
+                                        };
+                                        str.Clear();
+                                    }
+                                    else
+                                    {
+                                        str.Append(qChar);
+                                    }
+
                                     qChar = queryString[qIndex++];
                                 }
 
-                                args.Add(str.ToString().Trim());
+                                if (func != null)
+                                {
+                                    func.Arg2 = str.ToString().Trim();
+                                    args.Functions.Add(func);
+                                }
+                                else
+                                {
+                                    args.Add(str.ToString().Trim());
+                                }
 
                                 if (qChar == ByteDBServerInstance.QueryArgumentDivider)
                                 {
@@ -107,7 +131,7 @@ namespace ByteDBServer.Core.Server.Networking
                 {
                     // Log the error or handle it
                     ByteDBServerLogger.WriteExceptionToFile(ex);
-                    throw new Exception("Error while reading the query", ex);
+                    throw new ByteDBQueryException();
                 }
             });
         }

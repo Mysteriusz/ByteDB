@@ -1,14 +1,15 @@
-﻿using ByteDBServer.Core.Server.Networking.Models;
-using ByteDBServer.Core.Server.Querying.Models;
+﻿using ByteDBServer.Core.Server.Networking.Querying.Models;
+using ByteDBServer.Core.Server.Networking.Models;
 using ByteDBServer.Core.Server.Databases;
-using System.Threading.Tasks;
-using System.IO;
-using System.Linq;
 using ByteDBServer.Core.Server.Packets;
 using ByteDBServer.Core.Misc.Logs;
+using System.Threading.Tasks;
+using System.IO;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace ByteDBServer.Core.Server
+namespace ByteDBServer.Core.Server.Networking.Querying
 {
     internal static class ByteDBQueryTasks
     {
@@ -54,15 +55,18 @@ namespace ByteDBServer.Core.Server
         {
             try
             {
-                string tableFilePath = Path.Combine(ByteDBServerInstance.TablesPath, query.Values[0] + "." + ByteDBServerInstance.TablesExtension);
-                ByteDBTable table = ByteDBTable.Load(tableFilePath);
+                string tableName = query.Values[0];
+                string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
+                ByteDBTable table = ByteDBServerInstance.Tables[tablePath];
 
-                if (query.Keywords.Length == 1)
-                    await InsertInto(table, [], []);
-                else if (query.Keywords.Length == 2 && query.Keywords[1] == "WITH VALUES")
-                    await InsertInto(table, query.ArgumentCollections[0], query.ArgumentCollections[1]);
-                else 
-                    throw new Exception();
+                bool withValues = query.Keywords.Contains("WITH VALUES");
+                bool withCondition = query.Keywords.Last() == "IF CONTAINS";
+
+                ByteDBArgumentCollection columns = withValues ? query.ArgumentCollections[0] : new ByteDBArgumentCollection();
+                ByteDBArgumentCollection values = withValues ? query.ArgumentCollections[1] : new ByteDBArgumentCollection();
+                ByteDBArgumentCollection conditions = withCondition ? query.ArgumentCollections.Last() : new ByteDBArgumentCollection();
+
+                await InsertInto(table, columns, values, conditions.Functions);
             }
             catch
             {
@@ -82,12 +86,12 @@ namespace ByteDBServer.Core.Server
         /// <param name="table">Table to which insert.</param>
         /// <param name="columns">Columns of <paramref name="table"/> to which values should be assigned.</param>
         /// <param name="values">Values of columns.</param>
-        public static async Task InsertInto(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values)
+        public static async Task InsertInto(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> functions)
         {
             if (table.Columns.Count < columns.Count || table.Columns.Count < values.Count || columns.Count != values.Count)
                 throw new Exception();
 
-            await table.AddRowAsync(columns, values);
+            await table.AddRowAsync(columns, values, functions);
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Linq;
 using System.Net;
 using System;
 
-namespace ByteDBServer.Core.Server
+namespace ByteDBServer.Core.Server.Networking
 {
     internal static class ByteDBServerListener
     {
