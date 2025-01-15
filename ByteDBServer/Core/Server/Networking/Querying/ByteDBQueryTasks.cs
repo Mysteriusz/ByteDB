@@ -3,14 +3,17 @@ using ByteDBServer.Core.Server.Networking.Models;
 using ByteDBServer.Core.Server.Databases;
 using ByteDBServer.Core.Server.Packets;
 using ByteDBServer.Core.Misc.Logs;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using System.IO;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ByteDBServer.Core.Server.Networking.Querying
 {
+    /// <summary>
+    /// Tasks that can be executed using <see cref="ByteDBQuery"/>.
+    /// </summary>
     internal static class ByteDBQueryTasks
     {
         //

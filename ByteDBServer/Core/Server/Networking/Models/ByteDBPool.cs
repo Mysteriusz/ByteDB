@@ -1,16 +1,25 @@
 ﻿using System.Collections.Concurrent;
+using ByteDBServer.Core.Misc.Logs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
-using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Server.Networking.Models
 {
+    //
+    // ----------------------------- CLASSES ----------------------------- 
+    //
+
     internal class ByteDBReadingPool : ByteDBPool<ByteDBReadingHandler, ByteDBReadingTask> { }
     internal class ByteDBWritingPool : ByteDBPool<ByteDBWritingHandler, ByteDBWritingTask> { }
     internal class ByteDBQueryPool : ByteDBPool<ByteDBQueryHandler, ByteDBQueryTask> { }
 
+    /// <summary>
+    /// Pool of handlers that execute tasks.
+    /// </summary>
+    /// <typeparam name="THandler"><see cref="ByteDBHandler{TTask, THandler}"/> inheriting class.</typeparam>
+    /// <typeparam name="TTask"><see cref="Delegate"/> class that has to be executed.</typeparam>
     internal abstract class ByteDBPool <THandler, TTask>
         where TTask : Delegate
         where THandler : ByteDBHandler<TTask, THandler>, new()
@@ -19,12 +28,24 @@ namespace ByteDBServer.Core.Server.Networking.Models
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
+        /// <summary>
+        /// Returns <see cref="ByteDBServerInstance.HandlerPoolSize"/>.
+        /// </summary>
         public int MaxHandlerCount { get; } = ByteDBServerInstance.HandlerPoolSize;
 
+        /// <summary>
+        /// Currently queued tasks.
+        /// </summary>
         public ConcurrentQueue<TTask> TaskQueue = new ConcurrentQueue<TTask>();
 
+        /// <summary>
+        /// List of currently working handlers.
+        /// </summary>
         public static List<ByteDBHandler<TTask, THandler>> Handlers = new List<ByteDBHandler<TTask, THandler>>();
 
+        /// <summary>
+        /// Processing cancellation token.
+        /// </summary>
         public CancellationTokenSource CancellationToken = new CancellationTokenSource();
 
         //

@@ -11,20 +11,43 @@ using System;
 
 namespace ByteDBServer.Core.Server.Networking
 {
+    /// <summary>
+    /// Listens for incoming connections and for incoming connected client packets.
+    /// </summary>
     internal static class ByteDBServerListener
     {
         //
         // ----------------------------------- PROPERTIES -----------------------------------
         //
 
+        /// <summary>
+        /// Server listening cancellation token.
+        /// </summary>
         public static CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
-        
+
+        /// <summary>
+        /// Server socket listener.
+        /// </summary>
         public static Socket Listener { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
+        /// <summary>
+        /// List of currently connected clients.
+        /// </summary>
         public static List<ByteDBClient> ConnectedClients { get; set; } = new List<ByteDBClient>();
 
+        /// <summary>
+        /// Pool of reading handlers.
+        /// </summary>
         public static ByteDBReadingPool ReadingPool { get; } = new ByteDBReadingPool();
+
+        /// <summary>
+        /// Pool of writing handlers.
+        /// </summary>
         public static ByteDBWritingPool WritingPool { get; } = new ByteDBWritingPool();
+
+        /// <summary>
+        /// Pool of query handlers.
+        /// </summary>
         public static ByteDBQueryPool QueryPool { get; } = new ByteDBQueryPool();
 
         //
@@ -191,10 +214,21 @@ namespace ByteDBServer.Core.Server.Networking
             });
         }
 
+        /// <summary>
+        /// Checks if client is contained in <see cref="ConnectedClients"/>.
+        /// </summary>
+        /// <param name="client">Client to check.</param>
+        /// <returns>True if is authenticated; False if not.</returns>
         public static bool IsAuthenticated(ByteDBClient client)
         {
             return ConnectedClients.Contains(client);
         }
+
+        /// <summary>
+        /// Sends a check packet to socket.
+        /// </summary>
+        /// <param name="socket">Socket to check.</param>
+        /// <returns>True if is connected; False if not.</returns>
         private static bool IsConnected(Socket socket)
         {
             try

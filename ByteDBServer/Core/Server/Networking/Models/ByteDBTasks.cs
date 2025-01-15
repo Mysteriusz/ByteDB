@@ -1,13 +1,17 @@
 ﻿using ByteDBServer.Core.Server.Networking.Querying.Models;
+using ByteDBServer.Core.Server.Networking.Querying;
 using ByteDBServer.Core.Server.Protocols;
 using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.Misc.Logs;
 using System.Threading.Tasks;
 using System;
-using ByteDBServer.Core.Server.Networking.Querying;
 
 namespace ByteDBServer.Core.Server.Networking.Models
 {
+    //
+    // ----------------------------- CLASSES ----------------------------- 
+    //
+
     public delegate Task ByteDBReadingTask();
     public delegate Task ByteDBWritingTask();
     public delegate Task ByteDBQueryTask();
@@ -16,6 +20,9 @@ namespace ByteDBServer.Core.Server.Networking.Models
     // ----------------------------- TASKS ----------------------------- 
     //
 
+    /// <summary>
+    /// Basic server sided tasks that can be executed for client.
+    /// </summary>
     internal static class ByteDBTasks
     {
         /// <summary>

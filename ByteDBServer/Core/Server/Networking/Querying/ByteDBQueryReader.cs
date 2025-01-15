@@ -2,12 +2,15 @@
 using ByteDBServer.Core.Misc.Logs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ByteDBServer.Core.Misc;
 using System.Text;
 using System;
-using ByteDBServer.Core.Misc;
 
 namespace ByteDBServer.Core.Server.Networking.Querying
 {
+    /// <summary>
+    /// Class for reading query bytes.
+    /// </summary>
     internal class ByteDBQueryReader : IDisposable
     {
         //
