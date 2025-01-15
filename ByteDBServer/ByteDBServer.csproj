@@ -71,7 +71,7 @@
     <Compile Include="Core\Server\ByteDBServerEnums.cs" />
     <Compile Include="Core\Server\Networking\Querying\ByteDBQueryReader.cs" />
     <Compile Include="Core\Server\Networking\Models\ByteDBClient.cs" />
-    <Compile Include="Core\Server\Networking\Models\ByteDBTasks.cs" />
+    <Compile Include="Core\Server\Networking\ByteDBTasks.cs" />
     <Compile Include="Core\Server\Packets\ByteDBQueryPacket.cs" />
     <Compile Include="Core\Server\Packets\Custom\ByteDBUnknownPacket.cs" />
     <Compile Include="Core\Server\Packets\ByteDBErrorPacket.cs" />
