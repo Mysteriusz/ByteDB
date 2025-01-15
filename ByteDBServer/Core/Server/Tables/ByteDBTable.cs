@@ -126,7 +126,7 @@ namespace ByteDBServer.Core.Server.Databases
                     }
 
                     if (!meetsConditions)
-                        new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage + $", Condition failed: {condition.Arg1} {condition.Operator} {condition.Arg2}.");
+                        throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage + $", Condition failed: {condition.Arg1} {condition.Operator} {condition.Arg2}.");
                 }
 
                 // Start interating and assigning values to columns that are referenced
