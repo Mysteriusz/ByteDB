@@ -42,7 +42,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                     int qIndex = 0;
                     char qChar = '0';
 
-                    while (qChar != ByteDBServerInstance.QueryEndingChar) // QueryEndingChar
+                    while (qChar != ByteDBServerInstance.QueryEndingChar && qIndex < queryString.Length) // QueryEndingChar
                     {
                         // Check for keyword
                         foreach (string word in ByteDBServerInstance.QueryKeywords)
@@ -58,7 +58,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                         qChar = queryString[qIndex++];
 
                         // Check if char is a VALUECHAR
-                        if (qChar == ByteDBServerInstance.QueryValueChar) // QueryValueChar
+                        if (qChar == ByteDBServerInstance.QueryValueChar && qIndex < queryString.Length) // QueryValueChar
                         {
                             qChar = queryString[qIndex++];
 
@@ -78,18 +78,18 @@ namespace ByteDBServer.Core.Server.Networking.Querying
 
                         #nullable enable
                         // Check if char is a ARGUMENT STARTER CHAR
-                        if (qChar == ByteDBServerInstance.QueryStartArgumentChar) // QueryStartArgumentChar
+                        if (qChar == ByteDBServerInstance.QueryStartArgumentChar && qIndex < queryString.Length) // QueryStartArgumentChar
                         {
                             qChar = queryString[qIndex++];
 
                             ByteDBArgumentCollection args = new ByteDBArgumentCollection();
 
-                            while (qChar != ByteDBServerInstance.QueryEndArgumentChar)
+                            while (qChar != ByteDBServerInstance.QueryEndArgumentChar && qIndex < queryString.Length)
                             {
                                 StringBuilder str = new StringBuilder();
                                 ByteDBQueryFunction? func = null;
 
-                                while (qChar != ByteDBServerInstance.QueryArgumentDivider && qChar != ByteDBServerInstance.QueryEndArgumentChar)
+                                while (qChar != ByteDBServerInstance.QueryArgumentDivider && qChar != ByteDBServerInstance.QueryEndArgumentChar && qIndex < queryString.Length)
                                 {
                                     if (ByteDBServerInstance.QueryOperators.Contains(qChar))
                                     {
