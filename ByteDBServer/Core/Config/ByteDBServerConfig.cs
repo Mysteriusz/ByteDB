@@ -6,6 +6,10 @@ using ByteDBServer.Core.Server;
 using System.Xml.Linq;
 using System.IO;
 using System.Threading.Tasks;
+using System.Data;
+using ByteDBServer.Core.Server.Databases;
+using ByteDBServer.Core.Misc.Logs;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ByteDBServer.Core.Config
 {
@@ -48,6 +52,8 @@ namespace ByteDBServer.Core.Config
         public static Task ModerateDelayTask => Task.Delay(ModerateDelayDuration);
         public static Task LongDelayTask => Task.Delay(LongDelayDuration);
 
+        public static Dictionary<string, ByteDBTable> DataTables = new Dictionary<string, ByteDBTable>();
+        
         //
         // ----------------------------- METHODS ----------------------------- 
         //
@@ -81,6 +87,18 @@ namespace ByteDBServer.Core.Config
 
             // Other
             Encoding = ByteDBServerInstance.EncodingType[config.Root.Element("Encoding").Value];
+            foreach (var file in Directory.GetFiles(TablesPath))
+            {
+                try
+                {
+                    DataTables.Add(file, ByteDBTable.Load(Path.Combine(TablesPath, file)));
+                }
+                catch
+                {
+                    ByteDBServerLogger.WriteToFile("File: " + file + " Failed to load.", LogType.Error);
+                    continue;
+                }
+            }
         }
     }
 }
