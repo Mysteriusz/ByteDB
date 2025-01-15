@@ -85,4 +85,24 @@ namespace ByteDBServer.Core.Misc
         public ByteDBConnectionException() : base(DefaultMessage) { }
         public ByteDBConnectionException(string message) : base(message) { }
     }
+
+    //
+    // ----------------------------- QUERY RELATED ----------------------------- 
+    //
+
+    public class ByteDBQueryException : Exception
+    {
+        public const string DefaultMessage = "Incorrect query";
+
+        public ByteDBQueryException() : base(DefaultMessage) { }
+        public ByteDBQueryException(string message) : base(message) { }
+    }
+
+    public class ByteDBQueryConditionException : Exception
+    {
+        public const string DefaultMessage = "Condition not met";
+
+        public ByteDBQueryConditionException() : base(DefaultMessage) { }
+        public ByteDBQueryConditionException(string message) : base(message) { }
+    }
 }
