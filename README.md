@@ -6,4 +6,7 @@ Every query has to end with ';' <br/>
 
 ### INSERT INTO
   EX. ```INSERT INTO "TABLE_NAME";``` Empty row <br/>
-  EX. ```INSERT INTO "TABLE_NAME" (COLUMN1, COLUMN2, COLUMN3) WITH VALUES (VALUE1, VALUE2, VALUE3);``` Row with all not referenced columns empty
+  EX. ```INSERT INTO "TABLE_NAME" IF CONTAINS (COLUMN1 = VALUE1, COLUMN2 = VALUE2);``` Empty row if contains values <br/>
+  EX. ```INSERT INTO "TABLE_NAME" (COLUMN1, COLUMN2) WITH VALUES (VALUE1, VALUE2);``` Row with all not referenced columns empty <br/>
+  EX. ```INSERT INTO "TABLE_NAME" (COLUMN1, COLUMN2) WITH VALUES (VALUE1, VALUE2) IF CONTAINS (COLUMN1 = VALUE1, COLUMN2 = VALUE2);``` Row with all not referenced columns empty if contains values <br/>
+
