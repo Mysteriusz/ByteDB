@@ -42,10 +42,10 @@ namespace ByteDBServer.Core.Server.Tables
         }
         public ByteDBTableEntry(string[] columns, string[] values)
         {
-            Element = ToElement();
-
             for (int i = 0; i < columns.Length; i++)
                 Columns.Add(columns[i], values[i]);
+         
+            Element = ToElement();
         }
 
         //
