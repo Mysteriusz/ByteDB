@@ -64,6 +64,7 @@ namespace ByteDBServer.Core.Server.Databases
         //
         // ----------------------------- METHODS ----------------------------- 
         //
+
         private static readonly SemaphoreSlim _fileLock = new SemaphoreSlim(1, 1); // Allows only 1 thread to access at a time
 
         /// <summary>
@@ -71,6 +72,7 @@ namespace ByteDBServer.Core.Server.Databases
         /// </summary>
         /// <param name="columns">Columns to which values should be assigned.</param>
         /// <param name="values">Values that are assigned to columns.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
         public void AddRow(ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions)
         {
             _fileLock.Wait();
@@ -97,7 +99,7 @@ namespace ByteDBServer.Core.Server.Databases
                 var newEntry = new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray());
 
                 // Add Entry
-                Document.Root.Add(newEntry.GetElement());
+                Document.Root.Add(newEntry.Element);
                 Entries.Add(newEntry);
 
                 // Save the file
@@ -115,6 +117,7 @@ namespace ByteDBServer.Core.Server.Databases
         /// </summary>
         /// <param name="columns">Columns to which values should be assigned.</param>
         /// <param name="values">Values that are assigned to columns.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
         public async Task AddRowAsync(ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions)
         {
             await _fileLock.WaitAsync();
@@ -141,7 +144,7 @@ namespace ByteDBServer.Core.Server.Databases
                 var newEntry = new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray());
 
                 // Add Entry
-                Document.Root.Add(newEntry.GetElement());
+                Document.Root.Add(newEntry.Element);
                 Entries.Add(newEntry);
 
                 // Save the file
@@ -161,7 +164,8 @@ namespace ByteDBServer.Core.Server.Databases
         /// Returns all columns from all entries.
         /// </summary>
         /// <param name="columns">Columns from which to read values.</param>
-        /// <param name="conditions">Conditions that have to be met.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
         /// <returns>List of entry values from columns.</returns>
         public List<ByteDBArgumentCollection> GetRows(ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
@@ -204,7 +208,8 @@ namespace ByteDBServer.Core.Server.Databases
         /// Returns all columns from all entries.
         /// </summary>
         /// <param name="columns">Columns from which to read values.</param>
-        /// <param name="conditions">Conditions that have to be met.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
         /// <returns>List of entry values from columns.</returns>
         public async Task<List<ByteDBArgumentCollection>> GetRowsAsync(ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
@@ -233,6 +238,93 @@ namespace ByteDBServer.Core.Server.Databases
                 }
 
                 return rows;
+            }
+            catch
+            {
+                throw;
+            }
+            finally { _fileLock.Release(); }
+        }
+
+        /// <summary>
+        /// Removes all matching rows.
+        /// </summary>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
+        public void RemoveRows(List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
+        {
+            _fileLock.Wait();
+
+            try
+            {
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
+
+
+                // Create a temporary list to hold entries to remove
+                List<ByteDBTableEntry> entriesToRemove = new List<ByteDBTableEntry>();
+
+                // Start iterating and add entries to remove
+                foreach (var entry in Entries)
+                {
+                    if (!ConditionsMet(entryConditions, entry))
+                        continue;
+
+                    entriesToRemove.Add(entry);
+                }
+
+                // Remove the entries from the original list
+                foreach (var entry in entriesToRemove)
+                {
+                    entry.Element.Remove();
+                    Entries.Remove(entry);
+                }
+
+                // Save the file
+                Document.Save(TableFullPath);
+            }
+            catch
+            {
+                throw;
+            }
+            finally { _fileLock.Release(); }
+        }
+
+        /// <summary>
+        /// Removes all matching rows.
+        /// </summary>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
+        public async Task RemoveRowsAsync(List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
+        {
+            await _fileLock.WaitAsync();
+
+            try
+            {
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
+
+                // Create a temporary list to hold entries to remove
+                List<ByteDBTableEntry> entriesToRemove = new List<ByteDBTableEntry>();
+
+                // Start iterating and add entries to remove
+                foreach (var entry in Entries)
+                {
+                    if (!ConditionsMet(entryConditions, entry))
+                        continue;
+
+                    entriesToRemove.Add(entry);
+                }
+
+                // Remove the entries from the original list
+                foreach (var entry in entriesToRemove)
+                {
+                    entry.Element.Remove();
+                    Entries.Remove(entry);
+                }
+
+                // Save the file
+                await Task.Run(() => Document.Save(TableFullPath));
             }
             catch
             {

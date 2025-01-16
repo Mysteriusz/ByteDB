@@ -182,7 +182,6 @@ namespace ByteDBServer.Core.Server.Networking
         {
             return Task.Run(() =>
             {
-                byte[] buffer = new byte[ByteDBServerInstance.BufferSize];
                 foreach (var socket in sockets)
                 {
                     ByteDBClient client = ConnectedClients.FirstOrDefault(c => c.Socket == socket);
@@ -194,15 +193,15 @@ namespace ByteDBServer.Core.Server.Networking
                         continue;
                     }
 
+                    byte[] buffer = new byte[ByteDBServerInstance.BufferSize];
                     int received = socket.Receive(buffer);
 
                     ByteDBServerLogger.WriteToFile("PACKET RECEIVED");
 
-                    // Execute clients query if it requests CLIENT_REQUESTS_QUERY_HANDLING  and packet is a QueryPacketType (0x04)
-                    if (client.RequestedCapabilities.Contains(ServerCapabilities.CLIENT_REQUESTS_QUERY_HANDLING ) && buffer[0] == (byte)ByteDBPacketType.QUERY_PACKET)
+                    // Execute the client's query if it meets the requirements
+                    if (client.RequestedCapabilities.Contains(ServerCapabilities.CLIENT_REQUESTS_QUERY_HANDLING) && buffer[0] == (byte)ByteDBPacketType.QUERY_PACKET)
                     {
                         QueryPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, buffer.Take(received).ToArray()));
-                        continue;
                     }
                 }
             });

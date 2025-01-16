@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ByteDBServer.Core.Misc;
 using System.Text;
-using System;
 using System.Linq;
+using System;
 
 namespace ByteDBServer.Core.Server.Networking.Querying
 {

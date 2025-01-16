@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Linq;
-using System.Linq;
+using System;
 
 namespace ByteDBServer.Core.Server.Tables
 {
-    internal class ByteDBTableEntry
+    internal class ByteDBTableEntry : IDisposable
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
@@ -24,17 +24,26 @@ namespace ByteDBServer.Core.Server.Tables
         /// </summary>
         public Dictionary<string, string> Columns { get; } = new Dictionary<string, string>();
 
+        /// <summary>
+        /// Entry xElement.
+        /// </summary>
+        public XElement Element { get; }
+
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
         public ByteDBTableEntry(XElement entryElement)
         {
+            Element = entryElement;
+
             foreach (XAttribute attr in entryElement.Attributes())
                 Columns.Add(attr.Name.LocalName, attr.Value);
         }
         public ByteDBTableEntry(string[] columns, string[] values)
         {
+            Element = ToElement();
+
             for (int i = 0; i < columns.Length; i++)
                 Columns.Add(columns[i], values[i]);
         }
@@ -47,7 +56,7 @@ namespace ByteDBServer.Core.Server.Tables
         /// Converts table entry to <see cref="XElement"/>.
         /// </summary>
         /// <returns>Entry as <see cref="XElement"/>.</returns>
-        public XElement GetElement()
+        public XElement ToElement()
         {
             XElement element = new XElement(EntryName);
 
@@ -55,6 +64,23 @@ namespace ByteDBServer.Core.Server.Tables
                 element.SetAttributeValue(attr.Key, attr.Value);
 
             return element;
+        }
+
+        //
+        // ----------------------------- DISPOSAL ----------------------------- 
+        //
+
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            Columns.Clear();
+
+            _disposed = true;
+
+            GC.SuppressFinalize(this);
         }
     }
 }

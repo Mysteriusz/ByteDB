@@ -10,7 +10,7 @@
         //
 
         /// <summary>
-        /// Query keywords, ex: INSERT INTO | IF CONTAINS | FROM VALUES.
+        /// Query keywords from <see cref="ByteDBServerInstance.QueryKeywords"/>.
         /// </summary>
         public string[] Keywords { get; }
 

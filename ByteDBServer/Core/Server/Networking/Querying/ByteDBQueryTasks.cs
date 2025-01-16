@@ -39,6 +39,9 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                         case "FETCH FROM":
                             await ExecuteFetchFrom(client, query);
                             break;
+                        case "DELETE FROM":
+                            await ExecuteDeleteFrom(client, query);
+                            break;
                     }
                 }
             }
@@ -87,6 +90,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// <param name="table">Table to which insert.</param>
         /// <param name="columns">Columns of <paramref name="table"/> to which values should be assigned.</param>
         /// <param name="values">Values of columns.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
         public static async Task InsertInto(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions)
         {
             if (table.Columns.Count < columns.Count || table.Columns.Count < values.Count || columns.Count != values.Count)
@@ -135,6 +139,8 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// </summary>
         /// <param name="table">Table from which read.</param>
         /// <param name="columns">Columns of <paramref name="table"/> from which values should be read.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
         public static async Task<List<ByteDBArgumentCollection>> FetchFrom(ByteDBTable table, ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
             if (table.Columns.Count < columns.Count)
@@ -142,6 +148,48 @@ namespace ByteDBServer.Core.Server.Networking.Querying
 
             return await table.GetRowsAsync(columns, conditions, entryConditions);
         }
+
+        /// <summary>
+        /// Executes fetch with arguments from query.
+        /// </summary>
+        /// <param name="client">Client to which info packets should be sent.</param>
+        /// <param name="query">Query to execute.</param>
+        public static async Task ExecuteDeleteFrom(ByteDBClient client, ByteDBQuery query)
+        {
+            try
+            {
+                string tableName = query.Values[0];
+                string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
+                ByteDBTable table = ByteDBServerInstance.Tables[tablePath];
+
+                List<ByteDBQueryFunction> ifConds = GetConditions(query, "IF CONTAINS");
+                List<ByteDBQueryFunction> whereConds = GetConditions(query, "WHERE VALUES");
+
+                await DeleteFrom(table, ifConds, whereConds);
+            }
+            catch
+            {
+                using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
+                    await err.WriteAsync(client);
+
+                throw;
+            }
+
+            using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
+                await okay.WriteAsync(client);
+        }
+
+        /// <summary>
+        /// Deletes entry/entries from query based on conditions.
+        /// </summary>
+        /// <param name="table">Table on which execute query.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
+        public static async Task DeleteFrom(ByteDBTable table, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
+        {
+            await table.RemoveRowsAsync(conditions, entryConditions);
+        }
+
 
         private static List<ByteDBQueryFunction> GetConditions(ByteDBQuery query, string keyword)
         {

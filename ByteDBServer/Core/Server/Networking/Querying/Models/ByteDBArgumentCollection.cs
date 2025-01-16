@@ -11,6 +11,9 @@ namespace ByteDBServer.Core.Server.Networking.Querying.Models
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
+        /// <summary>
+        /// Previous word string used for identifying argument call keyword.
+        /// </summary>
         public string PreviousWord { get; set; }
 
         /// <summary>
