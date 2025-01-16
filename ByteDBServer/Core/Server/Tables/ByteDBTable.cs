@@ -157,7 +157,13 @@ namespace ByteDBServer.Core.Server.Databases
             }
         }
 
-        public List<ByteDBArgumentCollection> GetRows(ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions)
+        /// <summary>
+        /// Returns all columns from all entries.
+        /// </summary>
+        /// <param name="columns">Columns from which to read values.</param>
+        /// <param name="conditions">Conditions that have to be met.</param>
+        /// <returns>List of entry values from columns.</returns>
+        public List<ByteDBArgumentCollection> GetRows(ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
             _fileLock.Wait();
 
@@ -172,10 +178,15 @@ namespace ByteDBServer.Core.Server.Databases
                 {
                     ByteDBArgumentCollection row = new ByteDBArgumentCollection();
 
+                    if (!ConditionsMet(entryConditions, entry))
+                        continue;
+
                     // Assign values to columns if they exist in the entry
                     foreach (var column in columns)
+                    {
                         if (entry.Columns.TryGetValue(column, out var value))
                             row.Add(value);
+                    }
 
                     rows.Add(row);
                 }
@@ -189,7 +200,13 @@ namespace ByteDBServer.Core.Server.Databases
             finally { _fileLock.Release(); }
         }
 
-        public async Task<List<ByteDBArgumentCollection>> GetRowsAsync(ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions)
+        /// <summary>
+        /// Returns all columns from all entries.
+        /// </summary>
+        /// <param name="columns">Columns from which to read values.</param>
+        /// <param name="conditions">Conditions that have to be met.</param>
+        /// <returns>List of entry values from columns.</returns>
+        public async Task<List<ByteDBArgumentCollection>> GetRowsAsync(ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
             await _fileLock.WaitAsync();
 
@@ -202,8 +219,11 @@ namespace ByteDBServer.Core.Server.Databases
 
                 foreach (var entry in Entries)
                 {
-                    ByteDBArgumentCollection row = new ByteDBArgumentCollection();
+                    if (!ConditionsMet(entryConditions, entry))
+                        continue;
 
+                    ByteDBArgumentCollection row = new ByteDBArgumentCollection();
+                    
                     // Assign values to columns if they exist in the entry
                     foreach (var column in columns)
                         if (entry.Columns.TryGetValue(column, out var value))
@@ -236,6 +256,32 @@ namespace ByteDBServer.Core.Server.Databases
                 {
                     case '=':
                         met = HasEntry(condition.Arg1, condition.Arg2);
+                        break;
+                }
+
+                if (!met)
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check if all conditions for entry are met.
+        /// </summary>
+        /// <param name="conditions">Conditions to check.</param>
+        /// <param name="entry">Entry to which check conditions.</param>
+        /// <returns>True if all conditions are met for entry; if not False.</returns>
+        public bool ConditionsMet(List<ByteDBQueryFunction> conditions, ByteDBTableEntry entry)
+        {
+            bool met = false;
+
+            foreach (var condition in conditions)
+            {
+                switch (condition.Operator)
+                {
+                    case '=':
+                        met = entry.Columns[condition.Arg1] == condition.Arg2;
                         break;
                 }
 

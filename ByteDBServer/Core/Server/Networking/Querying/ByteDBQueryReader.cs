@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ByteDBServer.Core.Misc;
 using System.Text;
 using System;
+using System.Linq;
 
 namespace ByteDBServer.Core.Server.Networking.Querying
 {
@@ -107,6 +108,8 @@ namespace ByteDBServer.Core.Server.Networking.Querying
 
                                     qChar = queryString[qIndex++];
                                 }
+
+                                args.PreviousWord = queryTokens.Last();
 
                                 if (func != null)
                                 {

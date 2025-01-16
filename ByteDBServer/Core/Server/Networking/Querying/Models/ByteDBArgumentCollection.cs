@@ -11,6 +11,8 @@ namespace ByteDBServer.Core.Server.Networking.Querying.Models
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
+        public string PreviousWord { get; set; }
+
         /// <summary>
         /// Collection functions.
         /// </summary>

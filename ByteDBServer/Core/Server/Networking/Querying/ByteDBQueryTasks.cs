@@ -65,14 +65,9 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                 string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
                 ByteDBTable table = ByteDBServerInstance.Tables[tablePath];
 
-                bool withValues = query.Keywords.Contains("WITH VALUES");
-                bool withCondition = query.Keywords.Last() == "IF CONTAINS";
+                List<ByteDBQueryFunction> ifConds = GetConditions(query, "IF CONTAINS");
 
-                ByteDBArgumentCollection columns = withValues ? query.ArgumentCollections[0] : new ByteDBArgumentCollection();
-                ByteDBArgumentCollection values = withValues ? query.ArgumentCollections[1] : new ByteDBArgumentCollection();
-                ByteDBArgumentCollection conditions = withCondition ? query.ArgumentCollections.Last() : new ByteDBArgumentCollection();
-
-                await InsertInto(table, columns, values, conditions.Functions);
+                await InsertInto(table, query.ArgumentCollections[0], query.ArgumentCollections[1], ifConds);
             }
             catch
             {
@@ -92,12 +87,12 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// <param name="table">Table to which insert.</param>
         /// <param name="columns">Columns of <paramref name="table"/> to which values should be assigned.</param>
         /// <param name="values">Values of columns.</param>
-        public static async Task InsertInto(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> functions)
+        public static async Task InsertInto(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions)
         {
             if (table.Columns.Count < columns.Count || table.Columns.Count < values.Count || columns.Count != values.Count)
                 throw new Exception();
 
-            await table.AddRowAsync(columns, values, functions);
+            await table.AddRowAsync(columns, values, conditions);
         }
 
         /// <summary>
@@ -113,12 +108,10 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                 string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
                 ByteDBTable table = ByteDBServerInstance.Tables[tablePath];
 
-                bool withCondition = query.Keywords.Last() == "IF CONTAINS";
-
-                ByteDBArgumentCollection columns = query.ArgumentCollections[0];
-                ByteDBArgumentCollection conditions = withCondition ? query.ArgumentCollections.Last() : new ByteDBArgumentCollection();
-
-                List<ByteDBArgumentCollection> rows = await FetchFrom(table, columns, conditions.Functions);
+                List<ByteDBQueryFunction> ifConds = GetConditions(query, "IF CONTAINS");
+                List<ByteDBQueryFunction> whereConds = GetConditions(query, "WHERE VALUES");
+                
+                List<ByteDBArgumentCollection> rows = await FetchFrom(table, query.ArgumentCollections[0], ifConds, whereConds);
 
                 string resultQuery = string.Join(";", rows);
 
@@ -142,12 +135,21 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// </summary>
         /// <param name="table">Table from which read.</param>
         /// <param name="columns">Columns of <paramref name="table"/> from which values should be read.</param>
-        public static async Task<List<ByteDBArgumentCollection>> FetchFrom(ByteDBTable table, ByteDBArgumentCollection columns, List<ByteDBQueryFunction> functions)
+        public static async Task<List<ByteDBArgumentCollection>> FetchFrom(ByteDBTable table, ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
             if (table.Columns.Count < columns.Count)
                 throw new Exception();
 
-            return await table.GetRowsAsync(columns, functions);
+            return await table.GetRowsAsync(columns, conditions, entryConditions);
+        }
+
+        private static List<ByteDBQueryFunction> GetConditions(ByteDBQuery query, string keyword)
+        {
+            if (query.Keywords.Contains(keyword))
+            {
+                return query.ArgumentCollections.FirstOrDefault(ac => ac.PreviousWord == keyword)?.Functions ?? new List<ByteDBQueryFunction>();
+            }
+            return new List<ByteDBQueryFunction>();
         }
     }
 }

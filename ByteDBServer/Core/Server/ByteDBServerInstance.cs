@@ -82,6 +82,7 @@ namespace ByteDBServer.Core.Server
         {
             "INSERT INTO",
             "FETCH FROM",
+            "WHERE VALUES",
             "WITH VALUES",
             "IF CONTAINS",
         };
