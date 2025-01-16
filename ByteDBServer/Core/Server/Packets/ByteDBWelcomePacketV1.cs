@@ -23,9 +23,9 @@ namespace ByteDBServer.Core.Server.Packets
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBWelcomePacketV1() : base(ByteDBPacketType.WelcomePacket) { }
-        public ByteDBWelcomePacketV1(byte[] payload) : base(ByteDBPacketType.WelcomePacket, payload) { }
-        public ByteDBWelcomePacketV1(NullTerminatedString message, NullTerminatedString version, Int4 capabilities, Int2 saltLength, byte[] salt, byte authType) : base(ByteDBPacketType.WelcomePacket)
+        public ByteDBWelcomePacketV1() : base(ByteDBPacketType.WELCOME_PACKET) { }
+        public ByteDBWelcomePacketV1(byte[] payload) : base(ByteDBPacketType.WELCOME_PACKET, payload) { }
+        public ByteDBWelcomePacketV1(NullTerminatedString message, NullTerminatedString version, Int4 capabilities, Int2 saltLength, byte[] salt, byte authType) : base(ByteDBPacketType.WELCOME_PACKET)
         {
             AddRange(message.Bytes);
             Message = message;

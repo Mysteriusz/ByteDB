@@ -19,9 +19,9 @@ namespace ByteDBServer.Core.Server.Packets
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBQueryPacket() : base(ByteDBPacketType.QueryPacket) { }
-        public ByteDBQueryPacket(byte[] payload) : base(ByteDBPacketType.QueryPacket, payload) { }
-        public ByteDBQueryPacket(NullTerminatedString query) : base(ByteDBPacketType.QueryPacket)
+        public ByteDBQueryPacket() : base(ByteDBPacketType.QUERY_PACKET) { }
+        public ByteDBQueryPacket(byte[] payload) : base(ByteDBPacketType.QUERY_PACKET, payload) { }
+        public ByteDBQueryPacket(NullTerminatedString query) : base(ByteDBPacketType.QUERY_PACKET)
         {
             AddRange(query.Bytes);
             Query = query;

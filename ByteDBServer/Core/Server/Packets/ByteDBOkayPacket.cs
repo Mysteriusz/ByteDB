@@ -18,9 +18,9 @@ namespace ByteDBServer.Core.Server.Packets
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBOkayPacket() : base(ByteDBPacketType.OkayPacket) { }
-        public ByteDBOkayPacket(byte[] payload) : base(ByteDBPacketType.OkayPacket, payload) { }
-        public ByteDBOkayPacket(NullTerminatedString message) : base(ByteDBPacketType.OkayPacket)
+        public ByteDBOkayPacket() : base(ByteDBPacketType.OKAY_PACKET) { }
+        public ByteDBOkayPacket(byte[] payload) : base(ByteDBPacketType.OKAY_PACKET, payload) { }
+        public ByteDBOkayPacket(NullTerminatedString message) : base(ByteDBPacketType.OKAY_PACKET)
         {
             AddRange(message.Bytes);
             Message = message;

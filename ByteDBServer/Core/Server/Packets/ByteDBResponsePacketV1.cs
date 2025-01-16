@@ -21,9 +21,9 @@ namespace ByteDBServer.Core.Server.Packets
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBResponsePacketV1() : base(ByteDBPacketType.ResponsePacket) { }
-        public ByteDBResponsePacketV1(byte[] payload) : base(ByteDBPacketType.ResponsePacket, payload) { }
-        public ByteDBResponsePacketV1(NullTerminatedString username, Int4 capabilities, Int2 authScrambleSize, byte[] authScramble) : base(ByteDBPacketType.ResponsePacket)
+        public ByteDBResponsePacketV1() : base(ByteDBPacketType.WELCOME_PACKET) { }
+        public ByteDBResponsePacketV1(byte[] payload) : base(ByteDBPacketType.WELCOME_PACKET, payload) { }
+        public ByteDBResponsePacketV1(NullTerminatedString username, Int4 capabilities, Int2 authScrambleSize, byte[] authScramble) : base(ByteDBPacketType.WELCOME_PACKET)
         {
             AddRange(username.Bytes);
             Username = username;

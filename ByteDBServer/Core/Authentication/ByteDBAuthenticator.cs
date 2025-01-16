@@ -93,15 +93,15 @@ namespace ByteDBServer.Core.Authentication
         {
             switch (ByteDBServerInstance.ServerAuthenticationType)
             {
-                case ServerAuthenticationType.SHA256:
+                case ServerAuthenticationType.SHA_256:
                     using (SHA256 sha = SHA256.Create())
                     return sha.ComputeHash(bytes);
                 
-                case ServerAuthenticationType.SHA384:
+                case ServerAuthenticationType.SHA_384:
                     using (SHA384 sha = SHA384.Create())
                     return sha.ComputeHash(bytes);
                 
-                case ServerAuthenticationType.SHA512:
+                case ServerAuthenticationType.SHA_512:
                     using (SHA512 sha = SHA512.Create())
                     return sha.ComputeHash(bytes);
             }

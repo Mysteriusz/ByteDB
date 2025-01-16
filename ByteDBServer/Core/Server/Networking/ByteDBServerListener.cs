@@ -198,8 +198,8 @@ namespace ByteDBServer.Core.Server.Networking
 
                     ByteDBServerLogger.WriteToFile("PACKET RECEIVED");
 
-                    // Execute clients query if it requests SERVER_HANDLE_QUERIES and packet is a QueryPacketType (0x04)
-                    if (client.RequestedCapabilities.Contains(ServerCapabilities.SERVER_HANDLE_QUERIES) && buffer[0] == (byte)ByteDBPacketType.QueryPacket)
+                    // Execute clients query if it requests CLIENT_REQUESTS_QUERY_HANDLING  and packet is a QueryPacketType (0x04)
+                    if (client.RequestedCapabilities.Contains(ServerCapabilities.CLIENT_REQUESTS_QUERY_HANDLING ) && buffer[0] == (byte)ByteDBPacketType.QUERY_PACKET)
                     {
                         QueryPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, buffer.Take(received).ToArray()));
                         continue;

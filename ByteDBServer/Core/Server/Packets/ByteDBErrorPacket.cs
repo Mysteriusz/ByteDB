@@ -18,9 +18,9 @@ namespace ByteDBServer.Core.Server.Packets
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
-        public ByteDBErrorPacket() : base(ByteDBPacketType.ErrorPacket) { }
-        public ByteDBErrorPacket(byte[] payload) : base(ByteDBPacketType.ErrorPacket, payload) { }
-        public ByteDBErrorPacket(NullTerminatedString message) : base(ByteDBPacketType.ErrorPacket)
+        public ByteDBErrorPacket() : base(ByteDBPacketType.ERROR_PACKET) { }
+        public ByteDBErrorPacket(byte[] payload) : base(ByteDBPacketType.ERROR_PACKET, payload) { }
+        public ByteDBErrorPacket(NullTerminatedString message) : base(ByteDBPacketType.ERROR_PACKET)
         { 
             AddRange(message.Bytes);
             Message = message;

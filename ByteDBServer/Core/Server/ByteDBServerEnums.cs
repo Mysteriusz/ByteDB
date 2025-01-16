@@ -2,27 +2,27 @@
 {
     public enum ServerCapabilities : uint
     {
-        SERVER_HANDLE_QUERIES = 0x00000001,
+        CLIENT_REQUESTS_QUERY_HANDLING  = 0x00000001,
     }
     public enum ByteDBPacketType : byte
     {
-        WelcomePacket = 0x01,
-        ResponsePacket = 0x02,
-        OkayPacket = 0x03,
-        QueryPacket = 0x04,
-        EmptyPacket = 0x05,
-        ErrorPacket = 0xff,
+        WELCOME_PACKET = 0x01,
+        RESPONSE_PACKET = 0x02,
+        OKAY_PACKET = 0x03,
+        QUERY_PACKET = 0x04,
+        EMPTY_PACKET = 0x05,
+        ERROR_PACKET = 0xff,
     }
     public enum ServerAuthenticationType : byte
     {
-        SHA256 = 0x01,
-        SHA384 = 0x02,
-        SHA512 = 0x03,
+        SHA_256 = 0x01,
+        SHA_384 = 0x02,
+        SHA_512 = 0x03,
     }
     public enum LogType
     {
-        Message,
-        Warning,
-        Error,
+        MESSAGE,
+        WARNING,
+        ERROR,
     }
 }

@@ -93,7 +93,7 @@ namespace ByteDBServer.Core.Config
                 }
                 catch
                 {
-                    ByteDBServerLogger.WriteToFile("File: " + file + " Failed to load.", LogType.Error);
+                    ByteDBServerLogger.WriteToFile("File: " + file + " Failed to load.", LogType.ERROR);
                     continue;
                 }
             }

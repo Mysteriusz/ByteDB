@@ -44,7 +44,7 @@ namespace ByteDBServer.Core.Misc.Logs
         /// </summary>
         /// <param name="text">Log message.</param>
         /// <param name="logType">Type of log ex: <see cref="[MESSAGE]"/>, <see cref="[WARNING]"/>.</param>
-        public static void WriteToFile(string text, LogType logType = LogType.Message)
+        public static void WriteToFile(string text, LogType logType = LogType.MESSAGE)
         {
             using (StreamWriter writer = LogFile.AppendText())
                 writer.WriteLine($"[{logType}] [{DateTime.Now:yyyy-MM-dd_HH:mm:ss}] - ({text})");
@@ -55,7 +55,7 @@ namespace ByteDBServer.Core.Misc.Logs
         /// </summary>
         /// <param name="text">Log message.</param>
         /// <param name="logType">Type of log ex: <see cref="[MESSAGE]"/>, <see cref="[WARNING]"/>.</param>
-        public static async Task WriteToFileAsync(string text, LogType logType = LogType.Message)
+        public static async Task WriteToFileAsync(string text, LogType logType = LogType.MESSAGE)
         {
             using (StreamWriter writer = LogFile.AppendText())
                 await writer.WriteLineAsync($"[{logType}] [{DateTime.Now:yyyy-MM-dd_HH:mm:ss}] - ({text})");

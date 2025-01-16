@@ -51,7 +51,7 @@ namespace ByteDBServer.Core.Server
 
         // Server Encoding and Authentication
         public static Encoding ServerEncoding => ByteDBServerConfig.Encoding;
-        public static ServerAuthenticationType ServerAuthenticationType { get; } = ServerAuthenticationType.SHA512;
+        public static ServerAuthenticationType ServerAuthenticationType { get; } = ServerAuthenticationType.SHA_512;
         public static Dictionary<string, Encoding> EncodingType { get; } = new Dictionary<string, Encoding>()
         {
             { "UTF8", Encoding.UTF8 },
