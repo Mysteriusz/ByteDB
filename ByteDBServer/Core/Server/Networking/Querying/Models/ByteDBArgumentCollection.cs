@@ -22,5 +22,14 @@ namespace ByteDBServer.Core.Server.Networking.Querying.Models
 
         public ByteDBArgumentCollection() { }
         public ByteDBArgumentCollection(IEnumerable<string> values) : base(values) { }
+
+        //
+        // ----------------------------- OVERRIDES ----------------------------- 
+        //
+
+        public override string ToString()
+        {
+            return string.Join(", ", this);
+        }
     }
 }

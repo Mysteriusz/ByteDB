@@ -36,6 +36,9 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                         case "INSERT INTO":
                             await ExecuteInsertInto(client, query);
                             break;
+                        case "FETCH FROM":
+                            await ExecuteFetchFrom(client, query);
+                            break;
                     }
                 }
             }
@@ -52,8 +55,8 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// <summary>
         /// Executes insert with arguments from query.
         /// </summary>
-        /// <param name="query">Query to execute.</param>
         /// <param name="client">Client to which info packets should be sent.</param>
+        /// <param name="query">Query to execute.</param>
         public static async Task ExecuteInsertInto(ByteDBClient client, ByteDBQuery query)
         {
             try
@@ -95,6 +98,56 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                 throw new Exception();
 
             await table.AddRowAsync(columns, values, functions);
+        }
+
+        /// <summary>
+        /// Executes fetch with arguments from query.
+        /// </summary>
+        /// <param name="client">Client to which info packets should be sent.</param>
+        /// <param name="query">Query to execute.</param>
+        public static async Task ExecuteFetchFrom(ByteDBClient client, ByteDBQuery query)
+        {
+            try
+            {
+                string tableName = query.Values[0];
+                string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
+                ByteDBTable table = ByteDBServerInstance.Tables[tablePath];
+
+                bool withCondition = query.Keywords.Last() == "IF CONTAINS";
+
+                ByteDBArgumentCollection columns = query.ArgumentCollections[0];
+                ByteDBArgumentCollection conditions = withCondition ? query.ArgumentCollections.Last() : new ByteDBArgumentCollection();
+
+                List<ByteDBArgumentCollection> rows = await FetchFrom(table, columns, conditions.Functions);
+
+                string resultQuery = string.Join(";", rows);
+
+                using (ByteDBQueryPacket queryResult = new ByteDBQueryPacket(resultQuery))
+                    await queryResult.WriteAsync(client);
+            }
+            catch
+            {
+                using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
+                    await err.WriteAsync(client);
+
+                throw;
+            }
+
+            using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
+                await okay.WriteAsync(client);
+        }
+
+        /// <summary>
+        /// Reads values from the <paramref name="table"/>.
+        /// </summary>
+        /// <param name="table">Table from which read.</param>
+        /// <param name="columns">Columns of <paramref name="table"/> from which values should be read.</param>
+        public static async Task<List<ByteDBArgumentCollection>> FetchFrom(ByteDBTable table, ByteDBArgumentCollection columns, List<ByteDBQueryFunction> functions)
+        {
+            if (table.Columns.Count < columns.Count)
+                throw new Exception();
+
+            return await table.GetRowsAsync(columns, functions);
         }
     }
 }

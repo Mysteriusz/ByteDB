@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace ByteDBServer.Core.Server.Tables
 {
@@ -21,16 +22,21 @@ namespace ByteDBServer.Core.Server.Tables
         /// <summary>
         /// List of entry`s attributes.
         /// </summary>
-        public List<XAttribute> Attributes { get; } = new List<XAttribute>();
+        public Dictionary<string, string> Columns { get; } = new Dictionary<string, string>();
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
+        public ByteDBTableEntry(XElement entryElement)
+        {
+            foreach (XAttribute attr in entryElement.Attributes())
+                Columns.Add(attr.Name.LocalName, attr.Value);
+        }
         public ByteDBTableEntry(string[] columns, string[] values)
         {
             for (int i = 0; i < columns.Length; i++)
-                Attributes.Add(new XAttribute(columns[i], values[i]));
+                Columns.Add(columns[i], values[i]);
         }
 
         //
@@ -45,8 +51,8 @@ namespace ByteDBServer.Core.Server.Tables
         {
             XElement element = new XElement(EntryName);
 
-            foreach (var attr in Attributes)
-                element.SetAttributeValue(attr.Name, attr.Value);
+            foreach (var attr in Columns)
+                element.SetAttributeValue(attr.Key, attr.Value);
 
             return element;
         }

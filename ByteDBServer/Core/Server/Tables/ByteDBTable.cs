@@ -3,11 +3,10 @@ using System.Xml.Linq;
 using System.Linq;
 using System;
 using ByteDBServer.Core.Server.Tables;
+using ByteDBServer.Core.Server.Networking.Querying.Models;
+using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
 using System.Threading;
-using ByteDBServer.Core.Server.Networking.Querying.Models;
-using ByteDBServer.Core.Misc.Logs;
-using ByteDBServer.Core.Misc;
 
 namespace ByteDBServer.Core.Server.Databases
 {
@@ -47,6 +46,11 @@ namespace ByteDBServer.Core.Server.Databases
         }
 
         /// <summary>
+        /// All table entries as <see cref="ByteDBTableEntry"/>. 
+        /// </summary>
+        public HashSet<ByteDBTableEntry> Entries { get; private set; } = new HashSet<ByteDBTableEntry>();
+
+        /// <summary>
         /// Table document.
         /// </summary>        
         public XDocument Document { get; private set; }
@@ -67,7 +71,7 @@ namespace ByteDBServer.Core.Server.Databases
         /// </summary>
         /// <param name="columns">Columns to which values should be assigned.</param>
         /// <param name="values">Values that are assigned to columns.</param>
-        public void AddRow(ByteDBArgumentCollection columns, ByteDBArgumentCollection values)
+        public void AddRow(ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions)
         {
             _fileLock.Wait();
 
@@ -75,6 +79,9 @@ namespace ByteDBServer.Core.Server.Databases
             {
                 List<string> tableColumns = Columns.Keys.ToList();
                 List<string> toAddValues = new List<string>(Enumerable.Repeat("", tableColumns.Count));
+
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
                 // Start interating and assigning values to columns that are referenced
                 for (int rIndex = 0; rIndex < columns.Count; rIndex++)
@@ -87,8 +94,11 @@ namespace ByteDBServer.Core.Server.Databases
                         toAddValues[columnIndex] = values[rIndex];
                 }
 
+                var newEntry = new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray());
+
                 // Add Entry
-                Document.Root.Add(new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray()).GetElement());
+                Document.Root.Add(newEntry.GetElement());
+                Entries.Add(newEntry);
 
                 // Save the file
                 Document.Save(TableFullPath);
@@ -114,20 +124,8 @@ namespace ByteDBServer.Core.Server.Databases
                 List<string> tableColumns = Columns.Keys.ToList();
                 List<string> toAddValues = new List<string>(Enumerable.Repeat("", tableColumns.Count));
 
-                bool meetsConditions = false;
-
-                foreach (var condition in conditions)
-                {
-                    switch (condition.Operator)
-                    {
-                        case '=':
-                            meetsConditions = HasEntry(condition.Arg1, condition.Arg2);
-                            break;
-                    }
-
-                    if (!meetsConditions)
-                        throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage + $", Condition failed: {condition.Arg1} {condition.Operator} {condition.Arg2}.");
-                }
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
                 // Start interating and assigning values to columns that are referenced
                 for (int rIndex = 0; rIndex < columns.Count; rIndex++)
@@ -140,8 +138,11 @@ namespace ByteDBServer.Core.Server.Databases
                         toAddValues[columnIndex] = values[rIndex];
                 }
 
+                var newEntry = new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray());
+
                 // Add Entry
-                Document.Root.Add(new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray()).GetElement());
+                Document.Root.Add(newEntry.GetElement());
+                Entries.Add(newEntry);
 
                 // Save the file
                 await Task.Run(() => Document.Save(TableFullPath));
@@ -156,14 +157,115 @@ namespace ByteDBServer.Core.Server.Databases
             }
         }
 
+        public List<ByteDBArgumentCollection> GetRows(ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions)
+        {
+            _fileLock.Wait();
+
+            try
+            {
+                List<ByteDBArgumentCollection> rows = new List<ByteDBArgumentCollection>();
+
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
+
+                foreach (var entry in Entries)
+                {
+                    ByteDBArgumentCollection row = new ByteDBArgumentCollection();
+
+                    // Assign values to columns if they exist in the entry
+                    foreach (var column in columns)
+                        if (entry.Columns.TryGetValue(column, out var value))
+                            row.Add(value);
+
+                    rows.Add(row);
+                }
+
+                return rows;
+            }
+            catch
+            {
+                throw;
+            }
+            finally { _fileLock.Release(); }
+        }
+
+        public async Task<List<ByteDBArgumentCollection>> GetRowsAsync(ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions)
+        {
+            await _fileLock.WaitAsync();
+
+            try
+            {
+                List<ByteDBArgumentCollection> rows = new List<ByteDBArgumentCollection>();
+
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
+
+                foreach (var entry in Entries)
+                {
+                    ByteDBArgumentCollection row = new ByteDBArgumentCollection();
+
+                    // Assign values to columns if they exist in the entry
+                    foreach (var column in columns)
+                        if (entry.Columns.TryGetValue(column, out var value))
+                            row.Add(value);
+
+                    rows.Add(row);
+                }
+
+                return rows;
+            }
+            catch
+            {
+                throw;
+            }
+            finally { _fileLock.Release(); }
+        }
+
+        /// <summary>
+        /// Check if all conditions in a list are met.
+        /// </summary>
+        /// <param name="conditions">Conditions to check.</param>
+        /// <returns>True if all conditions are met; if not False.</returns>
+        public bool ConditionsMet(List<ByteDBQueryFunction> conditions)
+        {
+            bool met = false; 
+
+            foreach (var condition in conditions)
+            {
+                switch (condition.Operator)
+                {
+                    case '=':
+                        met = HasEntry(condition.Arg1, condition.Arg2);
+                        break;
+                }
+
+                if (!met)
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check if column of name <paramref name="columnName"/> is present in table.
+        /// </summary>
+        /// <param name="columnName">Column name.</param>
+        /// <returns>True if column is present; if not False.</returns>
         public bool HasColumn(string columnName) => Columns.ContainsKey(columnName);
+
+        /// <summary>
+        /// Check if any of entries <paramref name="columnName"/> has a value of <paramref name="value"/>.
+        /// </summary>
+        /// <param name="columnName">Column name.</param>
+        /// <param name="value">Column value.</param>
+        /// <returns>True if column and value is present; if not False.</returns>
         public bool HasEntry(string columnName, string value)
         {
             if (!HasColumn(columnName))
                 return false;
 
-            foreach (var entry in Document.Root.Elements())
-                if (entry.Attribute(columnName).Value == value)
+            foreach (var entry in Entries)
+                if (entry.Columns.TryGetValue(columnName, out var columnVal) && columnVal == value)
                     return true;
             
             return false;
@@ -180,7 +282,10 @@ namespace ByteDBServer.Core.Server.Databases
 
             table.Document = XDocument.Load(tableFullPath);
             table.TableFullPath = tableFullPath;
-            
+
+            foreach (var entry in table.Document.Root.Elements())
+                table.Entries.Add(new ByteDBTableEntry(entry));
+
             return table;
         }
     }
