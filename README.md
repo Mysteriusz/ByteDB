@@ -10,3 +10,5 @@ Every query has to end with ';' <br/>
   EX. ```INSERT INTO "TABLE_NAME" (COLUMN1, COLUMN2) WITH VALUES (VALUE1, VALUE2);``` Row with all not referenced columns empty <br/>
   EX. ```INSERT INTO "TABLE_NAME" (COLUMN1, COLUMN2) WITH VALUES (VALUE1, VALUE2) IF CONTAINS (COLUMN1 = VALUE1, COLUMN2 = VALUE2);``` Row with all not referenced columns empty if contains values <br/>
 
+### GitBook Docs:
+https://revenants-organization.gitbook.io/bytedb-docs/packet-structure
