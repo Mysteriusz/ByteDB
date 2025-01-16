@@ -1,8 +1,7 @@
-﻿using ByteDBServer.Core.DataTypes;
+﻿using ByteDBServer.Core.Server.Packets.Models;
+using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc;
-using ByteDBServer.Core.Server.Packets.Models;
 using System.Linq;
-using System.Windows.Forms;
 using System;
 
 namespace ByteDBServer.Core.Server.Packets
