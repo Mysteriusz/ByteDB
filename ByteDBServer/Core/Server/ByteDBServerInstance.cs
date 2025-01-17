@@ -1,4 +1,5 @@
-﻿using ByteDBServer.Core.Authentication;
+﻿using ByteDBServer.Core.Server.Databases;
+using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.DataTypes;
 using ByteDBServer.Core.Misc.Logs;
 using System.Collections.Generic;
@@ -8,7 +9,6 @@ using System.Threading.Tasks;
 using System.ServiceProcess;
 using System.Text;
 using System;
-using ByteDBServer.Core.Server.Databases;
 
 namespace ByteDBServer.Core.Server
 {
