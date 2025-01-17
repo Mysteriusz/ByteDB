@@ -120,6 +120,7 @@ namespace ByteDBServer.Core.Server.Networking
                 // Lists to hold the sockets that need to be read from or written to
                 List<Socket> readSockets = new List<Socket>();
                 List<Socket> writeSockets = new List<Socket>();
+                List<Socket> deadSockets = new List<Socket>();
 
                 while (!CancellationToken.IsCancellationRequested)
                 {
@@ -136,38 +137,45 @@ namespace ByteDBServer.Core.Server.Networking
                     // Clears the lists for the next iteration
                     readSockets.Clear();
                     writeSockets.Clear();
+                    deadSockets.Clear();
 
                     // Adds all connected clients sockets to the read and write lists
+                    // If there are any sockets to read or write to, proceed with select operation
+                    // Iterate to remove all dead sockets
                     foreach (ByteDBClient client in ConnectedClients)
                     {
-                        writeSockets.Add(client);
-                        readSockets.Add(client);
-                    }
-
-                    // If there are any sockets to read or write to, proceed with select operation
-                    if (readSockets.Count > 0)
-                    {
-                        // Iterate to remove all dead sockets
-                        for (int i = readSockets.Count - 1; i >= 0; i--)
+                        if (IsConnected(client))
                         {
-                            if (!readSockets[i].Connected)
-                            {
-                                readSockets.RemoveAt(i);
-                                ConnectedClients.RemoveAt(i);
-                            }
+                            readSockets.Add(client);
+                            writeSockets.Add(client);
                         }
-
-                        // Continue if after cleanup there is no sockets
-                        if (readSockets.Count == 0)
-                            continue;
-
-                        // Perform a non-blocking select on the sockets for reading and writing
-                        Socket.Select(readSockets, null, null, 1000);
-
-                        // If there are sockets ready to be read from, process them asynchronously
-                        if (readSockets.Count > 0)
-                            _ = ProcessReading(readSockets);
+                        else
+                        {
+                            client.UserData.LoggedCount--;
+                            deadSockets.Add(client);
+                        }
                     }
+
+                    // Remove all dead sockets from ConnectedClients
+                    ConnectedClients.RemoveAll(client => deadSockets.Contains(client));
+
+                    // Optional: Perform cleanup for dead sockets
+                    foreach (var deadClient in deadSockets)
+                    {
+                        deadClient.Close();
+                        deadClient.Dispose(); // Only if IDisposable is implemented
+                    }
+
+                    // Continue if after cleanup there is no sockets
+                    if (readSockets.Count == 0)
+                        continue;
+
+                    // Perform a non-blocking select on the sockets for reading and writing
+                    Socket.Select(readSockets, null, null, 1000);
+
+                    // If there are sockets ready to be read from, process them asynchronously
+                    if (readSockets.Count > 0)
+                        _ = ProcessReading(readSockets);
 
                     await ByteDBServerConfig.ModerateDelayTask;
                 }
@@ -182,27 +190,37 @@ namespace ByteDBServer.Core.Server.Networking
         {
             return Task.Run(() =>
             {
-                foreach (var socket in sockets)
+                try
                 {
-                    ByteDBClient client = ConnectedClients.FirstOrDefault(c => c.Socket == socket);
-
-                    // If clients socket is disconnected
-                    if (!IsConnected(client))
+                    foreach (var socket in sockets)
                     {
-                        ReadingPool.EnqueueTask(ByteDBTasks.DisconnectTask(client));
-                        continue;
+                        ByteDBClient client = ConnectedClients.FirstOrDefault(c => c.Socket == socket);
+
+                        // If clients socket is disconnected
+                        if (!IsConnected(client))
+                        {
+                            ReadingPool.EnqueueTask(ByteDBTasks.DisconnectTask(client));
+                            continue;
+                        }
+
+                        byte[] buffer = new byte[ByteDBServerInstance.BufferSize];
+                        int received = socket.Receive(buffer);
+
+                        //ByteDBServerLogger.WriteToFile("PACKET RECEIVED");
+                        ByteDBServerLogger.WriteToFile(ByteDBServerInstance.CheckCapability(ServerCapabilities.QUERY_HANDLING, client.RequestedCapabilitiesInt).ToString());
+                        ByteDBServerLogger.WriteToFile(((uint)ServerCapabilities.QUERY_HANDLING).ToString());
+                        ByteDBServerLogger.WriteToFile(client.RequestedCapabilitiesInt.ToString());
+
+                        // Execute the client's query if it meets the requirements
+                        if (ByteDBServerInstance.CheckCapability(ServerCapabilities.QUERY_HANDLING, client.RequestedCapabilitiesInt) && buffer[0] == (byte)ByteDBPacketType.QUERY_PACKET)
+                        {
+                            QueryPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, buffer.Take(received).ToArray()));
+                        }
                     }
-
-                    byte[] buffer = new byte[ByteDBServerInstance.BufferSize];
-                    int received = socket.Receive(buffer);
-
-                    ByteDBServerLogger.WriteToFile("PACKET RECEIVED");
-
-                    // Execute the client's query if it meets the requirements
-                    if (client.RequestedCapabilities.Contains(ServerCapabilities.CLIENT_REQUESTS_QUERY_HANDLING) && buffer[0] == (byte)ByteDBPacketType.QUERY_PACKET)
-                    {
-                        QueryPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, buffer.Take(received).ToArray()));
-                    }
+                }
+                catch (Exception ex)
+                {
+                    ByteDBServerLogger.WriteExceptionToFile(ex);
                 }
             });
         }

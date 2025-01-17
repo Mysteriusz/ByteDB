@@ -26,8 +26,9 @@ namespace ByteDBServer.Core.Authentication.Models
 
         public string Username { get; private set; }
         public string PasswordHash { get; private set; }
-   
-        public bool Logged { get; }
+
+        public int LoggedCount { get; set; }
+        public bool Logged => LoggedCount > 0;
 
         //
         // ----------------------------- DISPOSING ----------------------------- 
@@ -45,7 +46,6 @@ namespace ByteDBServer.Core.Authentication.Models
             {
                 if (disposing)
                 {
-                    ByteDBAuthenticator.RemoveUser(this);
                     Username = null;
                     PasswordHash = null;
                 }

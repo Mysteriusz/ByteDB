@@ -5,6 +5,7 @@ using ByteDBServer.Core.Server.Protocols;
 using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.Misc.Logs;
 using System.Threading.Tasks;
+using System.Linq;
 using System;
 
 namespace ByteDBServer.Core.Server.Networking
@@ -40,8 +41,9 @@ namespace ByteDBServer.Core.Server.Networking
                     using (client)
                     {
                         // Remove the client and their data from the active client list
-                        ByteDBServerListener.ConnectedClients.Add(client);
-                        ByteDBAuthenticator.ActiveUsers.Add(client.UserData);
+                        ByteDBServerListener.ConnectedClients.Remove(client);
+
+                        client.UserData.LoggedCount--;
                     }
                 }
                 catch (Exception ex)
@@ -74,7 +76,6 @@ namespace ByteDBServer.Core.Server.Networking
                         {
                             // Add the client and their data to the active connections list
                             ByteDBServerListener.ConnectedClients.Add(client);
-                            ByteDBAuthenticator.ActiveUsers.Add(client.UserData);
                         }
                     }
                 }

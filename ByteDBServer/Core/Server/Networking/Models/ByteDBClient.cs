@@ -1,6 +1,5 @@
 ﻿using ByteDBServer.Core.Authentication.Models;
 using ByteDBServer.Core.DataTypes;
-using System.Collections.Generic;
 using System.Net.Sockets;
 using System;
 
@@ -31,11 +30,6 @@ namespace ByteDBServer.Core.Server.Networking.Models
         /// Client`s available <see cref="ServerCapabilities"/> as <see cref="Int4"/>.
         /// </summary>
         public Int4 RequestedCapabilitiesInt { get; set; }
-
-        /// <summary>
-        /// Client`s available <see cref="ServerCapabilities"/>.
-        /// </summary>
-        public HashSet<ServerCapabilities> RequestedCapabilities { get; set; }
 
         private bool _disposed = false;
 
@@ -74,6 +68,8 @@ namespace ByteDBServer.Core.Server.Networking.Models
             {
                 Socket?.Dispose();
                 Stream?.Dispose();
+                UserData?.Dispose();
+                RequestedCapabilitiesInt?.Dispose();
             }
 
             _disposed = true;

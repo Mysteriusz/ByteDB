@@ -17,7 +17,8 @@ namespace ByteDBServer.Core.Authentication
         //
 
         // USERS
-        public static List<ByteDBUser> ActiveUsers { get; private set; } = new List<ByteDBUser>();
+        public static List<ByteDBUser> Users { get; private set; } = new List<ByteDBUser>();
+
         public const string UsersFilePath = "Core\\Authentication\\Users.xml";
 
         //
@@ -34,7 +35,7 @@ namespace ByteDBServer.Core.Authentication
             //
 
             foreach (var xmluser in doc.Root.Elements())
-                ActiveUsers.Add(new ByteDBUser(xmluser.Attribute("Name").Value, xmluser.Attribute("PasswordHash").Value));
+                Users.Add(new ByteDBUser(xmluser.Attribute("Name").Value, xmluser.Attribute("PasswordHash").Value));
         }
         public static void WriteUser(ByteDBUser user)
         {
@@ -61,7 +62,7 @@ namespace ByteDBServer.Core.Authentication
             if (userElement != null)
             {
                 userElement.Remove();
-                ActiveUsers.Remove(user);
+                Users.Remove(user);
             }
 
             doc.Save(filePath);
@@ -77,7 +78,7 @@ namespace ByteDBServer.Core.Authentication
         #nullable enable
         public static ByteDBUser? GetUser(string username)
         {
-            return ActiveUsers.Find(x => x.Username == username);
+            return Users.Find(x => x.Username == username);
         }
 
         public static byte[] GenerateSalt(int saltSize)
