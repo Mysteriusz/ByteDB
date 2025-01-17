@@ -1,16 +1,13 @@
-﻿using ByteDBServer.Core.Server.Protocols.Models;
+﻿using ByteDBServer.Core.Server.Networking.Models;
+using ByteDBServer.Core.Server.Protocols.Models;
 using ByteDBServer.Core.Server.Packets.Models;
 using ByteDBServer.Core.Server.Packets.Custom;
+using ByteDBServer.Core.Authentication.Models;
 using ByteDBServer.Core.Server.Packets;
 using ByteDBServer.Core.Misc.Logs;
 using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
-using System.IO;
 using System;
-using ByteDBServer.Core.Server.Networking.Models;
-using ByteDBServer.Core.Authentication;
-using ByteDBServer.Core.Authentication.Models;
-using System.IO.Compression;
 
 namespace ByteDBServer.Core.Server.Protocols
 {
@@ -82,17 +79,16 @@ namespace ByteDBServer.Core.Server.Protocols
                     using (ByteDBResponsePacketV1 casted = ByteDBPacket.ToPacket<ByteDBResponsePacketV1>(responsePacket))
                     {
                         // Check if response data is correct
-                        if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username, out ByteDBUser requestedUser))
-                            throw new ByteDBPacketDataException();
+                        if (!Authenticator.ValidateAuthentication(casted.AuthScramble,
+                            casted.Username,
+                            ByteDBServerInstance.CheckCapability(ServerCapabilities.MULTI_USER_ACCESS, casted.Capabilities),
+                            out ByteDBUser requestedUser)) throw new ByteDBPacketDataException();
 
                         // Assign user to client
                         client.UserData = requestedUser;
 
-                        // Read requested flags from packet
-                        client.RequestedCapabilities = ByteDBAuthenticator.ReadFlags<ServerCapabilities>(casted.Capabilities);
-
                         // Read requested flags int from packet
-                        client.RequestedCapabilitiesInt = casted.Capabilities;
+                        client.RequestedCapabilitiesInt = new DataTypes.Int4(casted.Capabilities);
                     }
                 }
             }
@@ -149,17 +145,16 @@ namespace ByteDBServer.Core.Server.Protocols
                     using (ByteDBResponsePacketV1 casted = ByteDBPacket.ToPacket<ByteDBResponsePacketV1>(responsePacket))
                     {
                         // Check if response data is correct
-                        if (!Authenticator.ValidateAuthentication(casted.AuthScramble, casted.Username, out ByteDBUser requestedUser))
-                            throw new ByteDBPacketDataException();
+                        if (!Authenticator.ValidateAuthentication(casted.AuthScramble, 
+                            casted.Username,
+                            ByteDBServerInstance.CheckCapability(ServerCapabilities.MULTI_USER_ACCESS, casted.Capabilities), 
+                            out ByteDBUser requestedUser)) throw new ByteDBPacketDataException();
 
                         // Assign user to client
                         client.UserData = requestedUser;
 
-                        // Read requested flags from packet
-                        client.RequestedCapabilities = ByteDBAuthenticator.ReadFlags<ServerCapabilities>(casted.Capabilities);
-
                         // Read requested flags int from packet
-                        client.RequestedCapabilitiesInt = casted.Capabilities;
+                        client.RequestedCapabilitiesInt = new DataTypes.Int4(casted.Capabilities);
                     }
                 }
             }
