@@ -1,7 +1,6 @@
 ﻿using ByteDBServer.Core.Authentication.Models;
 using System.Linq;
 using System;
-using ByteDBServer.Core.DataTypes;
 
 namespace ByteDBServer.Core.Authentication
 {

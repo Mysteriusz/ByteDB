@@ -25,7 +25,6 @@ namespace ByteDBServer.Core.Authentication
         // ----------------------------- METHODS ----------------------------- 
         //
 
-        // ----------------------------- USER METHODS ----------------------------- 
         public static void InitializeUsers()
         {
             XDocument doc = XDocument.Load(Path.Combine(AppContext.BaseDirectory + UsersFilePath));
