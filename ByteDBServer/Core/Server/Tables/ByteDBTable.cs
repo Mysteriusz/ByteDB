@@ -185,7 +185,6 @@ namespace ByteDBServer.Core.Server.Databases
                     if (!ConditionsMet(entryConditions, entry))
                         continue;
 
-                    // Assign values to columns if they exist in the entry
                     foreach (var column in columns)
                     {
                         if (entry.Columns.TryGetValue(column, out var value))
@@ -229,7 +228,6 @@ namespace ByteDBServer.Core.Server.Databases
 
                     ByteDBArgumentCollection row = new ByteDBArgumentCollection();
                     
-                    // Assign values to columns if they exist in the entry
                     foreach (var column in columns)
                         if (entry.Columns.TryGetValue(column, out var value))
                             row.Add(value);
@@ -321,6 +319,84 @@ namespace ByteDBServer.Core.Server.Databases
                 {
                     entry.Element.Remove();
                     Entries.Remove(entry);
+                }
+
+                // Save the file
+                await Task.Run(() => Document.Save(TableFullPath));
+            }
+            catch
+            {
+                throw;
+            }
+            finally { _fileLock.Release(); }
+        }
+
+        /// <summary>
+        /// Updates all columns of matching rows.
+        /// </summary>
+        /// <param name="columns">Columns which should be updated.</param>
+        /// <param name="values">Values that are assigned to columns.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
+        public void UpdateRows(ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
+        {
+            _fileLock.Wait();
+
+            try
+            {
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
+
+                foreach (var entry in Entries)
+                {
+                    ByteDBArgumentCollection row = new ByteDBArgumentCollection();
+
+                    if (!ConditionsMet(entryConditions, entry))
+                        continue;
+
+                    for (int i = 0; i < columns.Count; i++)
+                    {
+                        entry.Element.Attribute(columns[i]).Value = values[i];
+                    }
+                }
+
+                // Save the file
+                Document.Save(TableFullPath);
+            }
+            catch
+            {
+                throw;
+            }
+            finally { _fileLock.Release(); }
+        }
+
+        /// <summary>
+        /// Updates all columns of matching rows.
+        /// </summary>
+        /// <param name="columns">Columns which should be updated.</param>
+        /// <param name="values">Values that are assigned to columns.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
+        public async Task UpdateRowsAsync(ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
+        {
+            await _fileLock.WaitAsync();
+
+            try
+            {
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
+
+                foreach (var entry in Entries)
+                {
+                    ByteDBArgumentCollection row = new ByteDBArgumentCollection();
+
+                    if (!ConditionsMet(entryConditions, entry))
+                        continue;
+
+                    for (int i = 0; i < columns.Count; i++)
+                    {
+                        entry.Element.Attribute(columns[i]).Value = values[i];
+                    }
                 }
 
                 // Save the file

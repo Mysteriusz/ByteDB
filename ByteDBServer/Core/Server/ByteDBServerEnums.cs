@@ -2,7 +2,7 @@
 {
     public enum ServerCapabilities : uint
     {
-        QUERY_HANDLING  = 0x00000001,
+        QUERY_HANDLING = 0x00000001,
         SUPPORTS_TRANSACTIONS = 0x00000002,
         MULTI_USER_ACCESS = 0x00000004,
     }

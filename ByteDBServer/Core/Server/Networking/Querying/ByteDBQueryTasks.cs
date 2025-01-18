@@ -51,6 +51,12 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                             else
                                 await ExecuteDeleteFrom(query);
                             break;
+                        case "UPDATE IN":
+                            if (client.InTransaction)
+                                client.TransactionQueries.Add(query);
+                            else
+                                await ExecuteUpdateIn(query);
+                            break;
                         case "BEGIN TRANSACTION":
                             if (ByteDBServerInstance.CheckCapability(ServerCapabilities.SUPPORTS_TRANSACTIONS, client.RequestedCapabilitiesInt) && !client.InTransaction)
                                 client.InTransaction = true;
@@ -62,7 +68,6 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                             {
                                 foreach (ByteDBQuery transactionQuery in client.TransactionQueries)
                                 {
-                                    transactionQuery.Local = true;
                                     ByteDBServerListener.QueryPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, transactionQuery, false));
                                 }
 
@@ -94,10 +99,10 @@ namespace ByteDBServer.Core.Server.Networking.Querying
             return true;
         }
 
+        
         /// <summary>
         /// Executes insert with arguments from query.
         /// </summary>
-        /// <param name="client">Client to which info packets should be sent.</param>
         /// <param name="query">Query to execute.</param>
         public static async Task ExecuteInsertInto(ByteDBQuery query)
         {
@@ -131,6 +136,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
 
             await table.AddRowAsync(columns, values, conditions);
         }
+
 
         /// <summary>
         /// Executes fetch with arguments from query.
@@ -176,10 +182,10 @@ namespace ByteDBServer.Core.Server.Networking.Querying
             return await table.GetRowsAsync(columns, conditions, entryConditions);
         }
 
+        
         /// <summary>
         /// Executes fetch with arguments from query.
         /// </summary>
-        /// <param name="client">Client to which info packets should be sent.</param>
         /// <param name="query">Query to execute.</param>
         public static async Task ExecuteDeleteFrom(ByteDBQuery query)
         {
@@ -209,6 +215,45 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         public static async Task DeleteFrom(ByteDBTable table, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
             await table.RemoveRowsAsync(conditions, entryConditions);
+        }
+
+        /// <summary>
+        /// Updated values in columns with arguments from query.
+        /// </summary>
+        /// <param name="query">>Query to execute.</param>
+        public static async Task ExecuteUpdateIn(ByteDBQuery query)
+        {
+            try
+            {
+                string tableName = query.Values[0];
+                string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
+                ByteDBTable table = ByteDBServerInstance.Tables[tablePath];
+
+                List<ByteDBQueryFunction> ifConds = GetConditions(query, "IF CONTAINS");
+                List<ByteDBQueryFunction> whereConds = GetConditions(query, "WHERE VALUES");
+
+                await UpdateIn(table, query.ArgumentCollections[0], query.ArgumentCollections[1], ifConds, whereConds);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Updates columns in <paramref name="table"/>.
+        /// </summary>
+        /// <param name="table">Table from which read.</param>
+        /// <param name="columns">Columns of <paramref name="table"/> to which values should be assigned.</param>
+        /// <param name="values">Values of columns.</param>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        /// <param name="entryConditions">Conditions that entry have to meet.</param>
+        public static async Task UpdateIn(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
+        {
+            if (table.Columns.Count < columns.Count || table.Columns.Count < values.Count || columns.Count != values.Count)
+                throw new Exception();
+
+            await table.UpdateRowsAsync(columns, values, conditions, entryConditions);
         }
 
         private static List<ByteDBQueryFunction> GetConditions(ByteDBQuery query, string keyword)

@@ -36,6 +36,7 @@ namespace ByteDBServer.Core.Server
             "INSERT INTO",
             "FETCH FROM",
             "DELETE FROM",
+            "UPDATE IN",
             
             "WITH VALUES",
             "WHERE VALUES",
