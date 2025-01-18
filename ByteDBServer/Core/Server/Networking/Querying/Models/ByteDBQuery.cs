@@ -24,6 +24,8 @@
         /// </summary>
         public ByteDBArgumentCollection[] ArgumentCollections { get; }
 
+        public bool Local { get; set; } = false;
+
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //

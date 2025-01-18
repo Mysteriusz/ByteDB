@@ -34,13 +34,52 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                     switch (query.Keywords[0])
                     {
                         case "INSERT INTO":
-                            await ExecuteInsertInto(client, query);
+                            if (client.InTransaction)
+                                client.TransactionQueries.Add(query);
+                            else
+                                await ExecuteInsertInto(query);
                             break;
                         case "FETCH FROM":
-                            await ExecuteFetchFrom(client, query);
+                            if (client.InTransaction)
+                                client.TransactionQueries.Add(query);
+                            else
+                                await ExecuteFetchFrom(client, query);
                             break;
                         case "DELETE FROM":
-                            await ExecuteDeleteFrom(client, query);
+                            if (client.InTransaction)
+                                client.TransactionQueries.Add(query);
+                            else
+                                await ExecuteDeleteFrom(query);
+                            break;
+                        case "BEGIN TRANSACTION":
+                            if (ByteDBServerInstance.CheckCapability(ServerCapabilities.SUPPORTS_TRANSACTIONS, client.RequestedCapabilitiesInt) && !client.InTransaction)
+                                client.InTransaction = true;
+                            else
+                                return false;
+                            break;
+                        case "COMMIT":
+                            if (client.InTransaction)
+                            {
+                                foreach (ByteDBQuery transactionQuery in client.TransactionQueries)
+                                {
+                                    transactionQuery.Local = true;
+                                    ByteDBServerListener.QueryPool.EnqueueTask(ByteDBTasks.ExecuteQuery(client, transactionQuery, false));
+                                }
+
+                                client.InTransaction = false;
+                                client.TransactionQueries.Clear();
+                            }
+                            else
+                                return false;
+                            break;
+                        case "ROLLBACK":
+                            if (client.InTransaction)
+                            {
+                                client.TransactionQueries.Clear();
+                                client.InTransaction = false;
+                            }
+                            else
+                                return false;
                             break;
                     }
                 }
@@ -60,7 +99,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// </summary>
         /// <param name="client">Client to which info packets should be sent.</param>
         /// <param name="query">Query to execute.</param>
-        public static async Task ExecuteInsertInto(ByteDBClient client, ByteDBQuery query)
+        public static async Task ExecuteInsertInto(ByteDBQuery query)
         {
             try
             {
@@ -74,14 +113,8 @@ namespace ByteDBServer.Core.Server.Networking.Querying
             }
             catch
             {
-                using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
-                    await err.WriteAsync(client);
-
                 throw;
             }
-
-            using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
-                await okay.WriteAsync(client);
         }
 
         /// <summary>
@@ -124,14 +157,8 @@ namespace ByteDBServer.Core.Server.Networking.Querying
             }
             catch
             {
-                using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
-                    await err.WriteAsync(client);
-
                 throw;
             }
-
-            using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
-                await okay.WriteAsync(client);
         }
 
         /// <summary>
@@ -154,7 +181,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// </summary>
         /// <param name="client">Client to which info packets should be sent.</param>
         /// <param name="query">Query to execute.</param>
-        public static async Task ExecuteDeleteFrom(ByteDBClient client, ByteDBQuery query)
+        public static async Task ExecuteDeleteFrom(ByteDBQuery query)
         {
             try
             {
@@ -169,14 +196,8 @@ namespace ByteDBServer.Core.Server.Networking.Querying
             }
             catch
             {
-                using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
-                    await err.WriteAsync(client);
-
                 throw;
             }
-
-            using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
-                await okay.WriteAsync(client);
         }
 
         /// <summary>
@@ -189,7 +210,6 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         {
             await table.RemoveRowsAsync(conditions, entryConditions);
         }
-
 
         private static List<ByteDBQueryFunction> GetConditions(ByteDBQuery query, string keyword)
         {

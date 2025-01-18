@@ -2,11 +2,10 @@
 using ByteDBServer.Core.Server.Networking.Querying;
 using ByteDBServer.Core.Server.Networking.Models;
 using ByteDBServer.Core.Server.Protocols;
-using ByteDBServer.Core.Authentication;
 using ByteDBServer.Core.Misc.Logs;
 using System.Threading.Tasks;
-using System.Linq;
 using System;
+using ByteDBServer.Core.Server.Packets;
 
 namespace ByteDBServer.Core.Server.Networking
 {
@@ -91,7 +90,7 @@ namespace ByteDBServer.Core.Server.Networking
         /// </summary>
         /// <param name="query">Query bytes to be executed.</param>
         /// <returns>A task that connects the client and handles authentication.</returns>
-        public static ByteDBQueryTask ExecuteQuery(ByteDBClient client, byte[] query)
+        public static ByteDBQueryTask ExecuteQuery(ByteDBClient client, byte[] query, bool sendPacket = true)
         {
             return async () =>
             {
@@ -100,11 +99,47 @@ namespace ByteDBServer.Core.Server.Networking
                     using (ByteDBQueryReader qr = new ByteDBQueryReader())
                     {
                         ByteDBQuery parsedQuery = await qr.Read(query);
-                        await ByteDBQueryTasks.Execute(client, parsedQuery);
+                        bool success = await ByteDBQueryTasks.Execute(client, parsedQuery);
+
+                        if (!success && sendPacket)
+                            using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
+                                await err.WriteAsync(client);
+                        else if (success && sendPacket)
+                            using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
+                                await okay.WriteAsync(client);
                     }
                 }
                 catch (Exception ex)
                 {
+                    if (sendPacket)
+                        using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
+                            await err.WriteAsync(client);
+
+                    ByteDBServerLogger.WriteExceptionToFile(ex);
+                }
+            };
+        }
+        public static ByteDBQueryTask ExecuteQuery(ByteDBClient client, ByteDBQuery query, bool sendPacket = true)
+        {
+            return async () =>
+            {
+                try
+                {
+                    bool success = await ByteDBQueryTasks.Execute(client, query);
+                
+                    if (!success && sendPacket)
+                        using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
+                            await err.WriteAsync(client);
+                    else if (success && sendPacket)
+                        using (ByteDBOkayPacket okay = new ByteDBOkayPacket("Query success"))
+                            await okay.WriteAsync(client);
+                }
+                catch (Exception ex)
+                {
+                    if (sendPacket)
+                        using (ByteDBErrorPacket err = new ByteDBErrorPacket("Query failed"))
+                            await err.WriteAsync(client);
+
                     ByteDBServerLogger.WriteExceptionToFile(ex);
                 }
             };

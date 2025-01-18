@@ -20,6 +20,32 @@ namespace ByteDBServer.Core.Server
 
         public const string DefaultWelcomeMessage = "WelcomeToByteDB";
 
+        // Query Settings
+        public const char QueryEndingChar = ';';
+        public const char QueryStartArgumentChar = '(';
+        public const char QueryEndArgumentChar = ')';
+        public const char QueryArgumentDivider = ',';
+        public const char QueryValueChar = '"';
+
+        public static readonly HashSet<char> QueryOperators = new HashSet<char>()
+        {
+            '=',
+        };
+        public static readonly HashSet<string> QueryKeywords = new HashSet<string>()
+        {
+            "INSERT INTO",
+            "FETCH FROM",
+            "DELETE FROM",
+            
+            "WITH VALUES",
+            "WHERE VALUES",
+            "IF CONTAINS",
+
+            "BEGIN TRANSACTION",
+            "COMMIT",
+            "ROLLBACK",
+        };
+
         //
         // ----------------------------- PROPERITES ----------------------------- 
         //
@@ -64,27 +90,6 @@ namespace ByteDBServer.Core.Server
             { "Int32", Type.GetType("System.Int32") },
             { "Int16", Type.GetType("System.Int16") },
             { "String", Type.GetType("System.String") },
-        };
-
-        // Query Settings
-        public const char QueryEndingChar = ';';
-        public const char QueryStartArgumentChar = '(';
-        public const char QueryEndArgumentChar = ')';
-        public const char QueryArgumentDivider = ',';
-        public const char QueryValueChar = '"';
-
-        public static readonly HashSet<char> QueryOperators = new HashSet<char>()
-        {
-            '=',
-        };
-        public static readonly HashSet<string> QueryKeywords = new HashSet<string>()
-        {
-            "INSERT INTO",
-            "FETCH FROM",
-            "DELETE FROM",
-            "WHERE VALUES",
-            "WITH VALUES",
-            "IF CONTAINS",
         };
 
         //

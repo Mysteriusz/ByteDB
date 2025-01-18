@@ -206,11 +206,6 @@ namespace ByteDBServer.Core.Server.Networking
                         byte[] buffer = new byte[ByteDBServerInstance.BufferSize];
                         int received = socket.Receive(buffer);
 
-                        //ByteDBServerLogger.WriteToFile("PACKET RECEIVED");
-                        ByteDBServerLogger.WriteToFile(ByteDBServerInstance.CheckCapability(ServerCapabilities.QUERY_HANDLING, client.RequestedCapabilitiesInt).ToString());
-                        ByteDBServerLogger.WriteToFile(((uint)ServerCapabilities.QUERY_HANDLING).ToString());
-                        ByteDBServerLogger.WriteToFile(client.RequestedCapabilitiesInt.ToString());
-
                         // Execute the client's query if it meets the requirements
                         if (ByteDBServerInstance.CheckCapability(ServerCapabilities.QUERY_HANDLING, client.RequestedCapabilitiesInt) && buffer[0] == (byte)ByteDBPacketType.QUERY_PACKET)
                         {

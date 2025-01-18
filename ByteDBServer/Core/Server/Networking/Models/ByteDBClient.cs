@@ -2,6 +2,8 @@
 using ByteDBServer.Core.DataTypes;
 using System.Net.Sockets;
 using System;
+using System.Collections.Generic;
+using ByteDBServer.Core.Server.Networking.Querying.Models;
 
 namespace ByteDBServer.Core.Server.Networking.Models
 {
@@ -30,6 +32,13 @@ namespace ByteDBServer.Core.Server.Networking.Models
         /// Client`s available <see cref="ServerCapabilities"/> as <see cref="Int4"/>.
         /// </summary>
         public Int4 RequestedCapabilitiesInt { get; set; }
+
+        /// <summary>
+        /// Is client currently performing a transaction.
+        /// </summary>
+        public bool InTransaction { get; set; }
+
+        public List<ByteDBQuery> TransactionQueries { get; } = new List<ByteDBQuery>();
 
         private bool _disposed = false;
 
