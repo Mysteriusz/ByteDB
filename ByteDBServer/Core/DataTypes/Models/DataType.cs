@@ -1,7 +1,6 @@
-﻿using ByteDBServer.Core.Config;
-using ByteDBServer.Core.DataTypes;
+﻿using ByteDBServer.Core.DataTypes;
+using ByteDBServer.Core.Server; 
 using ByteDBServer.Core.Misc;
-using ByteDBServer.Core.Server;
 
 namespace ByteDBServer.DataTypes.Models
 {

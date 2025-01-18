@@ -5,7 +5,7 @@
 	<Address>127.0.0.1</Address>
 	<MaxConnections>1000</MaxConnections>
 	<Encoding>ASCII</Encoding>
-	<ServerCapabilities>00000008</ServerCapabilities>
+	<ServerCapabilities>00000007</ServerCapabilities>
 	<BufferSize>2048</BufferSize>
 	<HandlerPoolSize>20</HandlerPoolSize>
 	<ShortDelayDuration>50</ShortDelayDuration>
