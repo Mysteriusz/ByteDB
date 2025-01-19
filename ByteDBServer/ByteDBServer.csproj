@@ -53,13 +53,14 @@
     <Compile Include="Core\Authentication\Models\ByteDBUser.cs" />
     <Compile Include="Core\Config\ByteDBServerConfig.cs" />
     <Compile Include="Core\DataTypes\Models\DataType.cs" />
+    <Compile Include="Core\Misc\BDB\BDBEntry.cs" />
+    <Compile Include="Core\Misc\BDB\BDBTable.cs" />
     <Compile Include="Core\Misc\Logs\ByteDBServerLogger.cs" />
     <Compile Include="Core\Server\Networking\Models\ByteDBHandler.cs" />
     <Compile Include="Core\Server\Networking\Models\ByteDBPool.cs" />
     <Compile Include="Core\Server\Networking\Querying\Models\ByteDBArgumentCollection.cs" />
     <Compile Include="Core\Server\Networking\Querying\Models\ByteDBQuery.cs" />
     <Compile Include="Core\Server\Networking\Querying\Models\ByteDBQueryFunction.cs" />
-    <Compile Include="Core\Server\Tables\ByteDBTableEntry.cs" />
     <Compile Include="Core\Server\Tables\ByteDBTable.cs" />
     <Compile Include="Core\Server\Networking\Querying\ByteDBQueryTasks.cs" />
     <Compile Include="Core\DataTypes\Int8.cs" />
@@ -109,7 +110,7 @@
     <Content Include="Core\Misc\Logs\README.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Core\Server\Tables\Workers.xml">
+    <Content Include="Core\Server\Tables\Workers.bdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

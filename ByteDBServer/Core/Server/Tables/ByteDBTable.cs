@@ -1,12 +1,11 @@
 ﻿using ByteDBServer.Core.Server.Networking.Querying.Models;
-using ByteDBServer.Core.Server.Tables;
 using System.Collections.Generic;
+using ByteDBServer.Core.Misc.BDB;
 using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Xml.Linq;
 using System.Linq;
-using System;
 
 namespace ByteDBServer.Core.Server.Databases
 {
@@ -17,49 +16,26 @@ namespace ByteDBServer.Core.Server.Databases
         //
 
         /// <summary>
-        /// Table name.
-        /// </summary>
-        public string TableName => Document.Root.Attribute("Name").Value;
-
-        /// <summary>
         /// Table file`s path.
         /// </summary>
         public string TableFullPath { get; private set; }
 
         /// <summary>
-        /// Table columns and it`s value type.
+        /// Table column count.
         /// </summary>
-        public Dictionary<string, Type> Columns 
-        {
-            get
-            {
-                Dictionary<string, Type> columns = new Dictionary<string, Type>();
-
-                var columnNames = Document.Root.Attribute("ColumnNames").Value.Split(',').ToList();
-                var columnTypes = Document.Root.Attribute("ColumnTypes").Value.Split(',').Select(t => ByteDBServerInstance.TableValueTypes[t]).ToList();
-
-                for (int i = 0; i < columnNames.Count; i++)
-                    columns.Add(columnNames[i], columnTypes[i]);
-
-                return columns;
-            }
-        }
-
-        /// <summary>
-        /// All table entries as <see cref="ByteDBTableEntry"/>. 
-        /// </summary>
-        public HashSet<ByteDBTableEntry> Entries { get; private set; } = new HashSet<ByteDBTableEntry>();
+        public int ColumnCount => Table.Columns.Count;
 
         /// <summary>
         /// Table document.
         /// </summary>        
-        public XDocument Document { get; private set; }
+        public BDBTable Table { get; private set; }
 
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //
 
         public ByteDBTable() { }
+        public ByteDBTable(BDBTable table, string path) { Table = table; TableFullPath = path; }
 
         //
         // ----------------------------- METHODS ----------------------------- 
@@ -79,8 +55,7 @@ namespace ByteDBServer.Core.Server.Databases
 
             try
             {
-                List<string> tableColumns = Columns.Keys.ToList();
-                List<string> toAddValues = new List<string>(Enumerable.Repeat("", tableColumns.Count));
+                List<string> toAddValues = new List<string>(Enumerable.Repeat("", Table.Columns.Count));
 
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
@@ -89,21 +64,18 @@ namespace ByteDBServer.Core.Server.Databases
                 for (int rIndex = 0; rIndex < columns.Count; rIndex++)
                 {
                     // Find the column index in the table columns
-                    int columnIndex = tableColumns.IndexOf(columns[rIndex]);
+                    int columnIndex = Table.Columns.IndexOf(columns[rIndex]);
 
                     // If the column exists in the table, add the corresponding value at the correct position
                     if (columnIndex >= 0)
                         toAddValues[columnIndex] = values[rIndex];
                 }
 
-                var newEntry = new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray());
-
                 // Add Entry
-                Document.Root.Add(newEntry.Element);
-                Entries.Add(newEntry);
+                Table.AddEntry(toAddValues.ToArray());
 
                 // Save the file
-                Document.Save(TableFullPath);
+                Table.Save();
             }
             catch
             {
@@ -124,8 +96,7 @@ namespace ByteDBServer.Core.Server.Databases
 
             try
             {
-                List<string> tableColumns = Columns.Keys.ToList();
-                List<string> toAddValues = new List<string>(Enumerable.Repeat("", tableColumns.Count));
+                List<string> toAddValues = new List<string>(Enumerable.Repeat("", Table.Columns.Count));
 
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
@@ -134,21 +105,18 @@ namespace ByteDBServer.Core.Server.Databases
                 for (int rIndex = 0; rIndex < columns.Count; rIndex++)
                 {
                     // Find the column index in the table columns
-                    int columnIndex = tableColumns.IndexOf(columns[rIndex]);
+                    int columnIndex = Table.Columns.IndexOf(columns[rIndex]);
 
                     // If the column exists in the table, add the corresponding value at the correct position
                     if (columnIndex >= 0)
                         toAddValues[columnIndex] = values[rIndex];
                 }
 
-                var newEntry = new ByteDBTableEntry(tableColumns.ToArray(), toAddValues.ToArray());
-
                 // Add Entry
-                Document.Root.Add(newEntry.Element);
-                Entries.Add(newEntry);
+                Table.AddEntry(toAddValues.ToArray());
 
                 // Save the file
-                await Task.Run(() => Document.Save(TableFullPath));
+                await Task.Run(() => Table.Save());
             }
             catch
             {
@@ -178,7 +146,7 @@ namespace ByteDBServer.Core.Server.Databases
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
-                foreach (var entry in Entries)
+                foreach (var entry in Table.Entries)
                 {
                     ByteDBArgumentCollection row = new ByteDBArgumentCollection();
 
@@ -187,7 +155,9 @@ namespace ByteDBServer.Core.Server.Databases
 
                     foreach (var column in columns)
                     {
-                        if (entry.Columns.TryGetValue(column, out var value))
+                        string value = entry.GetValue(column);
+
+                        if (value != null)
                             row.Add(value);
                     }
 
@@ -221,16 +191,20 @@ namespace ByteDBServer.Core.Server.Databases
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
-                foreach (var entry in Entries)
+                foreach (var entry in Table.Entries)
                 {
                     if (!ConditionsMet(entryConditions, entry))
                         continue;
 
                     ByteDBArgumentCollection row = new ByteDBArgumentCollection();
-                    
+
                     foreach (var column in columns)
-                        if (entry.Columns.TryGetValue(column, out var value))
+                    {
+                        string value = entry.GetValue(column);
+
+                        if (value != null)
                             row.Add(value);
+                    }
 
                     rows.Add(row);
                 }
@@ -258,28 +232,17 @@ namespace ByteDBServer.Core.Server.Databases
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
-
-                // Create a temporary list to hold entries to remove
-                List<ByteDBTableEntry> entriesToRemove = new List<ByteDBTableEntry>();
-
                 // Start iterating and add entries to remove
-                foreach (var entry in Entries)
+                foreach (var entry in Table.Entries)
                 {
                     if (!ConditionsMet(entryConditions, entry))
                         continue;
 
-                    entriesToRemove.Add(entry);
-                }
-
-                // Remove the entries from the original list
-                foreach (var entry in entriesToRemove)
-                {
-                    entry.Element.Remove();
-                    Entries.Remove(entry);
+                    Table.RemoveEntry(entry.Index);
                 }
 
                 // Save the file
-                Document.Save(TableFullPath);
+                Table.Save();
             }
             catch
             {
@@ -302,27 +265,17 @@ namespace ByteDBServer.Core.Server.Databases
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
-                // Create a temporary list to hold entries to remove
-                List<ByteDBTableEntry> entriesToRemove = new List<ByteDBTableEntry>();
-
                 // Start iterating and add entries to remove
-                foreach (var entry in Entries)
+                foreach (var entry in Table.Entries)
                 {
                     if (!ConditionsMet(entryConditions, entry))
                         continue;
 
-                    entriesToRemove.Add(entry);
-                }
-
-                // Remove the entries from the original list
-                foreach (var entry in entriesToRemove)
-                {
-                    entry.Element.Remove();
-                    Entries.Remove(entry);
+                    Table.RemoveEntry(entry.Index);
                 }
 
                 // Save the file
-                await Task.Run(() => Document.Save(TableFullPath));
+                await Task.Run(() => Table.Save());
             }
             catch
             {
@@ -347,7 +300,7 @@ namespace ByteDBServer.Core.Server.Databases
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
-                foreach (var entry in Entries)
+                foreach (var entry in Table.Entries)
                 {
                     ByteDBArgumentCollection row = new ByteDBArgumentCollection();
 
@@ -355,13 +308,11 @@ namespace ByteDBServer.Core.Server.Databases
                         continue;
 
                     for (int i = 0; i < columns.Count; i++)
-                    {
-                        entry.Element.Attribute(columns[i]).Value = values[i];
-                    }
+                        entry.UpdateValue(columns[i], values[i]);
                 }
 
                 // Save the file
-                Document.Save(TableFullPath);
+                Table.Save();
             }
             catch
             {
@@ -386,7 +337,7 @@ namespace ByteDBServer.Core.Server.Databases
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
-                foreach (var entry in Entries)
+                foreach (var entry in Table.Entries)
                 {
                     ByteDBArgumentCollection row = new ByteDBArgumentCollection();
 
@@ -394,13 +345,11 @@ namespace ByteDBServer.Core.Server.Databases
                         continue;
 
                     for (int i = 0; i < columns.Count; i++)
-                    {
-                        entry.Element.Attribute(columns[i]).Value = values[i];
-                    }
+                        entry.UpdateValue(columns[i], values[i]);
                 }
 
                 // Save the file
-                await Task.Run(() => Document.Save(TableFullPath));
+                await Task.Run(() => Table.Save());
             }
             catch
             {
@@ -440,7 +389,7 @@ namespace ByteDBServer.Core.Server.Databases
         /// <param name="conditions">Conditions to check.</param>
         /// <param name="entry">Entry to which check conditions.</param>
         /// <returns>True if all conditions are met for entry; if not False.</returns>
-        public bool ConditionsMet(List<ByteDBQueryFunction> conditions, ByteDBTableEntry entry)
+        public bool ConditionsMet(List<ByteDBQueryFunction> conditions, BDBEntry entry)
         {
             bool met = false;
 
@@ -449,7 +398,7 @@ namespace ByteDBServer.Core.Server.Databases
                 switch (condition.Operator)
                 {
                     case '=':
-                        met = entry.Columns[condition.Arg1] == condition.Arg2;
+                        met = entry.GetValue(condition.Arg1) == condition.Arg2;
                         break;
                 }
 
@@ -465,7 +414,7 @@ namespace ByteDBServer.Core.Server.Databases
         /// </summary>
         /// <param name="columnName">Column name.</param>
         /// <returns>True if column is present; if not False.</returns>
-        public bool HasColumn(string columnName) => Columns.ContainsKey(columnName);
+        public bool HasColumn(string columnName) => Table.Columns.Contains(columnName);
 
         /// <summary>
         /// Check if any of entries <paramref name="columnName"/> has a value of <paramref name="value"/>.
@@ -478,29 +427,11 @@ namespace ByteDBServer.Core.Server.Databases
             if (!HasColumn(columnName))
                 return false;
 
-            foreach (var entry in Entries)
-                if (entry.Columns.TryGetValue(columnName, out var columnVal) && columnVal == value)
+            foreach (var entry in Table.Entries)
+                if (entry.GetValue(columnName) == value)
                     return true;
             
             return false;
-        }
-
-        /// <summary>
-        /// Loads table from path as <see cref="ByteDBTable"/>.
-        /// </summary>
-        /// <param name="tableFullPath">Path to table containing name.</param>
-        /// <returns><see cref="ByteDBTable"/> object with assigned properties.</returns>
-        public static ByteDBTable Load(string tableFullPath)
-        {
-            ByteDBTable table = new ByteDBTable();
-
-            table.Document = XDocument.Load(tableFullPath);
-            table.TableFullPath = tableFullPath;
-
-            foreach (var entry in table.Document.Root.Elements())
-                table.Entries.Add(new ByteDBTableEntry(entry));
-
-            return table;
         }
     }
 }

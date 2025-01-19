@@ -34,13 +34,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_1A320B3D28C642C19BC87A4CCE550A54"
+        "OwnerKey" = "8:_9F69B2B42DCE2E010CD0B45D6A5D2130"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9F69B2B42DCE2E010CD0B45D6A5D2130"
+        "OwnerKey" = "8:_1A320B3D28C642C19BC87A4CCE550A54"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -264,7 +264,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ByteDBSetup"
         "ProductCode" = "8:{77D0162A-5837-4014-943A-5D41E0069649}"
-        "PackageCode" = "8:{6397AD0D-305B-41F8-B37C-EB00AB64DB0D}"
+        "PackageCode" = "8:{170764B9-D6CE-4FCB-B7F7-47D18C610926}"
         "UpgradeCode" = "8:{C2FBD7F5-6A63-40A5-88BB-FB2C23D50206}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"

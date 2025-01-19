@@ -12,5 +12,5 @@
 	<ModerateDelayDuration>150</ModerateDelayDuration>
 	<LongDelayDuration>300</LongDelayDuration>
 	<TablesPath>Core\Server\Tables</TablesPath>
-	<TablesExtension>.xml</TablesExtension>
+	<TablesExtension>.bdb</TablesExtension>
 </ServerConfig>

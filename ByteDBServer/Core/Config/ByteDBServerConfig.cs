@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using System.Text;
 using System.IO;
 using System;
+using ByteDBServer.Core.Misc.BDB;
 
 namespace ByteDBServer.Core.Config
 {
@@ -89,7 +90,7 @@ namespace ByteDBServer.Core.Config
             {
                 try
                 {
-                    DataTables.Add(file, ByteDBTable.Load(Path.Combine(TablesPath, file)));
+                    DataTables.Add(file, new ByteDBTable(BDBTable.Load(Path.Combine(TablesPath, file)), TablesPath));
                 }
                 catch
                 {

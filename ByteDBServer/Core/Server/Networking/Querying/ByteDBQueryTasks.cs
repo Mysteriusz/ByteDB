@@ -131,7 +131,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// <param name="conditions">Conditions that table have to meet.</param>
         public static async Task InsertInto(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions)
         {
-            if (table.Columns.Count < columns.Count || table.Columns.Count < values.Count || columns.Count != values.Count)
+            if (table.ColumnCount < columns.Count || table.ColumnCount < values.Count || columns.Count != values.Count)
                 throw new Exception();
 
             await table.AddRowAsync(columns, values, conditions);
@@ -176,7 +176,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// <param name="entryConditions">Conditions that entry have to meet.</param>
         public static async Task<List<ByteDBArgumentCollection>> FetchFrom(ByteDBTable table, ByteDBArgumentCollection columns, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
-            if (table.Columns.Count < columns.Count)
+            if (table.ColumnCount < columns.Count)
                 throw new Exception();
 
             return await table.GetRowsAsync(columns, conditions, entryConditions);
@@ -217,6 +217,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
             await table.RemoveRowsAsync(conditions, entryConditions);
         }
 
+
         /// <summary>
         /// Updated values in columns with arguments from query.
         /// </summary>
@@ -250,11 +251,12 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// <param name="entryConditions">Conditions that entry have to meet.</param>
         public static async Task UpdateIn(ByteDBTable table, ByteDBArgumentCollection columns, ByteDBArgumentCollection values, List<ByteDBQueryFunction> conditions, List<ByteDBQueryFunction> entryConditions)
         {
-            if (table.Columns.Count < columns.Count || table.Columns.Count < values.Count || columns.Count != values.Count)
+            if (table.ColumnCount < columns.Count || table.ColumnCount < values.Count || columns.Count != values.Count)
                 throw new Exception();
 
             await table.UpdateRowsAsync(columns, values, conditions, entryConditions);
         }
+
 
         private static List<ByteDBQueryFunction> GetConditions(ByteDBQuery query, string keyword)
         {
