@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System;
 using ByteDBServer.Core.Server.Tables;
+using ByteDBServer.Core.Server.Databases;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
@@ -236,6 +237,32 @@ namespace ByteDBServer.Core.Misc.BDB
             }
 
             return table;
+        }
+
+        /// <summary>
+        /// Creates a table file.
+        /// </summary>
+        /// <param name="path">Full path to the table.</param>
+        /// <param name="columns">Column names of the table.</param>
+        /// <param name="columnTypes">Column types of the table.</param>
+        /// <exception cref="Exception"></exception>
+        public static BDBTable Create(string path, string[] columns, string[] columnTypes)
+        {
+            using (var fs = File.Create(path)) { }
+            
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < columns.Length; i++)
+                if (!ByteDBTableConstrains.TypeDefinitions.ContainsKey(columnTypes[i]))
+                    throw new Exception();
+
+            sb.AppendLine($"<c>{string.Join(":", columns)}");
+            sb.AppendLine($"<t>{string.Join(":", columnTypes)}");
+
+
+            File.WriteAllText(path, sb.ToString());
+
+            return new BDBTable(path);
         }
 
         /// <summary>

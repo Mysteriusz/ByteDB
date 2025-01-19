@@ -37,6 +37,8 @@ namespace ByteDBServer.Core.Server
             "FETCH FROM",
             "DELETE FROM",
             "UPDATE IN",
+
+            "CREATE TABLE",
             
             "WITH VALUES",
             "WHERE VALUES",

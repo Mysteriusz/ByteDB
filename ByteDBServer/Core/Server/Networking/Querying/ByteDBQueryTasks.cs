@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
 using System;
+using ByteDBServer.Core.Misc.BDB;
 
 namespace ByteDBServer.Core.Server.Networking.Querying
 {
@@ -57,6 +58,14 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                             else
                                 await ExecuteUpdateIn(query);
                             break;
+
+                        case "CREATE TABLE":
+                            if (client.InTransaction)
+                                client.TransactionQueries.Add(query);
+                            else
+                                await ExecuteCreateTable(query);
+                            break;
+
                         case "BEGIN TRANSACTION":
                             if (ByteDBServerInstance.CheckCapability(ServerCapabilities.SUPPORTS_TRANSACTIONS, client.RequestedCapabilitiesInt) && !client.InTransaction)
                                 client.InTransaction = true;
@@ -257,6 +266,36 @@ namespace ByteDBServer.Core.Server.Networking.Querying
             await table.UpdateRowsAsync(columns, values, conditions, entryConditions);
         }
 
+
+        /// <summary>
+        /// Creates new table from query.
+        /// </summary>
+        /// <param name="query">>Query to execute.</param>
+        public static async Task ExecuteCreateTable(ByteDBQuery query)
+        {
+            try
+            {
+                string tableName = query.Values[0];
+                string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
+
+                await CreateTable(tablePath, query.ArgumentCollections[0], query.ArgumentCollections[1]);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new table.
+        /// </summary>
+        /// <param name="tablePath">Full path to the table.</param>
+        /// <param name="columns">Column names of the table.</param>
+        /// <param name="columnTypes">Column types of the table.</param>
+        public static async Task CreateTable(string tablePath, ByteDBArgumentCollection columns, ByteDBArgumentCollection columnTypes)
+        {
+            await Task.Run(() => ByteDBServerInstance.Tables.Add(tablePath, new ByteDBTable(BDBTable.Create(tablePath, columns.ToArray(), columnTypes.ToArray()), tablePath)));
+        }
 
         private static List<ByteDBQueryFunction> GetConditions(ByteDBQuery query, string keyword)
         {
