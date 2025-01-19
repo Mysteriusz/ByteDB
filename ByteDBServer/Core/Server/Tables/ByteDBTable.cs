@@ -232,14 +232,19 @@ namespace ByteDBServer.Core.Server.Databases
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
+                List<BDBEntry> toRemove = new List<BDBEntry>();
+
                 // Start iterating and add entries to remove
                 foreach (var entry in Table.Entries)
                 {
                     if (!ConditionsMet(entryConditions, entry))
                         continue;
-
-                    Table.RemoveEntry(entry.Index);
+                    
+                    toRemove.Add(entry);
                 }
+
+                foreach (var entry in toRemove)
+                    Table.RemoveEntry(entry.Index);
 
                 // Save the file
                 Table.Save();
@@ -265,14 +270,19 @@ namespace ByteDBServer.Core.Server.Databases
                 if (!ConditionsMet(conditions))
                     throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
 
+                List<BDBEntry> toRemove = new List<BDBEntry>();
+
                 // Start iterating and add entries to remove
                 foreach (var entry in Table.Entries)
                 {
                     if (!ConditionsMet(entryConditions, entry))
                         continue;
 
-                    Table.RemoveEntry(entry.Index);
+                    toRemove.Add(entry);
                 }
+
+                foreach (var entry in toRemove)
+                    Table.RemoveEntry(entry.Index);
 
                 // Save the file
                 await Task.Run(() => Table.Save());
