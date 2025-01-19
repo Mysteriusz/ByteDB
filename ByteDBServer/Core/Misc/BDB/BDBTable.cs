@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using ByteDBServer.Core.Server.Tables;
 using ByteDBServer.Core.Server.Databases;
+using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
@@ -236,6 +237,9 @@ namespace ByteDBServer.Core.Misc.BDB
                 }
             }
 
+            ByteDBServerLogger.WriteToFile(string.Join(" : ", table.Columns));
+            ByteDBServerLogger.WriteToFile(string.Join(" : ", table.ColumnsTypes));
+
             return table;
         }
 
@@ -259,10 +263,9 @@ namespace ByteDBServer.Core.Misc.BDB
             sb.AppendLine($"<c>{string.Join(":", columns)}");
             sb.AppendLine($"<t>{string.Join(":", columnTypes)}");
 
-
             File.WriteAllText(path, sb.ToString());
 
-            return new BDBTable(path);
+            return Load(path);
         }
 
         /// <summary>

@@ -34,9 +34,9 @@ namespace ByteDBServer.Core.Server.Tables
 
             { "Boolean", new TypeInfo(bool.TrueString, bool.FalseString, typeof(Boolean)) },
 
-            { "SmallText", new TypeInfo(255, 0, typeof(String)) },
-            { "MediumText", new TypeInfo(65535, 0, typeof(String)) },
-            { "LongText", new TypeInfo(16777215, 0, typeof(String)) },
+            { "SmallText", new TypeInfo(255, 0, typeof(string)) },
+            { "MediumText", new TypeInfo(65535, 0, typeof(string)) },
+            { "LongText", new TypeInfo(16777215, 0, typeof(string)) },
         };
 
         public static bool Validate(string value, string type)
@@ -46,19 +46,29 @@ namespace ByteDBServer.Core.Server.Tables
 
             TypeInfo typeInfo = TypeDefinitions[type];
 
-            try
+            if (typeInfo.SystemType == typeof(string))
             {
-                object parsedValue = Convert.ChangeType(value, typeInfo.SystemType);
+                int maxLength = (int)typeInfo.MaxValue;
 
-                if (parsedValue is IComparable comparableValue)
+                if (value.Length > maxLength)
+                    return false;
+            }
+            else
+            {
+                try
                 {
-                    if (typeInfo.MinValue is IComparable min && typeInfo.MaxValue is IComparable max)
+                    object parsedValue = Convert.ChangeType(value, typeInfo.SystemType);
+
+                    if (parsedValue is IComparable comparableValue)
                     {
-                        return comparableValue.CompareTo(min) >= 0 && comparableValue.CompareTo(max) <= 0;
+                        if (typeInfo.MinValue is IComparable min && typeInfo.MaxValue is IComparable max)
+                        {
+                            return comparableValue.CompareTo(min) >= 0 && comparableValue.CompareTo(max) <= 0;
+                        }
                     }
                 }
+                catch { return false; }
             }
-            catch { return false; } 
 
             return true;
         }
