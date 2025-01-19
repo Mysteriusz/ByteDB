@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System;
+using ByteDBServer.Core.Server.Tables;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
@@ -135,7 +136,10 @@ namespace ByteDBServer.Core.Misc.BDB
         public void UpdateEntry(int index, string[] columns, string[] values)
         {
             for (int i = 0; i < columns.Length; i++)
-                Entries[index].UpdateValue(columns[i], values[i]);
+            {
+                if (ByteDBTableConstrains.Validate(values[i], ColumnsTypes[i]))
+                    Entries[index].UpdateValue(columns[i], values[i]);
+            }
         }
 
         /// <summary>
@@ -245,7 +249,10 @@ namespace ByteDBServer.Core.Misc.BDB
             List<string> result = new List<string>();
 
             for (int i = 0; i < table.Columns.Count; i++)
-                result.Add(values[i]);
+            {
+                if (ByteDBTableConstrains.Validate(values[i], table.ColumnsTypes[i]))
+                    result.Add(values[i]);
+            }
 
             return result.ToArray();
         }

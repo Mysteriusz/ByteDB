@@ -83,6 +83,7 @@
     <Compile Include="Core\Server\Packets\Models\ByteDBPacket.cs" />
     <Compile Include="Core\Server\Networking\ByteDBServerListener.cs" />
     <Compile Include="Core\Server\Protocols\Models\ByteDBProtocol.cs" />
+    <Compile Include="Core\Server\Tables\ByteDBTableConstrains.cs" />
     <Compile Include="Core\Services\ByteDBServerService.cs">
       <SubType>Component</SubType>
     </Compile>
