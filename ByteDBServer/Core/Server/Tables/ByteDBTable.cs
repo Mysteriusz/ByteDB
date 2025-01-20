@@ -5,10 +5,13 @@ using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using System.IO;
+using System;
+using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Server.Databases
 {
-    internal class ByteDBTable
+    internal class ByteDBTable : IDisposable
     {
         //
         // ----------------------------- PROPERTIES ----------------------------- 
@@ -367,6 +370,27 @@ namespace ByteDBServer.Core.Server.Databases
             finally { _fileLock.Release(); }
         }
 
+        public async Task DeleteTableAsync(List<ByteDBQueryFunction> conditions)
+        {
+            await _fileLock.WaitAsync();
+
+            try
+            {
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
+
+                ByteDBServerInstance.Tables.Remove(TableFullPath);
+                File.Delete(TableFullPath);
+
+                Dispose();
+            }
+            catch
+            {
+                throw;
+            }
+            finally { _fileLock.Release(); }
+        }
+
         /// <summary>
         /// Check if all conditions in a list are met.
         /// </summary>
@@ -441,6 +465,34 @@ namespace ByteDBServer.Core.Server.Databases
                     return true;
             
             return false;
+        }
+
+        //
+        // ----------------------------- DISPOSAL ----------------------------- 
+        //
+
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                Table?.Dispose();
+            }
+
+            _disposed = true;
+        }
+        ~ByteDBTable()
+        {
+            Dispose(false);
         }
     }
 }

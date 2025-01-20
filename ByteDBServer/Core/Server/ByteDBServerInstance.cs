@@ -39,14 +39,15 @@ namespace ByteDBServer.Core.Server
             "UPDATE IN",
 
             "CREATE TABLE",
-            
-            "WITH VALUES",
-            "WHERE VALUES",
-            "IF CONTAINS",
+            "DROP TABLE",
 
             "BEGIN TRANSACTION",
             "COMMIT",
             "ROLLBACK",
+
+            "WITH VALUES",
+            "WHERE VALUES",
+            "IF CONTAINS",
         };
 
         //

@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
-    public class BDBEntry
+    public class BDBEntry : IDisposable
     {
         //
         // ----------------------------- PROPERTIES ----------------------------- 
@@ -79,6 +80,15 @@ namespace ByteDBServer.Core.Misc.BDB
         public override string ToString()
         {
             return "<e>" + string.Join(":", Values);
+        }
+
+        //
+        // ----------------------------- DISPOSAL ----------------------------- 
+        //
+        
+        public void Dispose()
+        {
+            Values.Clear();
         }
     }
 }

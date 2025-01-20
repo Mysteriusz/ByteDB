@@ -90,7 +90,7 @@ namespace ByteDBServer.Core.Config
             {
                 try
                 {
-                    DataTables.Add(file, new ByteDBTable(BDBTable.Load(Path.Combine(TablesPath, file)), TablesPath));
+                    DataTables.Add(file, new ByteDBTable(BDBTable.Load(Path.Combine(TablesPath, file)), Path.Combine(TablesPath, file)));
                 }
                 catch
                 {

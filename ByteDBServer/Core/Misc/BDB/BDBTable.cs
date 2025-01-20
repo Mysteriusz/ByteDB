@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using ByteDBServer.Core.Server.Tables;
+using ByteDBServer.Core.Misc.Logs;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
 using System;
-using ByteDBServer.Core.Server.Tables;
-using ByteDBServer.Core.Server.Databases;
-using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
-    public class BDBTable
+    public class BDBTable : IDisposable
     {
         //
         // ----------------------------- CONSTANTS ----------------------------- 
@@ -237,9 +236,6 @@ namespace ByteDBServer.Core.Misc.BDB
                 }
             }
 
-            ByteDBServerLogger.WriteToFile(string.Join(" : ", table.Columns));
-            ByteDBServerLogger.WriteToFile(string.Join(" : ", table.ColumnsTypes));
-
             return table;
         }
 
@@ -285,6 +281,27 @@ namespace ByteDBServer.Core.Misc.BDB
             }
 
             return result.ToArray();
+        }
+
+        //
+        // ----------------------------- DISPOSAL ----------------------------- 
+        //
+
+        private protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            foreach (var entry in Entries)
+                entry?.Dispose();
+
+            Columns.Clear();
+            ColumnsTypes.Clear();
+            Entries.Clear();
+
+            _disposed = true;
         }
     }
 }

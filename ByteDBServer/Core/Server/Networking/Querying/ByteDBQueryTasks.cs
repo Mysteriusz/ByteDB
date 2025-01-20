@@ -4,11 +4,11 @@ using ByteDBServer.Core.Server.Databases;
 using ByteDBServer.Core.Server.Packets;
 using ByteDBServer.Core.Misc.Logs;
 using System.Collections.Generic;
+using ByteDBServer.Core.Misc.BDB;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
 using System;
-using ByteDBServer.Core.Misc.BDB;
 
 namespace ByteDBServer.Core.Server.Networking.Querying
 {
@@ -64,6 +64,12 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                                 client.TransactionQueries.Add(query);
                             else
                                 await ExecuteCreateTable(query);
+                            break;
+                        case "DROP TABLE":
+                            if (client.InTransaction)
+                                client.TransactionQueries.Add(query);
+                            else
+                                await ExecuteDropTable(query);
                             break;
 
                         case "BEGIN TRANSACTION":
@@ -295,6 +301,29 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         public static async Task CreateTable(string tablePath, ByteDBArgumentCollection columns, ByteDBArgumentCollection columnTypes)
         {
             await Task.Run(() => ByteDBServerInstance.Tables.Add(tablePath, new ByteDBTable(BDBTable.Create(tablePath, columns.ToArray(), columnTypes.ToArray()), tablePath)));
+        }
+
+
+        public static async Task ExecuteDropTable(ByteDBQuery query)
+        {
+            try
+            {
+                string tableName = query.Values[0];
+                string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
+                ByteDBTable table = ByteDBServerInstance.Tables[tablePath];
+
+                List<ByteDBQueryFunction> ifConds = GetConditions(query, "IF CONTAINS");
+
+                await DropTable(table, ifConds);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        public static async Task DropTable(ByteDBTable table, List<ByteDBQueryFunction> conditions)
+        {
+            await table.DeleteTableAsync(conditions);
         }
 
         private static List<ByteDBQueryFunction> GetConditions(ByteDBQuery query, string keyword)
