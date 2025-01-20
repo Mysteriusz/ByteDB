@@ -1,6 +1,7 @@
 ﻿using ByteDBServer.Core.Authentication.Models;
 using System.Linq;
 using System;
+using ByteDBServer.Core.Server;
 
 namespace ByteDBServer.Core.Authentication
 {
@@ -30,15 +31,14 @@ namespace ByteDBServer.Core.Authentication
             if (outputUser == null || (!multi_user_access && outputUser.Logged))
                 return false;
 
-            byte[] userPassBytes = outputUser.PasswordHashBytes;
-            byte[] expected = ByteDBAuthenticator.Hash(userPassBytes.Concat(Salt).ToArray());
+            byte[] expected = ByteDBAuthenticator.Hash(outputUser.PasswordHash.Concat(Salt).ToArray());
 
-            bool equals = scramble.SequenceEqual(expected);
+            bool isAuthenticated = scramble.SequenceEqual(expected);
 
-            if (equals)
+            if (isAuthenticated)
                 outputUser.LoggedCount++;
 
-            return equals;
+            return isAuthenticated;
         }
 
         //

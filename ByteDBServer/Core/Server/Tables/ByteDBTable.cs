@@ -4,7 +4,6 @@ using ByteDBServer.Core.Misc.BDB;
 using ByteDBServer.Core.Misc;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Xml.Linq;
 using System.Linq;
 
 namespace ByteDBServer.Core.Server.Databases

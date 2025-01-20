@@ -55,7 +55,7 @@ namespace ByteDBServer.Core.Authentication
 
             var userElement = doc.Root.Elements("User").FirstOrDefault(e =>
                 e.Attribute("Name").Value == user.Username &&
-                e.Attribute("PasswordHash").Value == user.PasswordHash
+                e.Attribute("PasswordHash").Value == user.PasswordHashBase64
             );
 
             if (userElement != null)
