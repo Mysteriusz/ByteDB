@@ -21,6 +21,8 @@ namespace ByteDBServer.Core.Server.Networking.Querying.Models
         /// </summary>
         public List<ByteDBQueryFunction> Functions = new List<ByteDBQueryFunction>();
 
+        public List<ByteDBArgumentCollection> SubArguments = new List<ByteDBArgumentCollection>();
+
         //
         // ----------------------------- CONSTRUCTORS ----------------------------- 
         //

@@ -1,10 +1,11 @@
 ﻿using ByteDBServer.Core.Server.Tables;
-using ByteDBServer.Core.Misc.Logs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Data;
 using System.IO;
 using System;
+using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
@@ -17,20 +18,16 @@ namespace ByteDBServer.Core.Misc.BDB
         public const char StartValueChar = '['; // Character marking the start of a value.
         public const char EndValueChar = ']';   // Character marking the end of a value.
         public const char ValueSeparatorChar = ':'; // Character separating values.
+        public const char ConstrainSeparatorChar = ','; // Character separating constraints.
 
         //
         // ----------------------------- PROPERTIES ----------------------------- 
         //
 
         /// <summary>
-        /// A list containing the names of all columns in the table.
+        /// A list of all columns in the table.
         /// </summary>
-        public List<string> Columns { get; set; } = new List<string>();
-
-        /// <summary>
-        /// A list containing the data types of each column in the table.
-        /// </summary>
-        public List<string> ColumnsTypes { get; set; } = new List<string>();
+        public List<BDBColumn> Columns { get; set; } = new List<BDBColumn>();
 
         /// <summary>
         /// A list of table entries, each representing a row in the table.
@@ -58,14 +55,16 @@ namespace ByteDBServer.Core.Misc.BDB
         /// </summary>
         /// <param name="columnName">The name of the new column.</param>
         /// <param name="columnType">The data type of the new column.</param>
-        public void AddColumn(string columnName, string columnType)
+        public void AddColumn(string columnName, string columnType, string[] constraints)
         {
-            Columns.Add(columnName);        // Add column name.
-            ColumnsTypes.Add(columnType);   // Add column data type.
+            if (!ByteDBTableConstraints.ValidateConstraints(constraints) || ByteDBTableConstraints.ValidateType(columnType))
+                throw new ByteDBQueryException("INCORRECT CONSTRAINS OR TYPE");
+
+            Columns.Add(new BDBColumn(columnName, columnType, constraints));
 
             // Add empty values for each existing entry in the table.
             foreach (BDBEntry entry in Entries)
-                entry.Values.Add("");
+                entry.Values.Add(Columns.Last().DefaultValue);
         }
 
         /// <summary>
@@ -75,8 +74,7 @@ namespace ByteDBServer.Core.Misc.BDB
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the column does not exist.</exception>
         public void RemoveColumn(string columnName)
         {
-            Columns.Remove(columnName);      // Remove column name.
-            ColumnsTypes.Remove(columnName); // Remove column data type.
+            Columns.Remove(Columns.Find(c => c.Name == columnName));
 
             // Remove the column from all existing entries.
             foreach (BDBEntry entry in Entries)
@@ -96,13 +94,12 @@ namespace ByteDBServer.Core.Misc.BDB
             int newEntryIndex = Entries.Count > 0 ? Entries.Last().Index + 1 : 0;
             int newEntryLineIndex = Entries.Count > 0 ? Entries.Last().LineIndex + 1 : 0;
 
-            // Create new entry and add to the table.
-            var newEntry = new BDBEntry(this, newEntryIndex, newEntryLineIndex, MergeValuesAndColumns(this, values));
-            Entries.Add(newEntry);
+            if (!ValidateValues(values))
+                throw new Exception();
 
-            // Write the new entry to the file.
-            using (StreamWriter writer = new StreamWriter(FullPath, append: true))
-                writer.WriteLine(newEntry.ToString());
+            // Create new entry and add to the table.
+            var newEntry = new BDBEntry(this, newEntryIndex, newEntryLineIndex, values);
+            Entries.Add(newEntry);
         }
 
         /// <summary>
@@ -138,8 +135,10 @@ namespace ByteDBServer.Core.Misc.BDB
         {
             for (int i = 0; i < columns.Length; i++)
             {
-                if (ByteDBTableConstrains.Validate(values[i], ColumnsTypes[i]))
-                    Entries[index].UpdateValue(columns[i], values[i]);
+                if (!ValidateValue(columns[i], values[i]))
+                    throw new Exception();
+                
+                Entries[index].UpdateValue(columns[i], values[i]);
             }
         }
 
@@ -177,8 +176,9 @@ namespace ByteDBServer.Core.Misc.BDB
             var sb = new StringBuilder();
 
             // Write columns and their types to the file.
-            sb.AppendLine($"<c>{string.Join(":", Columns)}");
-            sb.AppendLine($"<t>{string.Join(":", ColumnsTypes)}");
+            sb.AppendLine($"<c>{string.Join($"{ValueSeparatorChar}", Columns.Select(c => c.Name))}");
+            sb.AppendLine($"{string.Join($"{ValueSeparatorChar}", Columns.Select(c => c.Type))}");
+            sb.AppendLine($"{string.Join($"{ValueSeparatorChar}", Columns.Select(c => string.Join($"{ConstrainSeparatorChar}", c.Constraints)))}");
 
             // Write all entries to the file.
             foreach (BDBEntry entry in Entries)
@@ -210,8 +210,8 @@ namespace ByteDBServer.Core.Misc.BDB
                     if (line[1] == 'e')
                     {
                         int index = 3;
-                        string content = line.Substring(index).Trim();
-                        table.Entries.Add(new BDBEntry(table, entryIndex, lineIndex, MergeValuesAndColumns(table, content.Split(ValueSeparatorChar))));
+                        string content = line.Trim().Substring(index);
+                        table.Entries.Add(new BDBEntry(table, entryIndex, lineIndex, content.Split(ValueSeparatorChar)));
                         entryIndex++;
                         continue;
                     }
@@ -220,17 +220,26 @@ namespace ByteDBServer.Core.Misc.BDB
                     if (line[1] == 'c')
                     {
                         int index = 3;
-                        string content = line.Substring(index).Trim();
-                        table.Columns = content.Split(ValueSeparatorChar).ToList();
-                        continue;
-                    }
+                        string columnsNames = line.Trim().Substring(index);
+                        string columnsTypes = reader.ReadLine()?.Trim();
+                        string columnsConstraints = reader.ReadLine()?.Trim();
 
-                    // Parse column types
-                    if (line[1] == 't')
-                    {
-                        int index = 3;
-                        string content = line.Substring(index).Trim();
-                        table.ColumnsTypes = content.Split(ValueSeparatorChar).ToList();
+                        string[] columnNamesArray = columnsNames.Split(ValueSeparatorChar);
+                        string[] columnTypesArray = columnsTypes.Split(ValueSeparatorChar);
+                        string[] columnConstraintsArray = columnsConstraints.Split(ValueSeparatorChar);
+
+                        for (int i = 0; i < columnNamesArray.Length; i++)
+                        {
+                            string columnName = columnNamesArray[i].Trim();
+                            string columnType = columnTypesArray[i].Trim();
+                            string[] columnConstraints = columnConstraintsArray[i].Trim().Split(ConstrainSeparatorChar);
+
+                            if (!ByteDBTableConstraints.ValidateConstraints(columnConstraints) || !ByteDBTableConstraints.ValidateType(columnType))
+                                throw new ByteDBQueryException("INCORRECT CONSTRAINS OR TYPE");
+
+                            table.Columns.Add(new BDBColumn(columnName, columnType, columnConstraints));
+                        }
+
                         continue;
                     }
                 }
@@ -245,42 +254,64 @@ namespace ByteDBServer.Core.Misc.BDB
         /// <param name="path">Full path to the table.</param>
         /// <param name="columns">Column names of the table.</param>
         /// <param name="columnTypes">Column types of the table.</param>
-        /// <exception cref="Exception"></exception>
-        public static BDBTable Create(string path, string[] columns, string[] columnTypes)
+        /// <exception cref="ByteDBQueryException"></exception>
+        public static BDBTable Create(string path, string[] columns, string[] columnTypes, string[][] columnConstraints)
         {
-            using (var fs = File.Create(path)) { }
-            
+            if (columnConstraints.Length != columns.Length || columnTypes.Length != columns.Length)
+                throw new ByteDBQueryException("INCORRECT ARGUMENT COUNT");
+
+            if (!ByteDBTableConstraints.ValidateConstraints(columnConstraints) || ByteDBTableConstraints.ValidateTypes(columnTypes))
+                throw new ByteDBQueryException("INCORRECT CONSTRAINS OR TYPES");
+
             StringBuilder sb = new StringBuilder();
 
-            for (int i = 0; i < columns.Length; i++)
-                if (!ByteDBTableConstrains.TypeDefinitions.ContainsKey(columnTypes[i]))
-                    throw new Exception();
+            sb.AppendLine($"<c>{string.Join($"{ValueSeparatorChar}", columns)}");
+            sb.AppendLine($"{string.Join($"{ValueSeparatorChar}", columnTypes)}");
+            sb.AppendLine($"{string.Join($"{ValueSeparatorChar}", columnConstraints.Select(c => string.Join($"{ConstrainSeparatorChar}", c)))}");
 
-            sb.AppendLine($"<c>{string.Join(":", columns)}");
-            sb.AppendLine($"<t>{string.Join(":", columnTypes)}");
-
+            using (var fs = File.Create(path)) { }
             File.WriteAllText(path, sb.ToString());
 
             return Load(path);
         }
 
-        /// <summary>
-        /// Merges column names and values into a list of key-value pairs.
-        /// </summary>
-        /// <param name="table">The table containing column names.</param>
-        /// <param name="values">The values to be merged with the columns.</param>
-        /// <returns>A list of key-value pairs representing columns and their corresponding values.</returns>
-        private static string[] MergeValuesAndColumns(BDBTable table, params string[] values)
+        public bool ValidateValues(string[] values)
         {
-            List<string> result = new List<string>();
-
-            for (int i = 0; i < table.Columns.Count; i++)
+            for (int i = 0; i < values.Length; i++)
             {
-                if (ByteDBTableConstrains.Validate(values[i], table.ColumnsTypes[i]))
-                    result.Add(values[i]);
+                if (Columns[i].IsUnique && !IsUnique(values[i]))
+                    return false;
+                if (!Columns[i].IsNullable && IsNull(values[i]))
+                    return false;
             }
 
-            return result.ToArray();
+            return true;
+        }
+        public bool ValidateValue(string columnName, string value)
+        {
+            var column = Columns.Find(c => c.Name == columnName);
+
+            if (column.IsUnique && !IsUnique(value))
+                return false;
+            if (!column.IsNullable && IsNull(value))
+                return false;
+        
+            return true;
+        }
+
+        private bool IsUnique(string value)
+        {
+            foreach (var entry in Entries)
+            {
+                if (entry.Values.Contains(value))
+                    return false;
+            }
+
+            return true;
+        }
+        private bool IsNull(string value)
+        {
+            return string.IsNullOrEmpty(value);
         }
 
         //
@@ -298,7 +329,6 @@ namespace ByteDBServer.Core.Misc.BDB
                 entry?.Dispose();
 
             Columns.Clear();
-            ColumnsTypes.Clear();
             Entries.Clear();
 
             _disposed = true;

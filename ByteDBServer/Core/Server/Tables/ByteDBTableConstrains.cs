@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace ByteDBServer.Core.Server.Tables
 {
-    public static class ByteDBTableConstrains
+    public static class ByteDBTableConstraints
     {
         public struct TypeInfo 
         {
@@ -18,7 +19,22 @@ namespace ByteDBServer.Core.Server.Tables
                 SystemType = systemType;
             }
         }
-        
+        public struct ConstrainInfo
+        {
+            public bool IsUnique { get; set; }
+            public bool IsNotNull { get; set; }
+            public bool HasDefault { get; set; }
+            public object DefaultValue { get; set; }
+
+            public ConstrainInfo(bool isUnique = false, bool isNotNull = false, bool hasDefault = false, object defaultValue = null)
+            {
+                IsUnique = isUnique;
+                IsNotNull = isNotNull;
+                HasDefault = hasDefault;
+                DefaultValue = defaultValue;
+            }
+        }
+
         public static readonly Dictionary<string, TypeInfo> TypeDefinitions = new Dictionary<string, TypeInfo>
         {
             { "Byte", new TypeInfo(byte.MaxValue, byte.MinValue, typeof(Byte)) },
@@ -38,39 +54,35 @@ namespace ByteDBServer.Core.Server.Tables
             { "MediumText", new TypeInfo(65535, 0, typeof(string)) },
             { "LongText", new TypeInfo(16777215, 0, typeof(string)) },
         };
-
-        public static bool Validate(string value, string type)
+        public static readonly Dictionary<string, ConstrainInfo> Constraints = new Dictionary<string, ConstrainInfo>()
         {
-            if (!TypeDefinitions.ContainsKey(type))
-                return false;
+            { "NOTNULL", new ConstrainInfo(isNotNull: true, defaultValue: false) },
+            { "UNIQUE", new ConstrainInfo(isUnique: true, defaultValue: false) },
+        };
 
-            TypeInfo typeInfo = TypeDefinitions[type];
+        public static bool ValidateConstraints(IEnumerable<string> constraints)
+        {
+            return constraints.All(Constraints.ContainsKey);
+        }
 
-            if (typeInfo.SystemType == typeof(string))
-            {
-                int maxLength = (int)typeInfo.MaxValue;
+        public static bool ValidateConstraints(IEnumerable<IEnumerable<string>> constraints)
+        {
+            return constraints.All(innerList => innerList.All(Constraints.ContainsKey));
+        }
 
-                if (value.Length > maxLength)
-                    return false;
-            }
-            else
-            {
-                try
-                {
-                    object parsedValue = Convert.ChangeType(value, typeInfo.SystemType);
+        public static bool ValidateTypes(IEnumerable<string> types)
+        {
+            return types.All(TypeDefinitions.ContainsKey);
+        }
 
-                    if (parsedValue is IComparable comparableValue)
-                    {
-                        if (typeInfo.MinValue is IComparable min && typeInfo.MaxValue is IComparable max)
-                        {
-                            return comparableValue.CompareTo(min) >= 0 && comparableValue.CompareTo(max) <= 0;
-                        }
-                    }
-                }
-                catch { return false; }
-            }
+        public static bool ValidateConstraint(string constraint)
+        {
+            return Constraints.ContainsKey(constraint);
+        }
 
-            return true;
+        public static bool ValidateType(string type)
+        {
+            return TypeDefinitions.ContainsKey(type);
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
@@ -55,7 +55,7 @@ namespace ByteDBServer.Core.Misc.BDB
         public string GetValue(string columnName)
         {
             for (int i = 0; i < Table.Columns.Count; i++)
-                if (Table.Columns[i] == columnName)
+                if (Table.Columns[i].Name == columnName)
                     return Values[i];
 
             return null;
@@ -63,14 +63,8 @@ namespace ByteDBServer.Core.Misc.BDB
         public void UpdateValue(string columnName, string newValue)
         {
             for (int i = 0; i < Table.Columns.Count; i++)
-                if (Table.Columns[i] == columnName)
+                if (Table.Columns[i].Name == columnName)
                     Values[i] = newValue;
-        }
-        public void RemoveValue(string columnName)
-        {
-            for (int i = 0; i < Table.Columns.Count; i++)
-                if (Table.Columns[0] == columnName)
-                    Values.RemoveAt(i);
         }
 
         //

@@ -43,7 +43,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                     int qIndex = 0;
                     char qChar = '0';
 
-                    while (qChar != ByteDBServerInstance.QueryEndingChar && qIndex < queryString.Length) // QueryEndingChar
+                    while (qIndex < queryString.Length)
                     {
                         // Check for keyword
                         foreach (string word in ByteDBServerInstance.QueryKeywords)
@@ -89,6 +89,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                             {
                                 StringBuilder str = new StringBuilder();
                                 ByteDBQueryFunction? func = null;
+                                ByteDBArgumentCollection subargs = new ByteDBArgumentCollection();
 
                                 while (qChar != ByteDBServerInstance.QueryArgumentDivider && qChar != ByteDBServerInstance.QueryEndArgumentChar && qIndex < queryString.Length)
                                 {
@@ -99,6 +100,11 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                                             Operator = qChar,
                                             Arg1 = str.ToString().Trim()
                                         };
+                                        str.Clear();
+                                    }
+                                    else if (qChar == ByteDBServerInstance.QuerySubArgumentDivider)
+                                    {
+                                        subargs.Add(str.ToString().Trim());
                                         str.Clear();
                                     }
                                     else
@@ -125,6 +131,9 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                                 {
                                     qChar = queryString[qIndex++];
                                 }
+
+                                subargs.Add(str.ToString().Trim());
+                                args.SubArguments.Add(subargs);
                             }
 
                             queryArguments.Add(args);

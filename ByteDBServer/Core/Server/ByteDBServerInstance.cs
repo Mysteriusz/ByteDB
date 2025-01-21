@@ -21,10 +21,10 @@ namespace ByteDBServer.Core.Server
         public const string DefaultWelcomeMessage = "WelcomeToByteDB";
 
         // Query Settings
-        public const char QueryEndingChar = ';';
         public const char QueryStartArgumentChar = '(';
         public const char QueryEndArgumentChar = ')';
         public const char QueryArgumentDivider = ',';
+        public const char QuerySubArgumentDivider = ':';
         public const char QueryValueChar = '"';
 
         public static readonly HashSet<char> QueryOperators = new HashSet<char>()

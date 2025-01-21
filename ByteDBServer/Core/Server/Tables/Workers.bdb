@@ -1,5 +1,6 @@
 ﻿<c>Index:Name
-<t>Int32:SmallText
+Int32:SmallText
+NOTNULL,UNIQUE:NOTNULL
 <e>1:MAIN
 <e>2:Manager
 <e>3:Worker

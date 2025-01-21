@@ -53,6 +53,7 @@
     <Compile Include="Core\Authentication\Models\ByteDBUser.cs" />
     <Compile Include="Core\Config\ByteDBServerConfig.cs" />
     <Compile Include="Core\DataTypes\Models\DataType.cs" />
+    <Compile Include="Core\Misc\BDB\BDBColumn.cs" />
     <Compile Include="Core\Misc\BDB\BDBEntry.cs" />
     <Compile Include="Core\Misc\BDB\BDBTable.cs" />
     <Compile Include="Core\Misc\Logs\ByteDBServerLogger.cs" />

@@ -284,7 +284,7 @@ namespace ByteDBServer.Core.Server.Networking.Querying
                 string tableName = query.Values[0];
                 string tablePath = Path.Combine(ByteDBServerInstance.TablesPath, tableName + ByteDBServerInstance.TablesExtension);
 
-                await CreateTable(tablePath, query.ArgumentCollections[0], query.ArgumentCollections[1]);
+                await CreateTable(tablePath, query.ArgumentCollections[0], query.ArgumentCollections[1], query.ArgumentCollections[2]);
             }
             catch
             {
@@ -298,9 +298,9 @@ namespace ByteDBServer.Core.Server.Networking.Querying
         /// <param name="tablePath">Full path to the table.</param>
         /// <param name="columns">Column names of the table.</param>
         /// <param name="columnTypes">Column types of the table.</param>
-        public static async Task CreateTable(string tablePath, ByteDBArgumentCollection columns, ByteDBArgumentCollection columnTypes)
+        public static async Task CreateTable(string tablePath, ByteDBArgumentCollection columns, ByteDBArgumentCollection columnTypes, ByteDBArgumentCollection columnConstraints)
         {
-            await Task.Run(() => ByteDBServerInstance.Tables.Add(tablePath, new ByteDBTable(BDBTable.Create(tablePath, columns.ToArray(), columnTypes.ToArray()), tablePath)));
+            await Task.Run(() => ByteDBServerInstance.Tables.Add(tablePath, new ByteDBTable(BDBTable.Create(tablePath, columns.ToArray(), columnTypes.ToArray(), columnConstraints.SubArguments.Select(a => a.ToArray()).ToArray()), tablePath)));
         }
 
 

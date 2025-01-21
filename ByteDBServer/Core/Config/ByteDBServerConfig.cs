@@ -92,9 +92,10 @@ namespace ByteDBServer.Core.Config
                 {
                     DataTables.Add(file, new ByteDBTable(BDBTable.Load(Path.Combine(TablesPath, file)), Path.Combine(TablesPath, file)));
                 }
-                catch
+                catch (Exception ex)
                 {
                     ByteDBServerLogger.WriteToFile("File: " + file + " Failed to load.", LogType.ERROR);
+                    ByteDBServerLogger.WriteExceptionToFile(ex);
                     continue;
                 }
             }

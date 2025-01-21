@@ -7,7 +7,6 @@ using System.Threading;
 using System.Linq;
 using System.IO;
 using System;
-using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Server.Databases
 {
@@ -66,7 +65,7 @@ namespace ByteDBServer.Core.Server.Databases
                 for (int rIndex = 0; rIndex < columns.Count; rIndex++)
                 {
                     // Find the column index in the table columns
-                    int columnIndex = Table.Columns.IndexOf(columns[rIndex]);
+                    int columnIndex = Table.Columns.Select(c => c.Name).ToList().IndexOf(columns[rIndex]);
 
                     // If the column exists in the table, add the corresponding value at the correct position
                     if (columnIndex >= 0)
@@ -107,7 +106,7 @@ namespace ByteDBServer.Core.Server.Databases
                 for (int rIndex = 0; rIndex < columns.Count; rIndex++)
                 {
                     // Find the column index in the table columns
-                    int columnIndex = Table.Columns.IndexOf(columns[rIndex]);
+                    int columnIndex = Table.Columns.Select(c => c.Name).ToList().IndexOf(columns[rIndex]);
 
                     // If the column exists in the table, add the corresponding value at the correct position
                     if (columnIndex >= 0)
@@ -319,8 +318,7 @@ namespace ByteDBServer.Core.Server.Databases
                     if (!ConditionsMet(entryConditions, entry))
                         continue;
 
-                    for (int i = 0; i < columns.Count; i++)
-                        entry.UpdateValue(columns[i], values[i]);
+                    Table.UpdateEntry(entry.Index, columns.ToArray(), values.ToArray());
                 }
 
                 // Save the file
@@ -356,8 +354,7 @@ namespace ByteDBServer.Core.Server.Databases
                     if (!ConditionsMet(entryConditions, entry))
                         continue;
 
-                    for (int i = 0; i < columns.Count; i++)
-                        entry.UpdateValue(columns[i], values[i]);
+                    Table.UpdateEntry(entry.Index, columns.ToArray(), values.ToArray());
                 }
 
                 // Save the file
@@ -447,7 +444,7 @@ namespace ByteDBServer.Core.Server.Databases
         /// </summary>
         /// <param name="columnName">Column name.</param>
         /// <returns>True if column is present; if not False.</returns>
-        public bool HasColumn(string columnName) => Table.Columns.Contains(columnName);
+        public bool HasColumn(string columnName) => Table.Columns.Select(c => c.Name).Contains(columnName);
 
         /// <summary>
         /// Check if any of entries <paramref name="columnName"/> has a value of <paramref name="value"/>.

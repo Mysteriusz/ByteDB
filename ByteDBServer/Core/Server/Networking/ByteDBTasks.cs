@@ -2,10 +2,10 @@
 using ByteDBServer.Core.Server.Networking.Querying;
 using ByteDBServer.Core.Server.Networking.Models;
 using ByteDBServer.Core.Server.Protocols;
+using ByteDBServer.Core.Server.Packets;
 using ByteDBServer.Core.Misc.Logs;
 using System.Threading.Tasks;
 using System;
-using ByteDBServer.Core.Server.Packets;
 
 namespace ByteDBServer.Core.Server.Networking
 {
