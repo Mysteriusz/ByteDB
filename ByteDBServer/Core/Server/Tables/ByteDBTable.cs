@@ -367,6 +367,35 @@ namespace ByteDBServer.Core.Server.Databases
             finally { _fileLock.Release(); }
         }
 
+        /// <summary>
+        /// Deletes a table from server.
+        /// </summary>
+        /// <param name="conditions">Conditions that table have to meet.</param>
+        public void DeleteTable(List<ByteDBQueryFunction> conditions)
+        {
+            _fileLock.Wait();
+
+            try
+            {
+                if (!ConditionsMet(conditions))
+                    throw new ByteDBQueryConditionException(ByteDBQueryConditionException.DefaultMessage);
+
+                ByteDBServerInstance.Tables.Remove(TableFullPath);
+                File.Delete(TableFullPath);
+
+                Dispose();
+            }
+            catch
+            {
+                throw;
+            }
+            finally { _fileLock.Release(); }
+        }
+
+        /// <summary>
+        /// Deletes a table from server.
+        /// </summary>
+        /// <param name="conditions">Conditions that table have to meet.</param>
         public async Task DeleteTableAsync(List<ByteDBQueryFunction> conditions)
         {
             await _fileLock.WaitAsync();

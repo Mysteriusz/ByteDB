@@ -274,6 +274,11 @@ namespace ByteDBServer.Core.Misc.BDB
             return Load(path);
         }
 
+        /// <summary>
+        /// Validates values to current <see cref="Columns"/> list.
+        /// </summary>
+        /// <param name="values">Values to validate.</param>
+        /// <returns>True if validation is correct; False if not.</returns>
         public bool ValidateValues(string[] values)
         {
             for (int i = 0; i < values.Length; i++)
@@ -286,6 +291,13 @@ namespace ByteDBServer.Core.Misc.BDB
 
             return true;
         }
+
+        /// <summary>
+        /// Validates value to current the columnName column.
+        /// </summary>
+        /// <param name="value">Value to validate.</param>
+        /// <param name="columnName">Name of the column.</param>
+        /// <returns>True if validation is correct; False if not.</returns>
         public bool ValidateValue(string columnName, string value)
         {
             var column = Columns.Find(c => c.Name == columnName);
@@ -298,6 +310,11 @@ namespace ByteDBServer.Core.Misc.BDB
             return true;
         }
 
+        /// <summary>
+        /// Checks if value is unique to table.
+        /// </summary>
+        /// <param name="value">Value to check.</param>
+        /// <returns>True if it`s unique; False if not.</returns>
         private bool IsUnique(string value)
         {
             foreach (var entry in Entries)
@@ -308,6 +325,12 @@ namespace ByteDBServer.Core.Misc.BDB
 
             return true;
         }
+
+        /// <summary>
+        /// Checks if value is null or empty.
+        /// </summary>
+        /// <param name="value">Value to check.</param>
+        /// <returns>True if it`s unique; False if not.</returns>
         private bool IsNull(string value)
         {
             return string.IsNullOrEmpty(value);

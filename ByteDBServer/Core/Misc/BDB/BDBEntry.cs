@@ -3,6 +3,9 @@ using System;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
+    /// <summary>
+    /// Represents an entry in the BDB system, including its properties and constraints.
+    /// </summary> 
     public class BDBEntry : IDisposable
     {
         //
