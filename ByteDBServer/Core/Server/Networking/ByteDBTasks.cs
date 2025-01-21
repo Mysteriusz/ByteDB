@@ -42,7 +42,12 @@ namespace ByteDBServer.Core.Server.Networking
                         // Remove the client and their data from the active client list
                         ByteDBServerListener.ConnectedClients.Remove(client);
 
-                        client.UserData.LoggedCount--;
+                        if (client.UserData.LoggedCount > 0)
+                            client.UserData.LoggedCount--;
+
+                        ByteDBServerLogger.WriteToFile(client.UserData.Logged.ToString());
+                        ByteDBServerLogger.WriteToFile(client.UserData.LoggedCount.ToString());
+                        ByteDBServerLogger.WriteToFile(client.UserData.Username.ToString());
                     }
                 }
                 catch (Exception ex)

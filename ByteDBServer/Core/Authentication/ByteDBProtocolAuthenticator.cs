@@ -2,6 +2,7 @@
 using System.Linq;
 using System;
 using ByteDBServer.Core.Server;
+using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Authentication
 {
@@ -34,6 +35,7 @@ namespace ByteDBServer.Core.Authentication
             byte[] expected = ByteDBAuthenticator.Hash(outputUser.PasswordHash.Concat(Salt).ToArray());
 
             bool isAuthenticated = scramble.SequenceEqual(expected);
+
 
             if (isAuthenticated)
                 outputUser.LoggedCount++;

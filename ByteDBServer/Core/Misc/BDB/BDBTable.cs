@@ -5,7 +5,6 @@ using System.Text;
 using System.Data;
 using System.IO;
 using System;
-using ByteDBServer.Core.Misc.Logs;
 
 namespace ByteDBServer.Core.Misc.BDB
 {
@@ -260,7 +259,7 @@ namespace ByteDBServer.Core.Misc.BDB
             if (columnConstraints.Length != columns.Length || columnTypes.Length != columns.Length)
                 throw new ByteDBQueryException("INCORRECT ARGUMENT COUNT");
 
-            if (!ByteDBTableConstraints.ValidateConstraints(columnConstraints) || ByteDBTableConstraints.ValidateTypes(columnTypes))
+            if (!ByteDBTableConstraints.ValidateConstraints(columnConstraints) || !ByteDBTableConstraints.ValidateTypes(columnTypes))
                 throw new ByteDBQueryException("INCORRECT CONSTRAINS OR TYPES");
 
             StringBuilder sb = new StringBuilder();
